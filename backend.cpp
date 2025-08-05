@@ -55,14 +55,16 @@ Backend::Backend(QObject *parent)
 
 void Backend::getNextWord(const QString &userText)
 {
-    if(last_id>=max_id)
-        last_id=min_id;
 
-    last_id++;
 
     // qInfo() <<"debuggg"<< last_word << "" << last_word[0];
     if (last_word.size() > 0 && userText == last_word[0])
     {
+        if(last_id>=max_id)
+            last_id=min_id;
+
+        last_id++;
+
         wordIs();
         // qInfo() << "usertext= " << userText;
         // qInfo() << "last_wrod=" << last_word;
