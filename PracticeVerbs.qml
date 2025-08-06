@@ -35,7 +35,7 @@ Page
                 {
                     id:v_verb
                     text:"v_verb"
-                    font.pixelSize: 45
+                    font.pixelSize: 30
                     color:"white"
                     horizontalAlignment: Text.AlignHCenter  // Center text horizontally
                     Layout.fillWidth: true                   // Fill the available width
@@ -46,7 +46,7 @@ Page
                 {
                     id:v_past
                     text:"v_past"
-                    font.pixelSize: 25
+                    font.pixelSize: 30
                     color:"white"
                     horizontalAlignment: Text.AlignHCenter  // Center text horizontally
                     Layout.fillWidth: true                   // Fill the available width
@@ -56,7 +56,7 @@ Page
                 {
                     id:v_past_perfect
                     text:"v_past_perfect"
-                    font.pixelSize: 25
+                    font.pixelSize: 30
                     color:"white"
                     horizontalAlignment: Text.AlignHCenter  // Center text horizontally
                     Layout.fillWidth: true                   // Fill the available width
@@ -93,7 +93,9 @@ Page
                                 {
                                     passedState++;
                                     text_input.clear()
-                                    console.log("ok next",passedState)
+                                    v_verb.font.bold=false
+                                    v_past.font.bold=true;
+                                    v_past_perfect.font.bold=false;
                                 }
                             }break;
                             case 1:
@@ -102,7 +104,9 @@ Page
                                 {
                                     passedState++;
                                     text_input.clear()
-                                    console.log("ok next",passedState)
+                                    v_verb.font.bold=false
+                                    v_past.font.bold=false;
+                                    v_past_perfect.font.bold=true;
                                 }
                             }break;
                             case 2:
@@ -131,13 +135,16 @@ Page
         target: backend
         function onWordReady(word)
         {
-            console.log("received words:"+word)
             v_verb.text = word[0]
             v_past.text = word[1]
             v_past_perfect.text = word[2]
             text_input.clear()
             passedState=0;
             currentIndex++;
+
+            v_verb.font.bold=true
+            v_past.font.bold=false;
+            v_past_perfect.font.bold=false;
         }
     }
     Component.onCompleted:
