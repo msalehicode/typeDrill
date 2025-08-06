@@ -11,7 +11,7 @@ void Backend::wordIs()
     }
     else if(currentTableName[0]=='v')
     {
-        last_word << m_db.searchTable(currentTableName, "v_id", QString::number(last_id), "v_past");
+        last_word << m_db.searchTable(currentTableName, "v_id", QString::number(last_id), "v_verb");
         last_word << m_db.searchTable(currentTableName, "v_id", QString::number(last_id), "v_past");
         last_word << m_db.searchTable(currentTableName, "v_id", QString::number(last_id), "v_past_perfect");
     }
@@ -75,12 +75,40 @@ void Backend::getNextWord(const QString &userText)
         qInfo() << "error"; //incorrect value entered.
 }
 
-void Backend::getTables()
+void Backend::getTables(const QString& tableType)
 {
     //fetch table from db
     QVariantList tables = m_db.getAllRowsAsVariantList("user_tables");
-    qInfo() << tables;
-    emit tablesList(tables);//return result
+
+    if (tableType == "verbs")
+    {
+        QVariantList filteredTables;
+        for (const QVariant& item : tables)
+        {
+            QVariantMap tableMap = item.toMap();
+            QString tableName = tableMap.value("t_title").toString();
+
+            if (tableName.startsWith("v_"))
+            {
+                filteredTables.append(item);
+            }
+        }
+        qInfo() << filteredTables;
+        emit tablesList(filteredTables);
+        return;
+    }
+    else if (tableType == "all")
+    {
+        qInfo() << tables;
+        emit tablesList(tables);
+        return;
+    }
+    else
+    {
+        qWarning() << "Invalid tableType provided:" << tableType;
+        emit tablesList(tables); // Or handle error differently
+        return;
+    }
 }
 
 void Backend::createTable(const QString &tableName, const QString &tableType)

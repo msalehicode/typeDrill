@@ -72,7 +72,10 @@ Page
     Component.onCompleted:
     {
         //first time fetch data from backend
-        backend.getTables()
+        if(routeTarget==="PracticeVerbs.qml")
+            backend.getTables("verbs")
+        else
+            backend.getTables("all")
     }
 
 }

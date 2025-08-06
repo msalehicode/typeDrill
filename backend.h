@@ -15,7 +15,7 @@ class Backend : public QObject
 public:
     explicit Backend(QObject *parent = nullptr);
     Q_INVOKABLE void getNextWord(const QString& userText); // Call from QML
-    Q_INVOKABLE void getTables(); // Call from QML
+    Q_INVOKABLE void getTables(const QString& tableType); // Call from QML
     Q_INVOKABLE void createTable(const QString& tableName, const QString& tableType); // Call from QML
     Q_INVOKABLE void switchTable(const QString& tableName,const QString& tableId); // Call from QML
     Q_INVOKABLE void whatIsCurrentTableType(); // Call from QML

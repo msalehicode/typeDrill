@@ -21,6 +21,13 @@ Page
                 }
             }
             Button{
+                text:"practice verb"
+                onClicked:
+                {
+                    mainStackView.push("PickTablePage.qml",  { routeTarget: "PracticeVerbs.qml"})
+                }
+            }
+            Button{
                 text:"add word"
                 onClicked:
                 {
