@@ -6,7 +6,7 @@ import QtQuick.Controls.Material
 Page
 {
     anchors.fill: parent
-
+    property int currentIndex: 0;
     Rectangle
     {
         color:"#222424"
@@ -15,6 +15,14 @@ Page
         {
             id:itemContent
             anchors.fill: parent
+            Label
+            {
+                text:currentIndex
+                font.pixelSize: 25
+                color:"white"
+                anchors.top: parent.top
+                anchors.left: parent.left
+            }
 
             ColumnLayout
             {
@@ -89,16 +97,19 @@ Page
             w_meaning.text = word[1]
             w_example.text = word[2]
             text_input.clear()
+            currentIndex++;
         }
     }
     Component.onCompleted:
     {
         //to fetch first word
         backend.getNextWord("")
+        currentIndex=0;
     }
     Component.onDestruction:
     {
         backend.resetPractice();
+        currentIndex=0;
         console.log("quiting the practice");
     }
 }
