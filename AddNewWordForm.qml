@@ -137,8 +137,11 @@ Page
             // console.log("result submit/add item to the table: "+res)
             if (res !== "error")
             {
-                mainStackView.pop();
-                mainStackView.pop();
+                firstInput.text=""
+                secondInput.text=""
+                thirdInput.text=""
+                // mainStackView.pop();
+                // mainStackView.pop();
             }
 
 
