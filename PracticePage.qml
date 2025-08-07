@@ -22,6 +22,12 @@ Page
                 color:"white"
                 anchors.top: parent.top
                 anchors.left: parent.left
+                anchors.topMargin: 25
+                anchors.leftMargin: 25
+            }
+            PracticeTimeComponent
+            {
+
             }
 
             ColumnLayout

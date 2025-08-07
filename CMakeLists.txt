@@ -24,6 +24,7 @@ qt_add_qml_module(appTypeDrill
     QML_FILES PracticePage.qml
     QML_FILES PickTablePage.qml
     QML_FILES PracticeVerbs.qml
+    QML_FILES PracticeTimeComponent.qml
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
