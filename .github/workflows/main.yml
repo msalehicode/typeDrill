@@ -3,9 +3,9 @@ name: Build APK
 on:
   push:
     branches:
-      - main
+      - qml-main        # Your default branch name here
     tags:
-      - 'v*'
+      - 'v*'            # Trigger on tags starting with "v"
   pull_request:
 
 jobs:
