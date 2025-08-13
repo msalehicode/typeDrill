@@ -42,7 +42,7 @@ jobs:
       - name: Download Qt (with Android arm64)
         run: |
           python3 -m pip install --user aqtinstall
-          python3 -m aqt install ${{ env.QT_VERSION }} linux android android_arm64 -O $HOME/Qt
+          python3 -m aqt install-qt ${{ env.QT_VERSION }} linux android android_arm64 -O $HOME/Qt
 
       - name: Configure CMake for Android
         run: |
