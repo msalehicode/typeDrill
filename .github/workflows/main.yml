@@ -52,13 +52,11 @@ jobs:
             qt-${{ env.QT_VERSION }}-${{ runner.os }}
             qt-${{ runner.os }}
 
-      - name: Install Qt desktop and Android if cache missed
+      - name: Download Qt desktop and android
         if: steps.qt-cache.outputs.cache-hit != 'true'
         run: |
           python3 -m pip install --user aqtinstall
-          # Install desktop Qt first (needed by android Qt)
           python3 -m aqt install-qt linux desktop ${{ env.QT_VERSION }} gcc_64 -O $HOME/Qt
-          # Install Android Qt (arm64)
           python3 -m aqt install-qt linux android ${{ env.QT_VERSION }} android_arm64 -O $HOME/Qt
 
       - name: Configure CMake for Android
@@ -82,7 +80,7 @@ jobs:
         run: |
           cd build
           $HOME/Qt/${{ env.QT_VERSION }}/android_arm64/bin/androiddeployqt \
-            --input build/android-libappTypeDrill.so-deployment-settings.json \
+            --input android-libappTypeDrill.so-deployment-settings.json \
             --output ../apk --release --jdk $JAVA_HOME
 
       - name: Upload APK artifact
