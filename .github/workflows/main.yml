@@ -1,0 +1,65 @@
+name: Build APK
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+
+    env:
+      QT_VERSION: '6.2.4'       # Adjust to your Qt version
+      ANDROID_SDK_ROOT: ${{ github.workspace }}/android-sdk
+      ANDROID_NDK_ROOT: ${{ github.workspace }}/android-ndk
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Java JDK 11
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 11
+
+      - name: Install Android SDK and NDK
+        uses: android-actions/setup-android@v2
+        with:
+          api-level: 33
+          ndk-version: 25.1.8937393
+          components: platform-tools,build-tools;33.0.2
+
+      - name: Download Qt (with Android)
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: ${{ env.QT_VERSION }}
+          host: linux
+          target: android_arm64  # Adjust target for your needs (android_armv7, android_x86, etc.)
+
+      - name: Configure CMake for Android
+        run: |
+          mkdir build
+          cd build
+          cmake .. \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_TOOLCHAIN_FILE=$HOME/Qt/${{ env.QT_VERSION }}/android_arm64/android.toolchain.cmake \
+            -DQT_ANDROID_PACKAGE_SOURCE_DIR=$PWD/../android  # if you have android folder with manifest, etc.
+
+      - name: Build project
+        run: |
+          cd build
+          cmake --build . --config Release
+
+      - name: Deploy APK
+        run: |
+          cd build
+          $HOME/Qt/${{ env.QT_VERSION }}/android_arm64/bin/androiddeployqt --input build/android-libappTypeDrill.so-deployment-settings.json --output ../apk --release --jdk $JAVA_HOME
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: TypeDrill-APK
+          path: apk/*.apk
