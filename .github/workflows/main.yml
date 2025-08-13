@@ -55,7 +55,8 @@ jobs:
         if: steps.qt-cache.outputs.cache-hit != 'true'
         run: |
           python3 -m pip install --user aqtinstall
-          python3 -m aqt install-qt linux android_arm64 ${{ env.QT_VERSION }} -O $HOME/Qt
+          export PATH=$HOME/.local/bin:$PATH
+          python3 -m aqt install-qt linux android ${{ env.QT_VERSION }} android_arm64 -O $HOME/Qt
 
       - name: Configure CMake for Android
         run: |
