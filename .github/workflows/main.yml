@@ -16,6 +16,7 @@ jobs:
       QT_VERSION: '6.2.4'
       ANDROID_SDK_ROOT: ${{ github.workspace }}/android-sdk
       ANDROID_NDK_ROOT: ${{ github.workspace }}/android-ndk
+      HOME: ${{ github.workspace }}
 
     steps:
       - name: Checkout code
@@ -34,45 +35,35 @@ jobs:
           ndk-version: 25.1.8937393
           components: platform-tools,build-tools;33.0.2
 
+      - name: Setup Python 3
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
 
+      - name: Cache Qt
+        uses: actions/cache@v3
+        id: qt-cache
+        with:
+          path: ${{ env.HOME }}/Qt
+          key: qt-${{ env.QT_VERSION }}-${{ runner.os }}-android64
+          restore-keys: |
+            qt-${{ env.QT_VERSION }}-${{ runner.os }}-android64
+            qt-${{ env.QT_VERSION }}-${{ runner.os }}
+            qt-${{ runner.os }}
 
-- name: Setup Python 3
-  uses: actions/setup-python@v4
-  with:
-    python-version: '3.x'
-
-- name: Cache Qt
-  uses: actions/cache@v3
-  id: qt-cache
-  with:
-    path: ${{ env.HOME }}/Qt
-    key: qt-${{ env.QT_VERSION }}-${{ runner.os }}-android64
-    restore-keys: |
-      qt-${{ env.QT_VERSION }}-${{ runner.os }}-android64
-      qt-${{ env.QT_VERSION }}-${{ runner.os }}
-      qt-${{ runner.os }}
-
-- name: Download Qt (with Android arm64)
-  if: steps.qt-cache.outputs.cache-hit != 'true'
-  run: |
-    python3 -m pip install --user aqtinstall
-    python3 -m aqt install-qt linux android android64 ${{ env.QT_VERSION }} -O $HOME/Qt
-
-
-
-
-
-
-
-
+      - name: Download Qt (with Android arm64)
+        if: steps.qt-cache.outputs.cache-hit != 'true'
+        run: |
+          python3 -m pip install --user aqtinstall
+          python3 -m aqt install-qt linux android android64 ${{ env.QT_VERSION }} -O $HOME/Qt
 
       - name: Configure CMake for Android
         run: |
-          mkdir build
+          mkdir -p build
           cd build
           cmake .. \
             -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_TOOLCHAIN_FILE=$HOME/Qt/${{ env.QT_VERSION }}/android_arm64/android.toolchain.cmake \
+            -DCMAKE_TOOLCHAIN_FILE=$HOME/Qt/${{ env.QT_VERSION }}/android64/android.toolchain.cmake \
             -DQT_ANDROID_PACKAGE_SOURCE_DIR=$PWD/../android
 
       - name: Build project
@@ -86,7 +77,7 @@ jobs:
       - name: Deploy APK
         run: |
           cd build
-          $HOME/Qt/${{ env.QT_VERSION }}/android_arm64/bin/androiddeployqt --input build/android-libappTypeDrill.so-deployment-settings.json --output ../apk --release --jdk $JAVA_HOME
+          $HOME/Qt/${{ env.QT_VERSION }}/android64/bin/androiddeployqt --input build/android-libappTypeDrill.so-deployment-settings.json --output ../apk --release --jdk $JAVA_HOME
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
