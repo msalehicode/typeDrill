@@ -77,7 +77,7 @@ jobs:
                         --gradle
 
     - name: Upload APK
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: TypeDrill-APK
         path: build/apk/*.apk
