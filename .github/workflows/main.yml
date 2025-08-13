@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - 'v*'
   pull_request:
 
 jobs:
@@ -11,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      QT_VERSION: '6.2.4'       # Adjust to your Qt version
+      QT_VERSION: '6.2.4'
       ANDROID_SDK_ROOT: ${{ github.workspace }}/android-sdk
       ANDROID_NDK_ROOT: ${{ github.workspace }}/android-ndk
 
@@ -37,7 +39,7 @@ jobs:
         with:
           version: ${{ env.QT_VERSION }}
           host: linux
-          target: android_arm64  # Adjust target for your needs (android_armv7, android_x86, etc.)
+          target: android_arm64
 
       - name: Configure CMake for Android
         run: |
@@ -46,7 +48,7 @@ jobs:
           cmake .. \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_TOOLCHAIN_FILE=$HOME/Qt/${{ env.QT_VERSION }}/android_arm64/android.toolchain.cmake \
-            -DQT_ANDROID_PACKAGE_SOURCE_DIR=$PWD/../android  # if you have android folder with manifest, etc.
+            -DQT_ANDROID_PACKAGE_SOURCE_DIR=$PWD/../android
 
       - name: Build project
         run: |
