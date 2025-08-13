@@ -17,6 +17,7 @@ jobs:
       ANDROID_SDK_ROOT: ${{ github.workspace }}/android-sdk
       ANDROID_NDK_ROOT: ${{ github.workspace }}/android-ndk
       HOME: ${{ github.workspace }}
+      PATH: ${{ github.workspace }}/.local/bin:${{ env.PATH }}
 
     steps:
       - name: Checkout code
@@ -51,14 +52,13 @@ jobs:
             qt-${{ env.QT_VERSION }}-${{ runner.os }}
             qt-${{ runner.os }}
 
-      - name: Download Qt desktop and android
+      - name: Install Qt desktop and Android if cache missed
         if: steps.qt-cache.outputs.cache-hit != 'true'
         run: |
           python3 -m pip install --user aqtinstall
-          export PATH=$HOME/.local/bin:$PATH
-          # Install desktop Qt first - required for android Qt
+          # Install desktop Qt first (needed by android Qt)
           python3 -m aqt install-qt linux desktop ${{ env.QT_VERSION }} gcc_64 -O $HOME/Qt
-          # Then install android Qt for arm64 architecture
+          # Install Android Qt (arm64)
           python3 -m aqt install-qt linux android ${{ env.QT_VERSION }} android_arm64 -O $HOME/Qt
 
       - name: Configure CMake for Android
@@ -81,7 +81,9 @@ jobs:
       - name: Deploy APK
         run: |
           cd build
-          $HOME/Qt/${{ env.QT_VERSION }}/android_arm64/bin/androiddeployqt --input build/android-libappTypeDrill.so-deployment-settings.json --output ../apk --release --jdk $JAVA_HOME
+          $HOME/Qt/${{ env.QT_VERSION }}/android_arm64/bin/androiddeployqt \
+            --input build/android-libappTypeDrill.so-deployment-settings.json \
+            --output ../apk --release --jdk $JAVA_HOME
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
