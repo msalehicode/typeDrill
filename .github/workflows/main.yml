@@ -34,27 +34,37 @@ jobs:
           ndk-version: 25.1.8937393
           components: platform-tools,build-tools;33.0.2
 
-      - name: Setup Python 3
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
 
-      - name: Cache Qt
-        uses: actions/cache@v3
-        id: qt-cache
-        with:
-          path: ${{ env.HOME }}/Qt
-          key: qt-${{ env.QT_VERSION }}-${{ runner.os }}-android-arm64
-          restore-keys: |
-            qt-${{ env.QT_VERSION }}-${{ runner.os }}-android-arm64
-            qt-${{ env.QT_VERSION }}-${{ runner.os }}
-            qt-${{ runner.os }}
 
-      - name: Download Qt (with Android arm64)
-        if: steps.qt-cache.outputs.cache-hit != 'true'
-        run: |
-          python3 -m pip install --user aqtinstall
-          python3 -m aqt install-qt linux android android_arm64 ${{ env.QT_VERSION }} -O $HOME/Qt
+- name: Setup Python 3
+  uses: actions/setup-python@v4
+  with:
+    python-version: '3.x'
+
+- name: Cache Qt
+  uses: actions/cache@v3
+  id: qt-cache
+  with:
+    path: ${{ env.HOME }}/Qt
+    key: qt-${{ env.QT_VERSION }}-${{ runner.os }}-android64
+    restore-keys: |
+      qt-${{ env.QT_VERSION }}-${{ runner.os }}-android64
+      qt-${{ env.QT_VERSION }}-${{ runner.os }}
+      qt-${{ runner.os }}
+
+- name: Download Qt (with Android arm64)
+  if: steps.qt-cache.outputs.cache-hit != 'true'
+  run: |
+    python3 -m pip install --user aqtinstall
+    python3 -m aqt install-qt linux android android64 ${{ env.QT_VERSION }} -O $HOME/Qt
+
+
+
+
+
+
+
+
 
       - name: Configure CMake for Android
         run: |
