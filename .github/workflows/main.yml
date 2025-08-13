@@ -34,12 +34,15 @@ jobs:
           ndk-version: 25.1.8937393
           components: platform-tools,build-tools;33.0.2
 
-      - name: Download Qt (with Android)
-        uses: jurplel/install-qt-action@v2
+      - name: Setup Python 3
+        uses: actions/setup-python@v4
         with:
-          version: ${{ env.QT_VERSION }}
-          host: linux
-          target: android_arm64
+          python-version: '3.x'
+
+      - name: Download Qt (with Android arm64)
+        run: |
+          python3 -m pip install --user aqtinstall
+          python3 -m aqt install ${{ env.QT_VERSION }} linux android android_arm64 -O $HOME/Qt
 
       - name: Configure CMake for Android
         run: |
@@ -54,6 +57,9 @@ jobs:
         run: |
           cd build
           cmake --build . --config Release
+
+      - name: List build directory contents
+        run: ls -l build
 
       - name: Deploy APK
         run: |
