@@ -51,11 +51,14 @@ jobs:
             qt-${{ env.QT_VERSION }}-${{ runner.os }}
             qt-${{ runner.os }}
 
-      - name: Download Qt (with Android arm64)
+      - name: Download Qt desktop and android
         if: steps.qt-cache.outputs.cache-hit != 'true'
         run: |
           python3 -m pip install --user aqtinstall
           export PATH=$HOME/.local/bin:$PATH
+          # Install desktop Qt first - required for android Qt
+          python3 -m aqt install-qt linux desktop ${{ env.QT_VERSION }} gcc_64 -O $HOME/Qt
+          # Then install android Qt for arm64 architecture
           python3 -m aqt install-qt linux android ${{ env.QT_VERSION }} android_arm64 -O $HOME/Qt
 
       - name: Configure CMake for Android
