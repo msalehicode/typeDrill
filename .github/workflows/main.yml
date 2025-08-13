@@ -61,7 +61,7 @@ jobs:
           $HOME/Qt/${{ env.QT_VERSION }}/android_arm64/bin/androiddeployqt --input build/android-libappTypeDrill.so-deployment-settings.json --output ../apk --release --jdk $JAVA_HOME
 
       - name: Upload APK artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: TypeDrill-APK
           path: apk/*.apk
