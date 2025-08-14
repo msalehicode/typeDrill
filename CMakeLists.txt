@@ -48,14 +48,15 @@ target_link_libraries(appTypeDrill
     PRIVATE Qt6::Quick Qt6::Sql
 )
 
-# ✅ Android-specific deploy step (compatible with Felgo CI/CD)
+# ✅ Android-specific deploy step (Felgo CI-compatible)
 if(ANDROID)
     qt_generate_deploy_qml_app_script(
         TARGET appTypeDrill
+        FILENAME_VARIABLE deploy_script
     )
 endif()
 
-# Install rules (for desktop platforms)
+# Install rules (for desktop)
 include(GNUInstallDirs)
 install(TARGETS appTypeDrill
     BUNDLE DESTINATION .
