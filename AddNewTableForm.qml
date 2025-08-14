@@ -9,10 +9,20 @@ Page
     anchors.fill: parent
     Rectangle
     {
+        Text
+        {
+            id:databasePath;
+            text:"db path:"
+            color:"cyan"
+            anchors.top: parent.top
+            anchors.left:parent.left
+        }
+
         anchors.fill: parent
         color:"#222424"
         Column
         {
+            anchors.centerIn: parent
             Rectangle
             {
                 width:100;
@@ -71,5 +81,10 @@ Page
                 mainStackView.pop();
             }
         }
+    }
+
+    Component.onCompleted:
+    {
+        databasePath.text+=backend.databasePath();
     }
 }

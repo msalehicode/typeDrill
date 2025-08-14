@@ -11,7 +11,7 @@ class Backend : public QObject
     DataBase m_db;
     QString currentTableName;
     QString currentTableId;
-
+    QString databaseFullPath;
     void wordIs();
 
 public:
@@ -23,7 +23,7 @@ public:
     Q_INVOKABLE void whatIsCurrentTableType(); // Call from QML
     Q_INVOKABLE void addWordToTable(const QStringList& data); // Call from QML
     Q_INVOKABLE void resetPractice(); // Call from QML
-
+    Q_INVOKABLE QString databasePath();
 
     QSqlQuery* m_query;
     // QString m_queryStr;

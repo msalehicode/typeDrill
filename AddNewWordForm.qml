@@ -55,7 +55,9 @@ Page
     Item
         {
             id:baseNewWordFrom
-            anchors.fill: parent
+            width:parent.width/2
+            height:parent.height
+            anchors.horizontalCenter: parent.horizontalCenter
             Column
             {
                 anchors.fill: parent

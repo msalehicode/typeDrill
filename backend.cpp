@@ -35,7 +35,7 @@ Backend::Backend(QObject *parent)
 {
     QString dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     QString dbFileName = "practiceWords.sqlite";
-
+    databaseFullPath = QDir(dbPath).filePath(dbFileName);
 
     if(m_db.init(dbPath, dbFileName))
     {
@@ -294,5 +294,10 @@ void Backend::resetPractice()
     //to avoid empty QStringList.
     last_word << "";
     // qInfo() << "practice reseted.";
+}
+
+QString Backend::databasePath()
+{
+    return databaseFullPath;
 }
 
