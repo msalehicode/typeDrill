@@ -38,7 +38,7 @@ Backend::Backend(QObject *parent)
         m_query = new QSqlQuery((*m_db.getDatabase()));
     }
     else
-        qFatal() << "failed to init database..";
+        qFatal("failed to init database..");
 
 
     m_db.createTable("user_tables", "t_id INTEGER PRIMARY KEY AUTOINCREMENT,\
@@ -71,8 +71,8 @@ void Backend::getNextWord(const QString &userText)
         // qInfo() << "last id =" << last_id << "maxid="<<max_id<< "minud="<<min_id;
         emit wordReady(last_word);
     }
-    else
-        qInfo() << "error"; //incorrect value entered.
+    // else
+        // qInfo() << "error"; //incorrect value entered.
 }
 
 void Backend::getTables(const QString& tableType)
@@ -93,19 +93,19 @@ void Backend::getTables(const QString& tableType)
                 filteredTables.append(item);
             }
         }
-        qInfo() << filteredTables;
+        // qInfo() << filteredTables;
         emit tablesList(filteredTables);
         return;
     }
     else if (tableType == "all")
     {
-        qInfo() << tables;
+        // qInfo() << tables;
         emit tablesList(tables);
         return;
     }
     else
     {
-        qWarning() << "Invalid tableType provided:" << tableType;
+        // qWarning() << "Invalid tableType provided:" << tableType;
         emit tablesList(tables); // Or handle error differently
         return;
     }

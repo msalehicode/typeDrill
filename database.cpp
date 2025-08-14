@@ -23,7 +23,7 @@ bool DataBase::init(const QString &path, const QString &fileName)
 
     if(QFile::exists(fullPath))
     {
-        qInfo() << "databae exists, we will trying to open it.";
+        // qInfo() << "databae exists, we will trying to open it.";
         if(m_db->open())
             result=true;
     }
@@ -44,12 +44,12 @@ bool DataBase::init(const QString &path, const QString &fileName)
 
             if(createTable.exec())
             {
-                qInfo() << "database not found, we have been made one for you.";
+                // qInfo() << "database not found, we have been made one for you.";
                 result=true;
             }
             else
             {
-                qInfo() << "database creation exec failed.";//createTable.lastError().text();
+                // qInfo() << "database creation exec failed.";//createTable.lastError().text();
                 result=false;
             }
 
@@ -79,7 +79,7 @@ bool DataBase::createTable(const QString& tableName, const QString& schema)
 
     if(!query.exec(sql))
     {
-        qWarning() << "Create table failed:" << query.lastError().text();
+        // qWarning() << "Create table failed:" << query.lastError().text();
         return false;
     }
     return true;
@@ -95,7 +95,7 @@ bool DataBase::removeTable(const QString& tableName)
 
     if(!query.exec(sql))
     {
-        qWarning() << "Remove table failed:" << query.lastError().text();
+        // qWarning() << "Remove table failed:" << query.lastError().text();
         return false;
     }
     return true;
@@ -125,7 +125,7 @@ bool DataBase::insertIntoTable(const QString& tableName, const QMap<QString, QVa
 
     if (!query.exec())
     {
-        qWarning() << "Insert failed:" << query.lastError().text();
+        // qWarning() << "Insert failed:" << query.lastError().text();
         return false;
     }
     return true;
@@ -148,7 +148,7 @@ bool DataBase::updateTableValue(const QString& tableName, const QString& keyColu
 
     if (!query.exec())
     {
-        qWarning() << "Update failed:" << query.lastError().text();
+        // qWarning() << "Update failed:" << query.lastError().text();
         return false;
     }
     return true;
@@ -169,7 +169,7 @@ QList<QMap<QString, QVariant>> DataBase::searchTable(const QString& tableName, c
 
     if (!query.exec())
     {
-        qWarning() << "Search failed:" << query.lastError().text();
+        // qWarning() << "Search failed:" << query.lastError().text();
         return results;
     }
 
@@ -207,7 +207,7 @@ QVariantList DataBase::getAllRowsAsVariantList(const QString& tableName)
     QSqlQuery query(*m_db);
     if (!query.exec(sql))
     {
-        qWarning() << "Failed to get all rows:" << query.lastError().text();
+        // qWarning() << "Failed to get all rows:" << query.lastError().text();
     }
 
     while (query.next())
@@ -227,7 +227,7 @@ QVariantList DataBase::getAllRowsAsVariantList(const QString& tableName)
 int DataBase::countRows(const QString& tableName)
 {
     if (!m_db || !m_db->isOpen()) {
-        qWarning() << "Database is not open!";
+        // qWarning() << "Database is not open!";
         return -1;  // or 0, or some error code
     }
 
@@ -235,7 +235,7 @@ int DataBase::countRows(const QString& tableName)
     QString sql = QString("SELECT COUNT(*) FROM %1").arg(tableName);
 
     if (!query.exec(sql)) {
-        qWarning() << "Count query failed:" << query.lastError().text();
+        // qWarning() << "Count query failed:" << query.lastError().text();
         return -1;
     }
 
