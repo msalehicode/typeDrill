@@ -33,7 +33,11 @@ void Backend::wordIs()
 Backend::Backend(QObject *parent)
     : QObject{parent}, min_id(0)
 {
-    if(m_db.init("./database","practiceWords.sqlite"))
+    QString dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QString dbFileName = "practiceWords.sqlite";
+
+
+    if(m_db.init(dbPath, dbFileName))
     {
         m_query = new QSqlQuery((*m_db.getDatabase()));
     }
