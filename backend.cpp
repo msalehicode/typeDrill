@@ -3,23 +3,23 @@
 void Backend::wordIs()
 {
     last_word.clear();
-    if(currentTableName[0]=='w')
+    if(currentTableType=="word")
     {
-        last_word << m_db.searchTable(currentTableName, "w_id", QString::number(last_id), "w_text");
-        last_word << m_db.searchTable(currentTableName, "w_id", QString::number(last_id), "w_meaning");
-        last_word << m_db.searchTable(currentTableName, "w_id", QString::number(last_id), "w_example");
+        last_word << m_db.searchTable(currentTableName, "id", QString::number(last_id), "text");
+        last_word << m_db.searchTable(currentTableName, "id", QString::number(last_id), "meaning");
+        last_word << m_db.searchTable(currentTableName, "id", QString::number(last_id), "example");
     }
-    else if(currentTableName[0]=='v')
+    else if(currentTableType=="verb")
     {
-        last_word << m_db.searchTable(currentTableName, "v_id", QString::number(last_id), "v_verb");
-        last_word << m_db.searchTable(currentTableName, "v_id", QString::number(last_id), "v_past");
-        last_word << m_db.searchTable(currentTableName, "v_id", QString::number(last_id), "v_past_perfect");
+        last_word << m_db.searchTable(currentTableName, "id", QString::number(last_id), "verb");
+        last_word << m_db.searchTable(currentTableName, "id", QString::number(last_id), "past");
+        last_word << m_db.searchTable(currentTableName, "id", QString::number(last_id), "past_perfect");
     }
-    else if(currentTableName[0]=='s')
+    else if(currentTableType=="single")
     {
-        last_word << m_db.searchTable(currentTableName, "s_id", QString::number(last_id), "s_text");
-        last_word << m_db.searchTable(currentTableName, "s_id", QString::number(last_id), "s_translate");
-        last_word << m_db.searchTable(currentTableName, "s_id", QString::number(last_id), "s_status");
+        last_word << m_db.searchTable(currentTableName, "id", QString::number(last_id), "text");
+        last_word << m_db.searchTable(currentTableName, "id", QString::number(last_id), "translate");
+        last_word << m_db.searchTable(currentTableName, "id", QString::number(last_id), "status");
     }
     else
     {
@@ -47,6 +47,8 @@ Backend::Backend(QObject *parent)
 
     m_db.createTable("user_tables", "t_id INTEGER PRIMARY KEY AUTOINCREMENT,\
                      t_title TEXT,\
+                     t_type TEXT,\
+                     t_icon TEXT,\
                      t_status TEXT"
                      );
 
@@ -81,59 +83,53 @@ void Backend::getNextWord(const QString &userText)
 
 void Backend::getTables(const QString& tableType)
 {
-    //fetch table from db
-    QVariantList tables = m_db.getAllRowsAsVariantList("user_tables");
+    QVariantList filteredTables;
 
-    if (tableType == "verbs")
+    // Fetch all rows from the "user_tables" table
+    QVariantList allTables = m_db.getAllRowsAsVariantList("user_tables");
+
+    // Filter based on tableType (e.g., "verb", "noun", etc.)
+    for (const QVariant &rowVar : allTables)
     {
-        QVariantList filteredTables;
-        for (const QVariant& item : tables)
+        QVariantMap row = rowVar.toMap();
+
+        // If tableType is "all" or empty, include everything
+        if (tableType.isEmpty() || tableType == "all")
         {
-            QVariantMap tableMap = item.toMap();
-            QString tableName = tableMap.value("t_title").toString();
-
-            if (tableName.startsWith("v_"))
-            {
-                filteredTables.append(item);
-            }
+            filteredTables.append(row);
         }
-        // qInfo() << filteredTables;
-        emit tablesList(filteredTables);
-        return;
+        // Otherwise, filter by t_type
+        else if (row["t_type"].toString() == tableType)
+        {
+            filteredTables.append(row);
+        }
     }
-    else if (tableType == "all")
-    {
-        // qInfo() << tables;
-        emit tablesList(tables);
-        return;
-    }
-    else
-    {
-        // qWarning() << "Invalid tableType provided:" << tableType;
-        emit tablesList(tables); // Or handle error differently
-        return;
-    }
+
+    emit tablesList(filteredTables);
 }
+
 
 void Backend::createTable(const QString &tableName, const QString &tableType)
 {
     QString result;
     if(tableType=="word")
     {
-            bool qresult = m_db.createTable("w_"+tableName, "w_id INTEGER PRIMARY KEY AUTOINCREMENT,\
-                             w_text TEXT,\
-                             w_meaning TEXT,\
-                             w_example TEXT,\
-                             w_translate TEXT,\
-                             w_status TEXT,\
-                             w_source TEXT"
+            bool qresult = m_db.createTable(tableName, "id INTEGER PRIMARY KEY AUTOINCREMENT,\
+                             text TEXT,\
+                             meaning TEXT,\
+                             example TEXT,\
+                             translate TEXT,\
+                             status TEXT,\
+                             source TEXT"
                              );
             if(qresult)
             {
                 result="word table successfully created.";
 
                 QMap<QString, QVariant> rowData;
-                rowData["t_title"] = "w_"+tableName;
+                rowData["t_title"] = tableName;
+                rowData["t_type"] = tableType;
+                rowData["t_icon"] = "";
                 rowData["t_status"] = "0";
 
                 qresult = m_db.insertIntoTable("user_tables", rowData);
@@ -147,18 +143,20 @@ void Backend::createTable(const QString &tableName, const QString &tableType)
     }
     else if(tableType=="verb")
     {
-        bool qresult = m_db.createTable("v_"+tableName, "v_id INTEGER PRIMARY KEY AUTOINCREMENT,\
-                                        v_verb TEXT,\
-                                        v_past TEXT,\
-                                        v_past_perfect TEXT,\
-                                        v_status TEXT"
+        bool qresult = m_db.createTable(tableName, "id INTEGER PRIMARY KEY AUTOINCREMENT,\
+                                        verb TEXT,\
+                                        past TEXT,\
+                                        past_perfect TEXT,\
+                                        status TEXT"
                                         );
         if(qresult)
         {
             result="verb table successfully created.";
 
             QMap<QString, QVariant> rowData;
-            rowData["t_title"] = "v_"+tableName;
+            rowData["t_title"] = tableName;
+            rowData["t_type"] = tableType;
+            rowData["t_icon"] = "";
             rowData["t_status"] = "0";
 
             qresult = m_db.insertIntoTable("user_tables", rowData);
@@ -172,17 +170,19 @@ void Backend::createTable(const QString &tableName, const QString &tableType)
     }
     else if(tableType=="single")
     {
-        bool qresult = m_db.createTable("s_"+tableName, "s_id INTEGER PRIMARY KEY AUTOINCREMENT,\
-                                        s_text TEXT,\
-                                        s_translate TEXT,\
-                                        s_status TEXT"
+        bool qresult = m_db.createTable(tableName, "id INTEGER PRIMARY KEY AUTOINCREMENT,\
+                                        text TEXT,\
+                                        translate TEXT,\
+                                        status TEXT"
                                         );
         if(qresult)
         {
             result="single table successfully created.";
 
             QMap<QString, QVariant> rowData;
-            rowData["t_title"] = "s_"+tableName;
+            rowData["t_title"] = tableName;
+            rowData["t_type"] = tableType;
+            rowData["t_icon"] = "";
             rowData["t_status"] = "0";
 
             qresult = m_db.insertIntoTable("user_tables", rowData);
@@ -202,48 +202,38 @@ void Backend::createTable(const QString &tableName, const QString &tableType)
     emit tableCreationResult(result);
 }
 
-void Backend::switchTable(const QString &tableName,const QString& tableId)
+void Backend::switchTable(const QString &tableName, const QString& ttype)
 {
-    resetPractice();
+    currentTableType=ttype;
     currentTableName=tableName;
-    currentTableId=tableId;
 
-    // qInfo()<< "table switched to user_table :" << currentTableName << " id:" << currentTableId;
+    resetPractice();
 
     max_id=m_db.countRows(currentTableName);
 
-    // qInfo() << "maxid=" << max_id << "\tminid=" << min_id;
+    qInfo() << "table switched name=" << currentTableName << "type=" << currentTableType;
+    qInfo() << "maxid=" << max_id << "\tminid=" << min_id;
 }
 
 void Backend::whatIsCurrentTableType()
 {
-    QString result;
-    if(currentTableName[0]=='w')
-        result="word";
-    else if(currentTableName[0]=='v')
-        result="verb";
-    else if(currentTableName[0]=='s')
-        result="single";
-    else
-        result="error";
-    // qInfo() << "current table type is :" << result;
-    emit tableTypeIs(result);
+    emit tableTypeIs(currentTableType);
 }
 
 void Backend::addWordToTable(const QStringList &data)
 {
     QString result;
     bool qresult;
-    if(currentTableName[0]=='w' && data.size() >=6)
+    if(currentTableType=="word" && data.size() >=6)
     {
         //data order passed by QML for word: text, meaning, example, translate, source, status
         QMap<QString, QVariant> rowData;
-        rowData["w_text"] = data[0];
-        rowData["w_meaning"] = data[1];
-        rowData["w_example"] = data[2];
-        rowData["w_translate"] = data[3];
-        rowData["w_source"] = data[4];
-        rowData["w_status"] = data[5];
+        rowData["text"] = data[0];
+        rowData["meaning"] = data[1];
+        rowData["example"] = data[2];
+        rowData["translate"] = data[3];
+        rowData["source"] = data[4];
+        rowData["status"] = data[5];
 
         qresult = m_db.insertIntoTable(currentTableName, rowData);
         if(qresult)
@@ -251,27 +241,27 @@ void Backend::addWordToTable(const QStringList &data)
         else
             result= "error";//:failed to add word into the table.
     }
-    else if(currentTableName[0]=='v' && data.size() >=4)
+    else if(currentTableType=="verb" && data.size() >=4)
     {
         //data order passed by QML for verb: verb, past, past perfect, status
         QMap<QString, QVariant> rowData;
-        rowData["v_verb"] = data[0];
-        rowData["v_past"] = data[1];
-        rowData["v_past_perfect"] = data[2];
-        rowData["v_status"] = data[3];
+        rowData["verb"] = data[0];
+        rowData["past"] = data[1];
+        rowData["past_perfect"] = data[2];
+        rowData["status"] = data[3];
         qresult = m_db.insertIntoTable(currentTableName, rowData);
         if(qresult)
             result= "verb added to the table.";
         else
             result= "error";//failed to add verb into the table.
     }
-    else if(currentTableName[0]=='s' && data.size() >=3)
+    else if(currentTableType=="single" && data.size() >=3)
     {
         //data order passed by QML for single: text, translate,status
         QMap<QString, QVariant> rowData;
-        rowData["s_text"] = data[0];
-        rowData["s_translate"] = data[1];
-        rowData["s_status"] = data[2];
+        rowData["text"] = data[0];
+        rowData["translate"] = data[1];
+        rowData["status"] = data[2];
         qresult = m_db.insertIntoTable(currentTableName, rowData);
         if(qresult)
             result= "single added to the table.";
@@ -299,5 +289,24 @@ void Backend::resetPractice()
 QString Backend::databasePath()
 {
     return databaseFullPath;
+}
+
+QStringList Backend::listOfDatabases()
+{
+    QString dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QDir dir(dbPath);
+
+    // Filter for files ending with ".sqlite"
+    QStringList filters;
+    filters << "*.sqlite";
+
+    QStringList fileList = dir.entryList(filters, QDir::Files | QDir::NoSymLinks);
+    // Remove ".sqlite" extension from each filename
+    for (QString &fileName : fileList) {
+        if (fileName.endsWith(".sqlite", Qt::CaseInsensitive)) {
+            fileName.chop(7);  // Removes last 7 characters (".sqlite")
+        }
+    }
+    return fileList;
 }
 

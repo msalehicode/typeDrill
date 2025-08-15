@@ -30,9 +30,18 @@ qt_add_qml_module(appTypeDrill
         HomePage.qml
         AddNewTableForm.qml
         PracticePage.qml
-        PickTablePage.qml
+
         PracticeVerbs.qml
         PracticeTimeComponent.qml
+        QML_FILES CustomButton.qml
+        QML_FILES ManageWordTableDatabasePage.qml
+        QML_FILES ProfilePage.qml
+        QML_FILES SettingsPage.qml
+        RESOURCES resourses/streak.png
+        RESOURCES resourses/check.png
+        QML_FILES CustomComboboxWithIcon.qml
+        QML_FILES CustomButtonWithIcon.qml
+        QML_FILES BrowsePage.qml
 )
 
 # Set app properties for macOS/Windows

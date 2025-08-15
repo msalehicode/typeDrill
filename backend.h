@@ -10,7 +10,7 @@ class Backend : public QObject
     Q_OBJECT
     DataBase m_db;
     QString currentTableName;
-    QString currentTableId;
+    QString currentTableType;
     QString databaseFullPath;
     void wordIs();
 
@@ -19,11 +19,12 @@ public:
     Q_INVOKABLE void getNextWord(const QString& userText); // Call from QML
     Q_INVOKABLE void getTables(const QString& tableType); // Call from QML
     Q_INVOKABLE void createTable(const QString& tableName, const QString& tableType); // Call from QML
-    Q_INVOKABLE void switchTable(const QString& tableName,const QString& tableId); // Call from QML
+    Q_INVOKABLE void switchTable(const QString& tableName, const QString& ttype); // Call from QML
     Q_INVOKABLE void whatIsCurrentTableType(); // Call from QML
     Q_INVOKABLE void addWordToTable(const QStringList& data); // Call from QML
     Q_INVOKABLE void resetPractice(); // Call from QML
     Q_INVOKABLE QString databasePath();
+    Q_INVOKABLE QStringList listOfDatabases();
 
     QSqlQuery* m_query;
     // QString m_queryStr;
