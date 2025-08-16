@@ -5,6 +5,8 @@
 #include <QStandardPaths>
 
 #include "database.h"
+#include "settingsmanager.h"
+
 class Backend : public QObject
 {
     Q_OBJECT
@@ -13,10 +15,12 @@ class Backend : public QObject
     QString currentTableType;
     QString databaseFullPath;
     void wordIs();
+    bool init();
+    SettingsManager settings;
 
 public:
     explicit Backend(QObject *parent = nullptr);
-    Q_INVOKABLE void getNextWord(const QString& userText); // Call from QML
+    Q_INVOKABLE int getNextWord(const QString& userText); // Call from QML
     Q_INVOKABLE void getTables(const QString& tableType); // Call from QML
     Q_INVOKABLE void createTable(const QString& tableName, const QString& tableType); // Call from QML
     Q_INVOKABLE void switchTable(const QString& tableName, const QString& ttype); // Call from QML
@@ -25,6 +29,7 @@ public:
     Q_INVOKABLE void resetPractice(); // Call from QML
     Q_INVOKABLE QString databasePath();
     Q_INVOKABLE QStringList listOfDatabases();
+    Q_INVOKABLE QString switchDatabase(const QString& databaseName);
 
     QSqlQuery* m_query;
     // QString m_queryStr;

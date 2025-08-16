@@ -4,8 +4,8 @@ import QtQuick.Layouts
 Window
 {
     id:root
-    width: 400
-    height: 800
+    width: 720
+    height: 1600
     visible: true
     title: qsTr("TypeDrill")
     color:"#222424"

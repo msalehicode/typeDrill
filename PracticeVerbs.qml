@@ -12,20 +12,15 @@ Page
     {
         color:"#222424"
         anchors.fill: parent
+        CustomProccessBar
+        {
+            id:proccessBar
+            currentValue:currentIndex
+        }
         Item
         {
             id:itemContent
             anchors.fill: parent
-            Label
-            {
-                text:currentIndex
-                font.pixelSize: 25
-                color:"white"
-                anchors.top: parent.top
-                anchors.left: parent.left
-                anchors.topMargin: 25
-                anchors.leftMargin: 25
-            }
             PracticeTimeComponent
             {
 
@@ -156,7 +151,7 @@ Page
     Component.onCompleted:
     {
         //to fetch first word
-        backend.getNextWord("")
+        proccessBar.totalValue = backend.getNextWord("")
         currentIndex=0;
         passedState=0
     }

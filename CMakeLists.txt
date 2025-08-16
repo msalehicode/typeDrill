@@ -42,6 +42,8 @@ qt_add_qml_module(appTypeDrill
         QML_FILES CustomComboboxWithIcon.qml
         QML_FILES CustomButtonWithIcon.qml
         QML_FILES BrowsePage.qml
+        SOURCES settingsmanager.h settingsmanager.cpp
+        QML_FILES CustomProccessBar.qml
 )
 
 # Set app properties for macOS/Windows

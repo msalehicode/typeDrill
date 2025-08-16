@@ -30,19 +30,25 @@ void Backend::wordIs()
     // qInfo() <<"wordisresult:"<< last_word;
 }
 
-Backend::Backend(QObject *parent)
-    : QObject{parent}, min_id(0)
+bool Backend::init()
 {
+    settings.initSettings();
+
+    min_id=0;
     QString dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-    QString dbFileName = "practiceWords.sqlite";
+    QString dbFileName = settings.getValue("currentDatabase").toString();
     databaseFullPath = QDir(dbPath).filePath(dbFileName);
 
     if(m_db.init(dbPath, dbFileName))
     {
-        m_query = new QSqlQuery((*m_db.getDatabase()));
+        m_query = new QSqlQuery(m_db.getDatabase());
     }
     else
+    {
         qFatal("failed to init database..");
+        return false;
+    }
+
 
 
     m_db.createTable("user_tables", "t_id INTEGER PRIMARY KEY AUTOINCREMENT,\
@@ -52,14 +58,17 @@ Backend::Backend(QObject *parent)
                      t_status TEXT"
                      );
 
+    return true;
+}
 
-
-
-
+Backend::Backend(QObject *parent)
+    : QObject{parent}
+{
+    init();
 
 }
 
-void Backend::getNextWord(const QString &userText)
+int Backend::getNextWord(const QString &userText)
 {
 
 
@@ -76,9 +85,11 @@ void Backend::getNextWord(const QString &userText)
         // qInfo() << "last_wrod=" << last_word;
         // qInfo() << "last id =" << last_id << "maxid="<<max_id<< "minud="<<min_id;
         emit wordReady(last_word);
+        return max_id;
     }
     // else
         // qInfo() << "error"; //incorrect value entered.
+    return -1;
 }
 
 void Backend::getTables(const QString& tableType)
@@ -298,7 +309,7 @@ QStringList Backend::listOfDatabases()
 
     // Filter for files ending with ".sqlite"
     QStringList filters;
-    filters << "*.sqlite";
+    filters << "*";
 
     QStringList fileList = dir.entryList(filters, QDir::Files | QDir::NoSymLinks);
     // Remove ".sqlite" extension from each filename
@@ -308,5 +319,18 @@ QStringList Backend::listOfDatabases()
         }
     }
     return fileList;
+}
+
+QString Backend::switchDatabase(const QString &databaseName)
+{
+    settings.setValue("currentDatabase",databaseName);
+    if(init())
+    {
+        return "successed";
+    }
+    else
+    {
+        return "failed";
+    }
 }
 

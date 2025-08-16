@@ -47,10 +47,19 @@ Page
                     rightMargin:15
                     verticalCenter:parent.verticalCenter
                 }
-                onActivated: {
-                    console.log("Selected:", modelData[currentIndex].text)
-                    //backend change database
-                    //reload all content if backend successed database changed.
+                onActivated: function(index)
+                {
+                    var result = backend.switchDatabase(modelData[index].text);
+                    if(result==="successed")
+                    {
+                        currentIndex = index
+                        console.log("Selected:", modelData[currentIndex].text)
+                        refresh()
+                    }
+                    else
+                    {
+                        console.log("could not switch database.");
+                    }
                 }
             }
 
@@ -118,7 +127,7 @@ Page
                 Rectangle
                 {
                     id:weekDaysStreak
-                    width: parent.width/1.05
+                    width: 135
                     height:70
                     radius:25
                     color:"transparent"
@@ -144,7 +153,7 @@ Page
                         Repeater {
                             model: days.length
                             delegate: Rectangle {
-                                width: 45
+                                width: 60
                                 height: 45
                                 color: "transparent"
 
@@ -264,7 +273,7 @@ Page
 
                                         backend.switchTable(modelData.t_title,modelData.t_type)
 
-                                        if(modelData.t_title==="verb")
+                                        if(modelData.t_type==="verb")
                                             mainStackView.push("PracticeVerbs.qml")
                                         else
                                             mainStackView.push("PracticePage.qml")
@@ -400,7 +409,8 @@ Page
         }
     }
     Connections {
-        target: root // or parent window with the signal
+        target: root
+        //to refresh homePage when mainStack cameback to homePage
         onRefreshHomePageRequested: {
             refresh();
         }

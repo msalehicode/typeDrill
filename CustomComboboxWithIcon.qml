@@ -114,7 +114,6 @@ Item {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
-                            currentIndex = index
                             activated(index)
                             popup.close()
                         }

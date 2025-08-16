@@ -11,6 +11,7 @@ Item
     anchors.rightMargin: 25
 
     property int secondsPassed: 0
+    signal eachTrigger;
 
     Timer {
         id: timer
@@ -31,6 +32,7 @@ Item
                           (seconds < 10 ? "0" + seconds : seconds);
 
             displayPassedTime.text = "Time passed: " + timeStr;
+            eachTrigger();
         }
     }
 
@@ -39,5 +41,6 @@ Item
         id:displayPassedTime
         anchors.centerIn: parent
         font.pixelSize: 20
+        color:"cyan"
     }
 }

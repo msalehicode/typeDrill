@@ -1,30 +1,51 @@
 #include "database.h"
 
 DataBase::DataBase(QObject *parent)
-    : QObject{parent} , m_db(nullptr)
+    : QObject{parent}
 {
 
 }
 
 DataBase::~DataBase()
 {
-    m_db->close();
-    delete m_db;
+    m_db.close();
 }
 
 bool DataBase::init(const QString &path, const QString &fileName)
 {
+    //for swiching database case, need to make sure close previues connection
+    const QString connectionName = "qt_sql_default_connection";
+
+    // Close and remove old connection safely
+    if (QSqlDatabase::contains(connectionName))
+    {
+        // Get the connection
+        QSqlDatabase oldDb = QSqlDatabase::database(connectionName);
+        if (oldDb.isOpen())
+            oldDb.close();
+
+        // Important: clear all queries/models here that might hold the connection
+
+        // Remove the connection - but only when no references remain!
+        QSqlDatabase::removeDatabase(connectionName);
+
+
+        // Now m_db should be reset too (no longer refer to the removed connection)
+        m_db = QSqlDatabase();
+    }
+
+
     bool result=false;
-    m_db = new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE"));
+    m_db = QSqlDatabase::addDatabase("QSQLITE", connectionName);
 
 
     QString fullPath = path+"/"+fileName;
-    m_db->setDatabaseName(fullPath);
+    m_db.setDatabaseName(fullPath);
 
     if(QFile::exists(fullPath))
     {
         // qInfo() << "databae exists, we will trying to open it.";
-        if(m_db->open())
+        if(m_db.open())
             result=true;
     }
     else
@@ -32,9 +53,9 @@ bool DataBase::init(const QString &path, const QString &fileName)
         QDir dbDire(path);
         dbDire.mkpath(".");
         QFile dbFile(fullPath);
-        if(m_db->open())
+        if(m_db.open())
         {
-            QSqlQuery createTable(*m_db);  // pass the opened database connection
+            QSqlQuery createTable(m_db);  // pass the opened database connection
             QString sql("CREATE TABLE settings\
             (\
               id INTEGER PRIMARY KEY,\
@@ -63,18 +84,16 @@ bool DataBase::init(const QString &path, const QString &fileName)
     return result;
 }
 
-QSqlDatabase *DataBase::getDatabase()
-{
+QSqlDatabase DataBase::getDatabase() const {
     return m_db;
 }
-
 
 // Create a table with a given schema (columns and types)
 bool DataBase::createTable(const QString& tableName, const QString& schema)
 {
-    if (!m_db || !m_db->isOpen()) return false;
+    if (!m_db.isOpen()) return false;
 
-    QSqlQuery query(*m_db);
+    QSqlQuery query(m_db);
     QString sql = QString("CREATE TABLE IF NOT EXISTS %1 (%2);").arg(tableName, schema);
 
     if(!query.exec(sql))
@@ -88,9 +107,9 @@ bool DataBase::createTable(const QString& tableName, const QString& schema)
 // Remove (drop) a table
 bool DataBase::removeTable(const QString& tableName)
 {
-    if (!m_db || !m_db->isOpen()) return false;
+    if (!m_db.isOpen()) return false;
 
-    QSqlQuery query(*m_db);
+    QSqlQuery query(m_db);
     QString sql = QString("DROP TABLE IF EXISTS %1;").arg(tableName);
 
     if(!query.exec(sql))
@@ -104,7 +123,7 @@ bool DataBase::removeTable(const QString& tableName)
 // Insert into table - data map keys are column names, values are column values
 bool DataBase::insertIntoTable(const QString& tableName, const QMap<QString, QVariant>& data)
 {
-    if (!m_db || !m_db->isOpen()) return false;
+    if (!m_db.isOpen()) return false;
     if (data.isEmpty()) return false;
 
     QStringList columns = data.keys();
@@ -117,7 +136,7 @@ bool DataBase::insertIntoTable(const QString& tableName, const QMap<QString, QVa
                       .arg(columns.join(", "))
                       .arg(placeholders.join(", "));
 
-    QSqlQuery query(*m_db);
+    QSqlQuery query(m_db);
     query.prepare(sql);
 
     for (auto it = data.constBegin(); it != data.constEnd(); ++it)
@@ -135,12 +154,12 @@ bool DataBase::insertIntoTable(const QString& tableName, const QMap<QString, QVa
 bool DataBase::updateTableValue(const QString& tableName, const QString& keyColumn, const QVariant& keyValue,
                                 const QString& updateColumn, const QVariant& updateValue)
 {
-    if (!m_db || !m_db->isOpen()) return false;
+    if (!m_db.isOpen()) return false;
 
     QString sql = QString("UPDATE %1 SET %2 = :updateVal WHERE %3 = :keyVal;")
                       .arg(tableName, updateColumn, keyColumn);
 
-    QSqlQuery query(*m_db);
+    QSqlQuery query(m_db);
     query.prepare(sql);
 
     query.bindValue(":updateVal", updateValue);
@@ -159,11 +178,11 @@ QList<QMap<QString, QVariant>> DataBase::searchTable(const QString& tableName, c
                                                      const QVariant& searchValue)
 {
     QList<QMap<QString, QVariant>> results;
-    if (!m_db || !m_db->isOpen()) return results;
+    if (!m_db.isOpen()) return results;
 
     QString sql = QString("SELECT * FROM %1 WHERE %2 = :searchVal;").arg(tableName, columnName);
 
-    QSqlQuery query(*m_db);
+    QSqlQuery query(m_db);
     query.prepare(sql);
     query.bindValue(":searchVal", searchValue);
 
@@ -204,7 +223,7 @@ QVariantList DataBase::getAllRowsAsVariantList(const QString& tableName)
 
     QString sql = QString("SELECT * FROM %1;").arg(tableName);
 
-    QSqlQuery query(*m_db);
+    QSqlQuery query(m_db);
     if (!query.exec(sql))
     {
         // qWarning() << "Failed to get all rows:" << query.lastError().text();
@@ -226,12 +245,12 @@ QVariantList DataBase::getAllRowsAsVariantList(const QString& tableName)
 
 int DataBase::countRows(const QString& tableName)
 {
-    if (!m_db || !m_db->isOpen()) {
+    if (!m_db.isOpen()) {
         // qWarning() << "Database is not open!";
         return -1;  // or 0, or some error code
     }
 
-    QSqlQuery query(*m_db);
+    QSqlQuery query(m_db);
     QString sql = QString("SELECT COUNT(*) FROM %1").arg(tableName);
 
     if (!query.exec(sql)) {

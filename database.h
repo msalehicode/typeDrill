@@ -25,7 +25,7 @@ class DataBase : public QObject
 {
     Q_OBJECT
 
-    QSqlDatabase* m_db;
+    QSqlDatabase m_db;
 
     bool isDbExists(const QString& path, const QString& fileName);
 
@@ -33,9 +33,7 @@ public:
     explicit DataBase(QObject *parent = nullptr);
     ~DataBase();
     bool init(const QString& path, const QString& fileName);
-    QSqlDatabase *getDatabase();
-
-
+    QSqlDatabase getDatabase() const;
     bool createTable(const QString& tableName, const QString& schema);
     bool removeTable(const QString& tableName);
 
