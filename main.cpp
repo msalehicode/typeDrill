@@ -6,6 +6,8 @@
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
+    QCoreApplication::setOrganizationName("orgTypeDrill");
+    QCoreApplication::setApplicationName("appTypeDrill");
 
     QQmlApplicationEngine engine;
 
