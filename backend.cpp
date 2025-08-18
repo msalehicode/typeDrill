@@ -65,6 +65,8 @@ Backend::Backend(QObject *parent)
     : QObject{parent}
 {
     init();
+    connect(&m_fileManager, &FileManager::downloadProgress, this, &Backend::onDownloadProgress);
+    connect(&m_fileManager, &FileManager::downloadFinished, this, &Backend::onDownloadFinished);
 
 }
 
@@ -332,5 +334,61 @@ QString Backend::switchDatabase(const QString &databaseName)
     {
         return "failed";
     }
+}
+
+QString Backend::whatIsCurrentDatabase()
+{
+    return settings.getValue("currentDatabase").toString();
+}
+
+void Backend::fetchUrlList()
+{
+    QNetworkRequest request(QUrl("https://senioradministrator.com/typedrill-api/get_files.php")); // Change this URL to your API location
+    QNetworkReply *reply = m_networkManager.get(request);
+
+    connect(reply, &QNetworkReply::finished, this, &Backend::onUrlListReceived);
+}
+
+void Backend::download(const QString &url, const QString &fileName)
+{
+    m_fileManager.downloadFile(url, fileName);
+}
+
+void Backend::onUrlListReceived() {
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    if (!reply)
+        return;
+
+    QVariantList urlList;
+    if (reply->error() == QNetworkReply::NoError) {
+        QByteArray data = reply->readAll();
+        QJsonDocument doc = QJsonDocument::fromJson(data);
+        if (doc.isArray()) {
+            QJsonArray arr = doc.array();
+            for (const auto &item : arr) {
+                if (item.isObject()) {
+                    QJsonObject obj = item.toObject();
+                    QVariantMap map;
+                    map["name"] = obj["name"].toString();
+                    map["url"] = obj["url"].toString();
+                    urlList.append(map);
+                }
+            }
+        }
+    }
+    reply->deleteLater();
+    emit urlListReady(urlList);
+}
+
+void Backend::onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal)
+{
+    emit downloadProgress(bytesReceived, bytesTotal);
+
+}
+
+void Backend::onDownloadFinished(bool success, const QString &filePath)
+{
+    emit downloadFinished(success, filePath);
+
 }
 

@@ -44,6 +44,7 @@ qt_add_qml_module(appTypeDrill
         QML_FILES BrowsePage.qml
         SOURCES settingsmanager.h settingsmanager.cpp
         QML_FILES CustomProccessBar.qml
+        SOURCES filemanager.h filemanager.cpp
 )
 
 # Set app properties for macOS/Windows

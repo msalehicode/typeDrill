@@ -7,6 +7,15 @@
 #include "database.h"
 #include "settingsmanager.h"
 
+
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
+#include "filemanager.h"
+
+
 class Backend : public QObject
 {
     Q_OBJECT
@@ -17,6 +26,12 @@ class Backend : public QObject
     void wordIs();
     bool init();
     SettingsManager settings;
+
+
+    QNetworkAccessManager m_networkManager;
+    FileManager m_fileManager;
+
+
 
 public:
     explicit Backend(QObject *parent = nullptr);
@@ -30,6 +45,11 @@ public:
     Q_INVOKABLE QString databasePath();
     Q_INVOKABLE QStringList listOfDatabases();
     Q_INVOKABLE QString switchDatabase(const QString& databaseName);
+    Q_INVOKABLE QString whatIsCurrentDatabase();
+
+    Q_INVOKABLE void fetchUrlList();
+    Q_INVOKABLE void download(const QString &url, const QString &fileName);
+
 
     QSqlQuery* m_query;
     // QString m_queryStr;
@@ -44,6 +64,16 @@ signals:
     void tableCreationResult(const QString& tableCreationResult);
     void tableTypeIs(const QString& currentTableType);
     void addItemtoTableResult(const QString& result);
+
+
+    void urlListReady(const QVariantList &list);
+    void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
+    void downloadFinished(bool success, const QString &filePath);
+
+private slots:
+    void onUrlListReceived();
+    void onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal);
+    void onDownloadFinished(bool success, const QString &filePath);
 };
 
 #endif // BACKEND_H
