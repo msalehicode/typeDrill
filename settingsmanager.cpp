@@ -1,7 +1,7 @@
 #include "settingsmanager.h"
 
 SettingsManager::SettingsManager(QObject *parent)
-    : QObject{parent} , settings{"wallnix", "wallnix"}
+    : QObject{parent}
 {
 
 }
