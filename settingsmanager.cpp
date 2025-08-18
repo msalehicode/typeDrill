@@ -25,6 +25,9 @@ void SettingsManager::initSettings()
     if(!settings.contains("api_url"))
         settings.setValue("api_url","");
 
+    if(!settings.contains("api_key"))
+        settings.setValue("api_key","");
+
     if (!settings.contains("theme"))
         settings.setValue("theme", "dark");
 

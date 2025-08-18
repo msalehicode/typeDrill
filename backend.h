@@ -26,6 +26,8 @@ class Backend : public QObject
     void wordIs();
     bool init();
     QString m_api_url;
+    QString m_api_key;
+    QString m_dbPath;
     SettingsManager settings;
 
 
@@ -47,11 +49,14 @@ public:
     Q_INVOKABLE QStringList listOfDatabases();
     Q_INVOKABLE QString switchDatabase(const QString& databaseName);
     Q_INVOKABLE QString whatIsCurrentDatabase();
-    Q_INVOKABLE QString whatIsApiUrl();
+    Q_INVOKABLE QString getApiUrl();
+    Q_INVOKABLE QString getApiKey();
     Q_INVOKABLE void setApiUrl(const QString& apiURL);
+    Q_INVOKABLE void setApiKey(const QString& apiKey);
 
     Q_INVOKABLE void fetchUrlList();
     Q_INVOKABLE void download(const QString &url, const QString &fileName);
+    Q_INVOKABLE void uploadFileToApi(const QString& fileName, const QString& publicStatus);
 
 
     QSqlQuery* m_query;
@@ -73,11 +78,13 @@ signals:
     void urlListFailed(const QString &errorString);
     void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
     void downloadFinished(bool success, const QString &filePath);
+    void uploadDone(const QString& result);
 
 private slots:
     void onUrlListReceived();
     void onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal);
     void onDownloadFinished(bool success, const QString &filePath);
+    void onUploadFinished(bool success, const QString& result);
 };
 
 #endif // BACKEND_H

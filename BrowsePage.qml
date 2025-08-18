@@ -85,10 +85,10 @@ Page {
             // progressBar.visible = false
             if (success) {
                 console.log("Downloaded to:", filePath)
-                downloadStatusText.text = "downloaded successfylly"+"\n"+filePath;
+                downloadStatusText.text = "downloaded successfylly";
             } else {
                 console.log("Download failed")
-                downloadStatusText.text = "downloaded failed"+"\n"+filePath;
+                downloadStatusText.text = "downloaded failed";
             }
         }
     }

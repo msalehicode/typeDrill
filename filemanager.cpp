@@ -47,6 +47,55 @@ void FileManager::downloadFile(const QString &url, const QString &fileName) {
     connect(m_currentReply, &QNetworkReply::downloadProgress, this, &FileManager::onDownloadProgress);
 }
 
+void FileManager::uploadFile(const QString &uploadUrl, const QString &filePath,
+                             const QString &apiKey, const QString& publicStatus)
+{
+    QFile *file = new QFile(filePath);
+    if (!file->open(QIODevice::ReadOnly)) {
+        emit uploadFinished(false, "Failed to open file for upload");
+        delete file;
+    }
+
+    QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
+
+    QHttpPart filePart;
+    filePart.setHeader(QNetworkRequest::ContentDispositionHeader,
+                       QVariant("form-data; name=\"file\"; filename=\"" + QFileInfo(filePath).fileName() + "\""));
+    filePart.setBodyDevice(file);
+    file->setParent(multiPart); // so it will be deleted with multiPart
+
+    multiPart->append(filePart);
+
+
+    //status public or private for that file
+    QHttpPart statusPart;
+    statusPart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"status\""));
+    statusPart.setBody(publicStatus.toUtf8());
+    multiPart->append(statusPart);
+
+
+    QNetworkRequest request(uploadUrl);
+    request.setRawHeader("X-API-KEY", apiKey.toUtf8());
+
+    QNetworkReply *reply = m_manager.post(request, multiPart);
+    multiPart->setParent(reply); // delete with reply
+
+    connect(reply, &QNetworkReply::finished, this, [this, reply]()
+    {
+        if (reply->error() == QNetworkReply::NoError)
+        {
+            QByteArray response = reply->readAll();
+            // emit uploadFinished(true, QString("Upload succeeded: %1").arg(QString(response)));
+            emit uploadFinished(true, "Upload succeeded.");
+        }
+        else
+        {
+            emit uploadFinished(false, QString("Upload failed: %1").arg(reply->errorString()));
+        }
+        reply->deleteLater();
+    });
+}
+
 void FileManager::onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal) {
     emit downloadProgress(bytesReceived, bytesTotal);
 }

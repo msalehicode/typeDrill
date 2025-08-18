@@ -35,11 +35,13 @@ bool Backend::init()
     settings.initSettings();
 
     min_id=0;
-    QString dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     QString dbFileName = settings.getValue("currentDatabase").toString();
-    databaseFullPath = QDir(dbPath).filePath(dbFileName);
+    m_api_key = settings.getValue("api_key").toString();
+    m_api_url = settings.getValue("api_url").toString();
 
-    if(m_db.init(dbPath, dbFileName))
+    databaseFullPath = QDir(m_dbPath).filePath(dbFileName);
+
+    if(m_db.init(m_dbPath, dbFileName))
     {
         m_query = new QSqlQuery(m_db.getDatabase());
     }
@@ -64,9 +66,11 @@ bool Backend::init()
 Backend::Backend(QObject *parent)
     : QObject{parent}
 {
+    m_dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     init();
     connect(&m_fileManager, &FileManager::downloadProgress, this, &Backend::onDownloadProgress);
     connect(&m_fileManager, &FileManager::downloadFinished, this, &Backend::onDownloadFinished);
+    connect(&m_fileManager, &FileManager::uploadFinished, this, &Backend::onUploadFinished);
 
 }
 
@@ -306,8 +310,7 @@ QString Backend::databasePath()
 
 QStringList Backend::listOfDatabases()
 {
-    QString dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-    QDir dir(dbPath);
+    QDir dir(m_dbPath);
 
     // Filter for files ending with ".sqlite"
     QStringList filters;
@@ -341,9 +344,14 @@ QString Backend::whatIsCurrentDatabase()
     return settings.getValue("currentDatabase").toString();
 }
 
-QString Backend::whatIsApiUrl()
+QString Backend::getApiUrl()
 {
-    return settings.getValue("api_url").toString();
+    return m_api_url;
+}
+
+QString Backend::getApiKey()
+{
+    return m_api_key;
 }
 
 void Backend::setApiUrl(const QString &apiURL)
@@ -352,10 +360,19 @@ void Backend::setApiUrl(const QString &apiURL)
     settings.setValue("api_url",m_api_url);
 }
 
+void Backend::setApiKey(const QString &apiKey)
+{
+    m_api_key = apiKey;
+    settings.setValue("api_key",m_api_key);
+}
+
 void Backend::fetchUrlList()
 {
     QUrl url(m_api_url);
     QNetworkRequest request(url);
+
+    request.setRawHeader("X-API-KEY", m_api_key.toUtf8());
+
     QNetworkReply *reply = m_networkManager.get(request);
 
     connect(reply, &QNetworkReply::finished, this, &Backend::onUrlListReceived);
@@ -364,6 +381,12 @@ void Backend::fetchUrlList()
 void Backend::download(const QString &url, const QString &fileName)
 {
     m_fileManager.downloadFile(url, fileName);
+}
+
+void Backend::uploadFileToApi(const QString &fileName, const QString& publicStatus)
+{
+    QString filePath = m_dbPath +"/"+ fileName;
+    m_fileManager.uploadFile(m_api_url, filePath, m_api_key, publicStatus);
 }
 
 void Backend::onUrlListReceived() {
@@ -409,5 +432,10 @@ void Backend::onDownloadFinished(bool success, const QString &filePath)
 {
     emit downloadFinished(success, filePath);
 
+}
+
+void Backend::onUploadFinished(bool success, const QString &result)
+{
+    emit uploadDone(result);
 }
 
