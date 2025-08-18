@@ -11,7 +11,7 @@ Page {
         anchors
         {
             top:parent.top
-            topMargin:60
+            topMargin:80
             left:parent.left
             right:parent.right
             bottom:parent.bottom
@@ -41,17 +41,17 @@ Page {
             }
         }
 
-        ProgressBar {
-            id: progressBar
-            width: parent.width
-            from: 0
-            to: 100
-            value: 0
-            anchors.bottom: parent.bottom
-            anchors.left: parent.left
-            anchors.right: parent.right
-            visible: false
-        }
+        // ProgressBar {
+        //     id: progressBar
+        //     width: parent.width
+        //     from: 0
+        //     to: 100
+        //     value: 0
+        //     anchors.bottom: parent.bottom
+        //     anchors.left: parent.left
+        //     anchors.right: parent.right
+        //     visible: false
+        // }
 
         ListModel {
             id: urlModel
@@ -63,6 +63,11 @@ Page {
 
     Connections {
         target: backend
+        onUrlListFailed: {
+            console.log("Failed to fetch URL list:", errorString)
+            downloadStatusText.text =  "Error: " + errorString
+        }
+
         onUrlListReady: {
             urlModel.clear()
             for (var i = 0; i < list.length; i++) {
@@ -70,14 +75,14 @@ Page {
             }
         }
         onDownloadProgress: {
-            progressBar.visible = true
+            // progressBar.visible = true
             if (bytesTotal > 0) {
-                progressBar.value = (bytesReceived / bytesTotal) * 100
+                // progressBar.value = (bytesReceived / bytesTotal) * 100
                 downloadStatusText.text = (bytesReceived / bytesTotal) * 100
             }
         }
         onDownloadFinished: {
-            progressBar.visible = false
+            // progressBar.visible = false
             if (success) {
                 console.log("Downloaded to:", filePath)
                 downloadStatusText.text = "downloaded successfylly"+"\n"+filePath;

@@ -341,9 +341,21 @@ QString Backend::whatIsCurrentDatabase()
     return settings.getValue("currentDatabase").toString();
 }
 
+QString Backend::whatIsApiUrl()
+{
+    return settings.getValue("api_url").toString();
+}
+
+void Backend::setApiUrl(const QString &apiURL)
+{
+    m_api_url = apiURL;
+    settings.setValue("api_url",m_api_url);
+}
+
 void Backend::fetchUrlList()
 {
-    QNetworkRequest request(QUrl("https://senioradministrator.com/typedrill-api/get_files.php")); // Change this URL to your API location
+    QUrl url(m_api_url);
+    QNetworkRequest request(url);
     QNetworkReply *reply = m_networkManager.get(request);
 
     connect(reply, &QNetworkReply::finished, this, &Backend::onUrlListReceived);
@@ -359,8 +371,8 @@ void Backend::onUrlListReceived() {
     if (!reply)
         return;
 
-    QVariantList urlList;
     if (reply->error() == QNetworkReply::NoError) {
+        QVariantList urlList;
         QByteArray data = reply->readAll();
         QJsonDocument doc = QJsonDocument::fromJson(data);
         if (doc.isArray()) {
@@ -374,11 +386,18 @@ void Backend::onUrlListReceived() {
                     urlList.append(map);
                 }
             }
+            reply->deleteLater();
+            emit urlListReady(urlList);
+            return;
         }
     }
+
+    // On failure
+    QString error = reply->errorString();
     reply->deleteLater();
-    emit urlListReady(urlList);
+    emit urlListFailed(error);
 }
+
 
 void Backend::onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 {

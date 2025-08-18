@@ -25,6 +25,7 @@ class Backend : public QObject
     QString databaseFullPath;
     void wordIs();
     bool init();
+    QString m_api_url;
     SettingsManager settings;
 
 
@@ -46,6 +47,8 @@ public:
     Q_INVOKABLE QStringList listOfDatabases();
     Q_INVOKABLE QString switchDatabase(const QString& databaseName);
     Q_INVOKABLE QString whatIsCurrentDatabase();
+    Q_INVOKABLE QString whatIsApiUrl();
+    Q_INVOKABLE void setApiUrl(const QString& apiURL);
 
     Q_INVOKABLE void fetchUrlList();
     Q_INVOKABLE void download(const QString &url, const QString &fileName);
@@ -67,6 +70,7 @@ signals:
 
 
     void urlListReady(const QVariantList &list);
+    void urlListFailed(const QString &errorString);
     void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
     void downloadFinished(bool success, const QString &filePath);
 

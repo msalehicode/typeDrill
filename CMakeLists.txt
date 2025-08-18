@@ -6,7 +6,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Find required Qt modules
-find_package(Qt6 6.2 COMPONENTS Quick Sql REQUIRED)
+find_package(Qt6 6.2 COMPONENTS Quick Sql Network REQUIRED)
 
 # Define the executable target
 qt_add_executable(appTypeDrill
@@ -57,7 +57,7 @@ set_target_properties(appTypeDrill PROPERTIES
 
 # Link against Qt libraries
 target_link_libraries(appTypeDrill
-    PRIVATE Qt6::Quick Qt6::Sql
+    PRIVATE Qt6::Quick Qt6::Sql Qt6::Network
 )
 
 if(ANDROID)

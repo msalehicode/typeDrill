@@ -22,6 +22,9 @@ void SettingsManager::remove(const QString &key) {
 
 void SettingsManager::initSettings()
 {
+    if(!settings.contains("api_url"))
+        settings.setValue("api_url","");
+
     if (!settings.contains("theme"))
         settings.setValue("theme", "dark");
 
