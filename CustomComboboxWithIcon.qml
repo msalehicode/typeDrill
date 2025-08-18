@@ -90,14 +90,14 @@ Item {
                         spacing: 5
                         anchors.margins: 5
 
-                        Image {
-                            source: modelData.icon
-                            width: 24
-                            height: 24
-                            fillMode: Image.PreserveAspectFit
-                            Layout.alignment: Qt.AlignVCenter
-                            anchors.right: parent.right
-                        }
+                        // Image {
+                        //     source: modelData.icon
+                        //     width: 24
+                        //     height: 24
+                        //     fillMode: Image.PreserveAspectFit
+                        //     Layout.alignment: Qt.AlignVCenter
+                        //     anchors.right: parent.right
+                        // }
 
                         Text {
                             text: modelData.text
