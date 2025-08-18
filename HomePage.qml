@@ -53,7 +53,7 @@ Page
                     if(result==="successed")
                     {
                         currentIndex = index
-                        console.log("Selected:", modelData[currentIndex].text)
+                        // console.log("Selected:", modelData[currentIndex].text)
                         refresh()
                     }
                     else
@@ -144,8 +144,7 @@ Page
                         anchors {
                             top: parent.top
                             topMargin: 20
-                            left: parent.left
-                            leftMargin: 7
+                            horizontalCenter: parent.horizontalCenter
                         }
 
 
@@ -269,7 +268,7 @@ Page
                                     anchors.fill: parent
                                     onClicked:
                                     {
-                                        console.log("on item",modelData.t_title," clicked")
+                                        // console.log("on item",modelData.t_title," clicked")
 
                                         backend.switchTable(modelData.t_title,modelData.t_type)
 
@@ -384,13 +383,19 @@ Page
 
     function sqliteListToModel(sqliteList)
     {
+        //get currentDatabase name
+        var cDatabaseName = backend.whatIsCurrentDatabase();
+
         var model = [];
         for(var i = 0; i < sqliteList.length; i++)
         {
+            if(sqliteList[i]===cDatabaseName)
+                comboboxDatabases.currentIndex = i;
+
             model.push({
-                text: sqliteList[i],
-                icon: "" //dont want icon now
-            });
+                           text: sqliteList[i],
+                           icon: "resourses/streak.png" //dont want icon now
+                       });
         }
         return model;
     }
@@ -405,7 +410,7 @@ Page
         function onTablesList(tables)
         {
             gridModel = tables;
-            console.log("gridModel =", JSON.stringify(gridModel));
+            // console.log("gridModel =", JSON.stringify(gridModel));
         }
     }
     Connections {
