@@ -11,13 +11,38 @@ Item
     anchors.rightMargin: 25
 
     property int secondsPassed: 0
+    property string timerString: ""
+
+
     signal eachTrigger;
+
+    function startTimer()
+    {
+        timerString="";
+        secondsPassed=0;
+        timer.running=true
+    }
+    function stopTimer()
+    {
+        timer.running=false;
+    }
+
+    function pauseTimer()
+    {
+        timer.running=false
+    }
+    function resumeTimer()
+    {
+        timer.running=true
+    }
+
+
 
     Timer {
         id: timer
         interval: 1000  // 1 second
         repeat: true
-        running: true
+        running: false
         onTriggered: {
             secondsPassed += 1
 
@@ -27,11 +52,11 @@ Item
             var seconds = secondsPassed % 60;
 
             // Format as hh:mm:ss with leading zeros
-            var timeStr = (hours < 10 ? "0" + hours : hours) + ":" +
+            timerString = (hours < 10 ? "0" + hours : hours) + ":" +
                           (minutes < 10 ? "0" + minutes : minutes) + ":" +
                           (seconds < 10 ? "0" + seconds : seconds);
 
-            displayPassedTime.text = "Time passed: " + timeStr;
+            displayPassedTime.text = "Time passed: " + timerString;
             eachTrigger();
         }
     }

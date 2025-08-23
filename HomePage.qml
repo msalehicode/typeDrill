@@ -212,7 +212,7 @@ Page
 
                     Grid {
                         id: grid
-                        columns: Math.floor(flickable.width / (100 + spacing))
+                        columns: Math.floor(flickable.width / (200 + spacing))
                         spacing: 15
                         width: flickable.width
                         anchors.horizontalCenter: parent.horizontalCenter
@@ -273,9 +273,9 @@ Page
                                         backend.switchTable(modelData.t_title,modelData.t_type)
 
                                         if(modelData.t_type==="verb")
-                                            mainStackView.push("PracticeVerbs.qml")
+                                            mainStackView.push("PracticePage.qml", { practiceMode:"verb" })
                                         else
-                                            mainStackView.push("PracticePage.qml")
+                                            mainStackView.push("PracticePage.qml", { practiceMode:"word" })
                                     }
                                 }
                             }//-----

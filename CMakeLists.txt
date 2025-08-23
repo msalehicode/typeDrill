@@ -31,7 +31,7 @@ qt_add_qml_module(appTypeDrill
         AddNewTableForm.qml
         PracticePage.qml
 
-        PracticeVerbs.qml
+
         PracticeTimeComponent.qml
         QML_FILES CustomButton.qml
         QML_FILES ManageWordTableDatabasePage.qml

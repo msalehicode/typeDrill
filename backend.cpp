@@ -81,6 +81,7 @@ int Backend::getNextWord(const QString &userText)
     // qInfo() <<"debuggg"<< last_word << "" << last_word[0];
     if (last_word.size() > 0 && userText == last_word[0])
     {
+
         if(last_id>=max_id)
             last_id=min_id;
 
@@ -93,9 +94,17 @@ int Backend::getNextWord(const QString &userText)
         emit wordReady(last_word);
         return max_id;
     }
-    // else
-        // qInfo() << "error"; //incorrect value entered.
+    else //incorrect value entered.
+    {
+        QString correctStatus = "incorrect";
+        emit wordIsIncorrect(correctStatus);
+    }
     return -1;
+}
+
+void Backend::setPracticeResult(const QString &mistakeCount, const QString &timeSpent)
+{
+    //submit the values into database to trace practice progress and set streak days
 }
 
 void Backend::getTables(const QString& tableType)

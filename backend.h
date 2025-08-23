@@ -39,6 +39,7 @@ class Backend : public QObject
 public:
     explicit Backend(QObject *parent = nullptr);
     Q_INVOKABLE int getNextWord(const QString& userText); // Call from QML
+    Q_INVOKABLE void setPracticeResult(const QString& mistakeCount, const QString& timeSpent);
     Q_INVOKABLE void getTables(const QString& tableType); // Call from QML
     Q_INVOKABLE void createTable(const QString& tableName, const QString& tableType); // Call from QML
     Q_INVOKABLE void switchTable(const QString& tableName, const QString& ttype); // Call from QML
@@ -68,6 +69,7 @@ public:
 
 signals:
     void wordReady(const QStringList& word);  // Emit to QML
+    void wordIsIncorrect(const QString& correctStatus);
     void tablesList(const QVariantList& tableList);  // Emit to QML
     void tableCreationResult(const QString& tableCreationResult);
     void tableTypeIs(const QString& currentTableType);
