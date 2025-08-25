@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include <QSettings>
+#include <QDate>
+
 
 class SettingsManager : public QObject
 {

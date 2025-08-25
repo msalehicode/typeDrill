@@ -265,4 +265,32 @@ int DataBase::countRows(const QString& tableName)
     return 0;
 }
 
+QVariant DataBase::runQuery(const QString &tableName, const QVariantMap &params, const QVariantMap &where, const QString &returnColumn)
+{
+    QString rawQuery = tableName;  // overload: `tableName` used to pass raw SQL
+    QSqlQuery query(m_db);
+
+    if (!query.prepare(rawQuery)) {
+        qWarning() << "Failed to prepare custom query:" << query.lastError().text();
+        return QVariant();
+    }
+
+    // Bind values
+    for (auto it = params.begin(); it != params.end(); ++it) {
+        query.bindValue(":" + it.key(), it.value());
+    }
+
+    if (!query.exec()) {
+        qWarning() << "Failed to execute custom query:" << query.lastError().text();
+        return QVariant();
+    }
+
+    // Expecting a single row, single column (e.g., COUNT(*))
+    if (query.next()) {
+        return query.value(0);
+    } else {
+        return QVariant();
+    }
+}
+
 

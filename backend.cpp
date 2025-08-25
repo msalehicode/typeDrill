@@ -38,6 +38,10 @@ bool Backend::init()
     QString dbFileName = settings.getValue("currentDatabase").toString();
     m_api_key = settings.getValue("api_key").toString();
     m_api_url = settings.getValue("api_url").toString();
+    currentStreakCount = settings.getValue("dayStreaksCounter").toInt();
+    lastPracticeDate = settings.getValue("lastPracticeDate").toDate();
+    qInfo() << "currentStreakCount" << currentStreakCount << " - lastPracticeDate=" << lastPracticeDate;
+
 
     databaseFullPath = QDir(m_dbPath).filePath(dbFileName);
 
@@ -52,12 +56,21 @@ bool Backend::init()
     }
 
 
-
+    //create index (list of table/decks)
     m_db.createTable("user_tables", "t_id INTEGER PRIMARY KEY AUTOINCREMENT,\
                      t_title TEXT,\
                      t_type TEXT,\
                      t_icon TEXT,\
                      t_status TEXT"
+                     );
+
+    //create practices result table (to trace practice progress)
+    m_db.createTable("trace_practices", "tp_id INTEGER PRIMARY KEY AUTOINCREMENT,\
+                     tp_table_id INTEGER,\
+                     tp_timeSpent TEXT,\
+                     tp_mistakesCount TEXT,\
+                     tp_date TEXT DEFAULT CURRENT_TIMESTAMP,\
+                     FOREIGN KEY(tp_table_id) REFERENCES user_tables(t_id)"
                      );
 
     return true;
@@ -104,7 +117,48 @@ int Backend::getNextWord(const QString &userText)
 
 void Backend::setPracticeResult(const QString &mistakeCount, const QString &timeSpent)
 {
-    //submit the values into database to trace practice progress and set streak days
+    qInfo() << "setPracticeResult=-=--=-==-";
+    QMap<QString, QVariant> rowData;
+    rowData["tp_table_id"] = m_db.searchTable("user_tables","t_title",currentTableName,"t_id");;
+    rowData["tp_timeSpent"] = timeSpent;
+    rowData["tp_mistakesCount"] = mistakeCount;
+
+    // for (auto it = rowData.constBegin(); it != rowData.constEnd(); ++it) {
+    //     qInfo() << it.key() << ":" << it.value().toString();
+    // }
+    if(!m_db.insertIntoTable("trace_practices", rowData))
+        qWarning() << "failed to insert into table (trace_practice)";
+
+
+
+    //streakDays
+    QDate today = QDate::currentDate();
+    if (today == lastPracticeDate) {
+        qInfo() << "same day, streak unchanged";
+    }
+    else if (today == lastPracticeDate.addDays(1))
+    {
+        // consecutive day, streak++
+        currentStreakCount++;
+        qInfo() << "consecutive day, streak++";
+        settings.setValue("currentStreakCount", currentStreakCount);
+        settings.setValue("lastPracticeDate", today);
+        lastPracticeDate = today;
+    }
+    else
+    {
+        // missed day(s), reset streak
+        currentStreakCount = 1;
+        qInfo() << "missed day(s), reset streak";
+        settings.setValue("currentStreakCount", currentStreakCount);
+        settings.setValue("lastPracticeDate", today);
+        lastPracticeDate = today;
+    }
+
+
+
+
+
 }
 
 void Backend::getTables(const QString& tableType)
@@ -340,6 +394,22 @@ QString Backend::switchDatabase(const QString &databaseName)
     settings.setValue("currentDatabase",databaseName);
     if(init())
     {
+
+        //set dayStreakCoutner and lastPracticeDate for switched database
+        settings.setValue("dayStreaksCounter",calculateStreakDays());
+        QDate lastActivityDate = getLastActivityDate();
+        if(lastActivityDate.isValid())
+            settings.setValue("lastPracticeDate",lastActivityDate);
+        else
+            settings.setValue("lastPracticeDate", QDate(2001, 9, 9));
+        //set them into variables
+        currentStreakCount = settings.getValue("dayStreaksCounter").toInt();
+        lastPracticeDate = settings.getValue("lastPracticeDate").toDate();
+        qInfo() << "currentStreakCount" << currentStreakCount << " - lastPracticeDate=" << lastPracticeDate;
+
+
+
+
         return "successed";
     }
     else
@@ -397,6 +467,106 @@ void Backend::uploadFileToApi(const QString &fileName, const QString& publicStat
     QString filePath = m_dbPath +"/"+ fileName;
     m_fileManager.uploadFile(m_api_url, filePath, m_api_key, publicStatus);
 }
+
+QStringList Backend::getStreakDays()
+{
+    //first item ==> streak days number e.g [26,  ..]
+    //week days are on or off [26, 0,1,0,1..]
+    QStringList streak;
+    streak << QString::number(currentStreakCount);
+
+
+    QDate today = QDate::currentDate();
+    int daysFromMonday = today.dayOfWeek() - 1;
+    QDate monday = today.addDays(-daysFromMonday);
+
+    for (int i = 0; i < 7; ++i) {
+        QDate currentDay = monday.addDays(i);
+        QString startOfDay = currentDay.toString("yyyy-MM-dd") + " 00:00:00";
+        QString endOfDay = currentDay.toString("yyyy-MM-dd") + " 23:59:59";
+
+        QVariantMap params;
+        params["start"] = startOfDay;
+        params["end"] = endOfDay;
+
+        QVariant result = m_db.runQuery("SELECT COUNT(*) FROM trace_practices WHERE tp_date BETWEEN :start AND :end",
+                                      params);
+
+        if (result.isValid()) {
+            int count = result.toInt();
+            streak.append(count > 0 ? "1" : "0");
+        } else {
+            streak.append("0");
+        }
+    }
+
+    qInfo() << "streak days result = " << streak;
+    return streak;
+
+}
+
+int Backend::calculateStreakDays()
+{
+    int streakCount = 0;
+    QDate currentDate = QDate::currentDate();
+
+    // We'll check days going backwards starting from today
+    while (true) {
+        QString startOfDay = currentDate.toString("yyyy-MM-dd") + " 00:00:00";
+        QString endOfDay = currentDate.toString("yyyy-MM-dd") + " 23:59:59";
+
+        QVariantMap params;
+        params["start"] = startOfDay;
+        params["end"] = endOfDay;
+
+        QVariant result = m_db.runQuery(
+            "SELECT COUNT(*) FROM trace_practices WHERE tp_date BETWEEN :start AND :end",
+            params
+            );
+
+        if (!result.isValid()) {
+            // In case of error, stop counting streak
+            break;
+        }
+
+        int count = result.toInt();
+        if (count > 0) {
+            // Practiced this day, increment streak and check previous day
+            streakCount++;
+            currentDate = currentDate.addDays(-1);
+        } else {
+            // No practice on this day, streak broken
+            break;
+        }
+    }
+
+    qInfo() << "Consecutive practice streak: " << streakCount;
+    return streakCount;
+}
+
+QDate Backend::getLastActivityDate()
+{
+    QVariant result = m_db.runQuery("SELECT MAX(tp_date) FROM trace_practices", {});
+
+    if (!result.isValid() || result.isNull()) {
+        qInfo() << "No activity records found in database.";
+        return QDate();  // Invalid date if no data
+    }
+
+    QString dateStr = result.toString();
+
+    // Assuming tp_date is stored as a datetime string like "yyyy-MM-dd HH:mm:ss"
+    QDate lastDate = QDate::fromString(dateStr.left(10), "yyyy-MM-dd");
+
+    if (!lastDate.isValid()) {
+        qWarning() << "Failed to parse last activity date from database:" << dateStr;
+        return QDate();
+    }
+
+    qInfo() << "Last activity date from DB:" << lastDate.toString("yyyy-MM-dd");
+    return lastDate;
+}
+
 
 void Backend::onUrlListReceived() {
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());

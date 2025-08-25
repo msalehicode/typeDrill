@@ -7,25 +7,37 @@ Page
     id:homePage
     anchors.fill: parent
     property var days: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-    property var statuses: [1, 0, 1, 0, 0, 1, 0]
+    property ListModel statusesModel: ListModel {}
+
+    //tables list
     property var gridModel: []
 
 
-
-    function refresh() {
-           console.log("HomePage is refreshed!");
-            //fetch and set available databases
-            var files = backend.listOfDatabases();
-            comboboxDatabases.modelData = sqliteListToModel(files);
+    function refresh()
+    {
+        console.log("HomePage is refreshed!");
 
 
-            //fetch and set day streaks
+        //get currentDatabase name and fetch and set available databases
+        var cDatabaseName = backend.whatIsCurrentDatabase();
+        var filesNames = backend.listOfDatabases();
+        comboboxDatabases.modelData = sqliteListToModel(filesNames,cDatabaseName);
 
 
+        //fetch and set day streaks
+        var streakDays = backend.getStreakDays();
+        dayCountStreak.text = streakDays[0] //holds streak days number
+        console.log("streakdays=",streakDays[0])
+        streakDays.shift(); //remove first element
 
-            //fetch tables/decks
-            backend.getTables("");  // Or "" for all
-       }
+        statusesModel.clear();
+        for (var i = 0; i < streakDays.length; i++) {
+            statusesModel.append({"status": parseInt(streakDays[i])});
+        }
+
+        //fetch tables/decks
+        backend.getTables("");  // Or "" for all
+    }
 
     Rectangle
     {
@@ -150,7 +162,7 @@ Page
 
 
                         Repeater {
-                            model: days.length
+                            model: statusesModel
                             delegate: Rectangle {
                                 width: 60
                                 height: 45
@@ -159,13 +171,13 @@ Page
                                 Rectangle {
                                     width: 35
                                     height: 35
-                                    color: statuses[index] === 1 ? "blue" : "lightgray"
+                                    color:  model.status  === 1 ? "blue" : "lightgray"
                                     radius: 35
                                     anchors.verticalCenter: parent.verticalCenter
 
                                     Text {
                                         text: days[index]
-                                        color: statuses[index] === 1 ? "blue" : "lightgray"
+                                        color: model.status === 1 ? "blue" : "lightgray"
                                         font.pixelSize: 15
                                         font.bold: true
                                         anchors.top: parent.top
@@ -178,7 +190,7 @@ Page
                                         width: 20
                                         height: 20
                                         anchors.centerIn: parent
-                                        visible: statuses[index] === 1
+                                        visible: model.status === 1
                                     }
                                 }
                             }
@@ -381,15 +393,12 @@ Page
 
     }
 
-    function sqliteListToModel(sqliteList)
+    function sqliteListToModel(sqliteList,currentDatabaseName="")
     {
-        //get currentDatabase name
-        var cDatabaseName = backend.whatIsCurrentDatabase();
-
         var model = [];
         for(var i = 0; i < sqliteList.length; i++)
         {
-            if(sqliteList[i]===cDatabaseName)
+            if(sqliteList[i]===currentDatabaseName)
                 comboboxDatabases.currentIndex = i;
 
             model.push({

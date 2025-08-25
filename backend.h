@@ -23,6 +23,10 @@ class Backend : public QObject
     QString currentTableName;
     QString currentTableType;
     QString databaseFullPath;
+
+    int currentStreakCount;
+    QDate lastPracticeDate;
+
     void wordIs();
     bool init();
     QString m_api_url;
@@ -59,9 +63,11 @@ public:
     Q_INVOKABLE void download(const QString &url, const QString &fileName);
     Q_INVOKABLE void uploadFileToApi(const QString& fileName, const QString& publicStatus);
 
+    Q_INVOKABLE QStringList getStreakDays();
+    int calculateStreakDays();
+    QDate getLastActivityDate();
 
     QSqlQuery* m_query;
-    // QString m_queryStr;
     int min_id;
     int max_id;
     int last_id;

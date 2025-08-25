@@ -51,6 +51,11 @@ public:
 
     int countRows(const QString& tableName);
 
+    QVariant runQuery(const QString& tableName,
+                      const QVariantMap& params = {},
+                      const QVariantMap& where = {},
+                      const QString& returnColumn = QString());
+
 signals:
 };
 #endif // DATABASE_H
