@@ -15,20 +15,11 @@ Page
         if(formType=="word")
         {
             //text, meaning, example, translate, source, status
-           // firstInput.placeholderText="word text";
-           //  secondInput.placeholderText="word meaning";
-           //  thirdInput.placeholderText="word example";
-           //  forthInput.placeholderText="word translate";
-           //  fifthInput.placeholderText="word source";
-           //  sixthInput.placeholderText="word status";
+
         }
         else if(formType=="verb")
         {
             //verb, past, past perfect, status
-            // firstInput.placeholderText="verb";
-            //  secondInput.placeholderText="past";
-            //  thirdInput.placeholderText="past perfect";
-            //  forthInput.placeholderText="status";
             fifthInput.enabled=false;
             fifthInput.visible=false;
             sixthInput.visible=false;
