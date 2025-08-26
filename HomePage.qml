@@ -12,33 +12,6 @@ Page
     //tables list
     property var gridModel: []
 
-
-    function refresh()
-    {
-        console.log("HomePage is refreshed!");
-
-
-        //get currentDatabase name and fetch and set available databases
-        var cDatabaseName = backend.whatIsCurrentDatabase();
-        var filesNames = backend.listOfDatabases();
-        comboboxDatabases.modelData = sqliteListToModel(filesNames,cDatabaseName);
-
-
-        //fetch and set day streaks
-        var streakDays = backend.getStreakDays();
-        dayCountStreak.text = streakDays[0] //holds streak days number
-        console.log("streakdays=",streakDays[0])
-        streakDays.shift(); //remove first element
-
-        statusesModel.clear();
-        for (var i = 0; i < streakDays.length; i++) {
-            statusesModel.append({"status": parseInt(streakDays[i])});
-        }
-
-        //fetch tables/decks
-        backend.getTables("");  // Or "" for all
-    }
-
     Rectangle
     {
         anchors.fill: parent;
@@ -214,9 +187,67 @@ Page
                     horizontalCenter: parent.horizontalCenter
                 }
 
+                Rectangle
+                {
+                    id:searchBoxTableList
+                    width:parent.width
+                    height:70
+                    color:"yellow"
+                    TextInput
+                    {
+                        id:searchTableTextInput
+                        text:""
+                        width:parent.width/1.10
+                        height:parent.height
+                        anchors.verticalCenter: parent.verticalCenter
+                        onAccepted:
+                        {
+                            refresh()
+                        }
+                    }
+
+                    Button
+                    {
+                        id:buttonSubmitSearch
+                        anchors.right:parent.right
+                        anchors.top:parent.top
+                        width:50
+                        height:parent.height
+                        text:"search"
+                        onClicked:
+                        {
+                            refresh()
+                        }
+                    }
+
+                    ComboBox
+                    {
+                        id:searchTableTypeCombobox
+                        anchors.right: buttonSubmitSearch.left
+                        anchors.top:parent.top
+                        width:70
+                        height:parent.height
+                        model: ["all","verb","word","single"]
+                        onCurrentTextChanged:
+                        {
+                            refresh()
+                        }
+                    }
+
+
+                }
+
                 Flickable {
                     id: flickable
-                    anchors.fill: parent
+                    // anchors.fill: parent
+                    anchors
+                    {
+                        top:searchBoxTableList.bottom
+                        left:parent.left
+                        right: parent.right
+                        bottom:parent.bottom
+                    }
+
                     contentWidth: grid.width
                     contentHeight: grid.height
                     flickableDirection: Flickable.VerticalFlick
@@ -239,6 +270,20 @@ Page
                                 color: "lightblue"
                                 border.color: "gray"
                                 radius: 20
+                                Image
+                                {
+                                    id:pinnedIcon
+                                    source: modelData.t_status === "pinned" ? "resourses/pinned.png" : ""
+                                    width: 45
+                                    height: 45
+                                    fillMode: Image.PreserveAspectFit
+                                    anchors
+                                    {
+                                        right:parent.right
+                                        top:parent.top
+                                    }
+                                }
+
                                 Image {
                                     id:image
                                     source: modelData.t_icon
@@ -288,6 +333,16 @@ Page
                                             mainStackView.push("PracticePage.qml", { practiceMode:"verb" })
                                         else
                                             mainStackView.push("PracticePage.qml", { practiceMode:"word" })
+                                    }
+                                    onPressAndHold:
+                                    {
+                                        var result = backend.pinTable(modelData.t_id);
+                                        if(result==="table status has been updated.")
+                                        {
+                                            refresh();
+                                        }
+                                        else
+                                            console.log("couldn't update pin status of table");
                                     }
                                 }
                             }//-----
@@ -391,6 +446,32 @@ Page
 
 
 
+    }
+
+    function refresh()
+    {
+        console.log("HomePage is refreshed!");
+
+
+        //get currentDatabase name and fetch and set available databases
+        var cDatabaseName = backend.whatIsCurrentDatabase();
+        var filesNames = backend.listOfDatabases();
+        comboboxDatabases.modelData = sqliteListToModel(filesNames,cDatabaseName);
+
+
+        //fetch and set day streaks
+        var streakDays = backend.getStreakDays();
+        dayCountStreak.text = streakDays[0] //holds streak days number
+        console.log("streakdays=",streakDays[0])
+        streakDays.shift(); //remove first element
+
+        statusesModel.clear();
+        for (var i = 0; i < streakDays.length; i++) {
+            statusesModel.append({"status": parseInt(streakDays[i])});
+        }
+
+        //fetch tables/decks
+        backend.getTables(searchTableTextInput.text,searchTableTypeCombobox.currentText);
     }
 
     function sqliteListToModel(sqliteList,currentDatabaseName="")

@@ -161,31 +161,84 @@ void Backend::setPracticeResult(const QString &mistakeCount, const QString &time
 
 }
 
-void Backend::getTables(const QString& tableType)
+void Backend::getTables(const QString& searchedTitle,const QString& tableType)
 {
-    QVariantList filteredTables;
-
     // Fetch all rows from the "user_tables" table
     QVariantList allTables = m_db.getAllRowsAsVariantList("user_tables");
 
-    // Filter based on tableType (e.g., "verb", "noun", etc.)
+
+    //list pinned tables
+    QVariantList pinnedTables;
     for (const QVariant &rowVar : allTables)
     {
         QVariantMap row = rowVar.toMap();
 
+        //only append pinned ones
+        if(row["t_status"].toString() != "pinned")
+            continue;
+
+        // If tableType is "all" or empty, include everything
+        if (tableType.isEmpty() || tableType == "all")
+            pinnedTables.append(row);
+        // Otherwise, filter by t_type (verb,word,single)
+        else if (row["t_type"].toString() == tableType)
+            pinnedTables.append(row);
+    }
+
+
+    // Filter based on tableType (e.g., "verb", "noun", etc.)
+    QVariantList filteredTables;
+    for (const QVariant &rowVar : allTables)
+    {
+        QVariantMap row = rowVar.toMap();
+
+        // don't include pinned tables to avoid duplicate
+        if(row["t_status"].toString() == "pinned")
+            continue;
+
         // If tableType is "all" or empty, include everything
         if (tableType.isEmpty() || tableType == "all")
         {
-            filteredTables.append(row);
+            if(searchedTitle.isEmpty()) //searchedTitle didn't provide
+                filteredTables.append(row);
+            else if(!searchedTitle.isEmpty() && searchedTitle==row["t_title"].toString())
+                filteredTables.append(row);
         }
-        // Otherwise, filter by t_type
+
+        // Otherwise, filter by t_type (verb,word,single)
         else if (row["t_type"].toString() == tableType)
         {
-            filteredTables.append(row);
+            if(searchedTitle.isEmpty()) //searchedTitle didn't provide
+                filteredTables.append(row);
+            else if(!searchedTitle.isEmpty() && searchedTitle==row["t_title"].toString())
+                filteredTables.append(row);
         }
     }
 
-    emit tablesList(filteredTables);
+
+    // merge filteredTables items to pinnedTables (pinnedTables will show first items on UI)
+    for (const QVariant &item : filteredTables)
+    {
+        pinnedTables.append(item);
+    }
+
+    emit tablesList(pinnedTables);
+}
+
+QString Backend::pinTable(const QString &tableId)
+{
+    QString tablePinnedStatus = m_db.searchTable("user_tables","t_id",tableId,"t_status");
+    QString value="";
+    if(tablePinnedStatus=="pinned")
+        value="0";
+    else
+        value="pinned";
+
+
+    bool qResult = m_db.updateTableValue("user_tables","t_id",tableId,"t_status",value);
+    if(qResult)
+        return "table status has been updated.";
+    return "error couldn't update pin status of table.";
 }
 
 

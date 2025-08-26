@@ -44,7 +44,8 @@ public:
     explicit Backend(QObject *parent = nullptr);
     Q_INVOKABLE int getNextWord(const QString& userText); // Call from QML
     Q_INVOKABLE void setPracticeResult(const QString& mistakeCount, const QString& timeSpent);
-    Q_INVOKABLE void getTables(const QString& tableType); // Call from QML
+    Q_INVOKABLE void getTables(const QString& searchedTitle, const QString& tableType); // Call from QML
+    Q_INVOKABLE QString pinTable(const QString& tableId);
     Q_INVOKABLE void createTable(const QString& tableName, const QString& tableType); // Call from QML
     Q_INVOKABLE void switchTable(const QString& tableName, const QString& ttype); // Call from QML
     Q_INVOKABLE void whatIsCurrentTableType(); // Call from QML
@@ -66,6 +67,7 @@ public:
     Q_INVOKABLE QStringList getStreakDays();
     int calculateStreakDays();
     QDate getLastActivityDate();
+
 
     QSqlQuery* m_query;
     int min_id;
