@@ -6,7 +6,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Find required Qt modules
-find_package(Qt6 6.2 COMPONENTS Quick Sql Network REQUIRED)
+find_package(Qt6 6.2 COMPONENTS Quick Sql Network AndroidExtras REQUIRED)
 
 # Define the executable target
 qt_add_executable(appTypeDrill
@@ -16,7 +16,7 @@ qt_add_executable(appTypeDrill
 # Define QML module
 qt_add_qml_module(appTypeDrill
     URI TypeDrill
-    VERSION 1.0
+    VERSION 1.12
 
     SOURCES
         backend.h
@@ -46,6 +46,8 @@ qt_add_qml_module(appTypeDrill
         QML_FILES CustomProccessBar.qml
         SOURCES filemanager.h filemanager.cpp
         RESOURCES resourses/pinned.png
+        SOURCES
+        SOURCES androidcodes.h androidcodes.cpp
 )
 
 # Set app properties for macOS/Windows
@@ -58,7 +60,7 @@ set_target_properties(appTypeDrill PROPERTIES
 
 # Link against Qt libraries
 target_link_libraries(appTypeDrill
-    PRIVATE Qt6::Quick Qt6::Sql Qt6::Network
+    PRIVATE Qt6::Quick Qt6::Sql Qt6::Network Qt6::AndroidExtras
 )
 
 if(ANDROID)
