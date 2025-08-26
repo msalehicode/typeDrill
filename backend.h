@@ -15,7 +15,6 @@
 #include <QJsonObject>
 #include "filemanager.h"
 
-#include "androidhelper.h"
 
 class Backend : public QObject
 {
@@ -39,7 +38,7 @@ class Backend : public QObject
     QNetworkAccessManager m_networkManager;
     FileManager m_fileManager;
 
-    AndroidHelper m_androidHelper;
+
 
 public:
     explicit Backend(QObject *parent = nullptr);
@@ -69,7 +68,6 @@ public:
     int calculateStreakDays();
     QDate getLastActivityDate();
 
-    Q_INVOKABLE void setAndroidBarsColor(int color, color2);
 
     QSqlQuery* m_query;
     int min_id;
