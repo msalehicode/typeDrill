@@ -1,6 +1,6 @@
 import QtQuick
 import QtQuick.Controls
-import QtQuick.Dialogs
+
 Page{
     anchors.fill: parent
     Rectangle
@@ -56,7 +56,6 @@ Page{
 
         Column
         {
-            id:apikeyBase
             width:parent.width
             height:200
             anchors.top: spacerRect.bottom
@@ -88,35 +87,6 @@ Page{
                 }
             }
         }
-
-        Rectangle
-        {
-            id:spacerRect2
-            color:"black"
-            width:parent.width
-            anchors.top:apikeyBase.bottom
-            height:20;
-        }
-
-        Button
-        {
-            text:"pick android statusBar and NavigatorBar color"
-            onClicked:
-            {
-                colorDialog.open()
-            }
-        }
-
-        ColorDialog {
-                id: colorDialog
-                title: "Select Color"
-                onAccepted: {
-                    console.log("Picked color:", colorDialog.color)
-                    spacerRect2.color = colorDialog.color
-                    backend.setAndroidColors(colorDialog.color, colorDialog.color);
-                }
-            }
-
 
 
     }

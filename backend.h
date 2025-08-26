@@ -16,8 +16,6 @@
 #include "filemanager.h"
 
 
-#include "androidcodes.h"
-
 class Backend : public QObject
 {
     Q_OBJECT
@@ -41,7 +39,6 @@ class Backend : public QObject
     FileManager m_fileManager;
 
 
-    AndroidCodes m_android;
 
 public:
     explicit Backend(QObject *parent = nullptr);
@@ -70,8 +67,6 @@ public:
     Q_INVOKABLE QStringList getStreakDays();
     int calculateStreakDays();
     QDate getLastActivityDate();
-
-    Q_INVOKABLE void setAndroidColors(const QColor &statusBarColor, const QColor &navigationBarColor);
 
 
     QSqlQuery* m_query;

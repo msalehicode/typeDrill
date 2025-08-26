@@ -79,8 +79,6 @@ bool Backend::init()
 Backend::Backend(QObject *parent)
     : QObject{parent}
 {
-
-
     m_dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     init();
     connect(&m_fileManager, &FileManager::downloadProgress, this, &Backend::onDownloadProgress);
@@ -620,11 +618,6 @@ QDate Backend::getLastActivityDate()
 
     qInfo() << "Last activity date from DB:" << lastDate.toString("yyyy-MM-dd");
     return lastDate;
-}
-
-void Backend::setAndroidColors(const QColor &statusBarColor, const QColor &navigationBarColor)
-{
-    m_android.setSystemBarColors(statusBarColor,navigationBarColor);
 }
 
 
