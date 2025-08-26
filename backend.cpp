@@ -620,6 +620,12 @@ QDate Backend::getLastActivityDate()
     return lastDate;
 }
 
+void Backend::setAndroidBarsColor(int color, color2)
+{
+    m_androidHelper.setNavigationBarColor(color);
+    m_androidHelper.setStatusBarColor(color2);
+}
+
 
 void Backend::onUrlListReceived() {
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
