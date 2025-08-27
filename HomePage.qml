@@ -144,13 +144,13 @@ Page
                                 Rectangle {
                                     width: 35
                                     height: 35
-                                    color:  model.status  === 1 ? "blue" : "lightgray"
+                                    color: model.status === "1" ? "blue" : (model.status==="0") ? "red":"lightgray"
                                     radius: 35
                                     anchors.verticalCenter: parent.verticalCenter
 
                                     Text {
                                         text: days[index]
-                                        color: model.status === 1 ? "blue" : "lightgray"
+                                        color: model.status === "1" ? "blue" : (model.status==="0") ? "red":"lightgray"
                                         font.pixelSize: 15
                                         font.bold: true
                                         anchors.top: parent.top
@@ -159,11 +159,11 @@ Page
                                     }
 
                                     Image {
-                                        source: "resourses/check.png"
+
+                                        source: model.status === "1" ? "resourses/check.png" : (model.status==="0") ? "resourses/close.png":"resourses/question.png"
                                         width: 20
                                         height: 20
                                         anchors.centerIn: parent
-                                        visible: model.status === 1
                                     }
                                 }
                             }
@@ -467,7 +467,7 @@ Page
 
         statusesModel.clear();
         for (var i = 0; i < streakDays.length; i++) {
-            statusesModel.append({"status": parseInt(streakDays[i])});
+            statusesModel.append({"status": streakDays[i]});
         }
 
         //fetch tables/decks

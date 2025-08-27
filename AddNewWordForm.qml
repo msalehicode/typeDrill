@@ -208,7 +208,7 @@ Page
         backend.whatIsCurrentTableType();
 
         //first time fetch data from backend
-        backend.getTables("all")
+        backend.getTables("","all")
     }
 
 }

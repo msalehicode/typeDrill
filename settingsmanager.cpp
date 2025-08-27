@@ -39,10 +39,4 @@ void SettingsManager::initSettings()
 
     if (!settings.contains("currentDatabase"))
         settings.setValue("currentDatabase", "practiceWord");
-
-    if (!settings.contains("dayStreaksCounter"))
-        settings.setValue("dayStreaksCounter", 0);
-
-    if (!settings.contains("lastPracticeDate"))
-        settings.setValue("lastPracticeDate", QDate(2001, 9, 9));
 }

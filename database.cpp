@@ -84,6 +84,11 @@ bool DataBase::init(const QString &path, const QString &fileName)
     return result;
 }
 
+bool DataBase::isOpen()
+{
+    return m_db.open();
+}
+
 QSqlDatabase DataBase::getDatabase() const {
     return m_db;
 }

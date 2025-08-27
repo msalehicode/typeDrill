@@ -46,6 +46,7 @@ qt_add_qml_module(appTypeDrill
         QML_FILES CustomProccessBar.qml
         SOURCES filemanager.h filemanager.cpp
         RESOURCES resourses/pinned.png
+        RESOURCES resourses/close.png resourses/question.png
 )
 
 # Set app properties for macOS/Windows

@@ -65,7 +65,7 @@ public:
     Q_INVOKABLE void uploadFileToApi(const QString& fileName, const QString& publicStatus);
 
     Q_INVOKABLE QStringList getStreakDays();
-    int calculateStreakDays();
+    int calculateStreakDays(QDate& currentDate);
     QDate getLastActivityDate();
 
 

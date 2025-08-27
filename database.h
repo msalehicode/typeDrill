@@ -33,6 +33,7 @@ public:
     explicit DataBase(QObject *parent = nullptr);
     ~DataBase();
     bool init(const QString& path, const QString& fileName);
+    bool isOpen();
     QSqlDatabase getDatabase() const;
     bool createTable(const QString& tableName, const QString& schema);
     bool removeTable(const QString& tableName);
