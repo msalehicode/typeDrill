@@ -473,6 +473,19 @@ void Backend::uploadFileToApi(const QString &fileName, const QString& publicStat
     m_fileManager.uploadFile(m_api_url, filePath, m_api_key, publicStatus);
 }
 
+QString Backend::getThemeMode()
+{
+    return settings.getValue("theme").toString();
+}
+
+void Backend::setThemeMode(const QString &themeTitle)
+{
+    if(themeTitle=="light" || themeTitle=="dark")
+        settings.setValue("theme",themeTitle);
+    else
+        qInfo() << "invalid theme title.";
+}
+
 QStringList Backend::getStreakDays()
 {
     //first item ==> streak days number e.g [26,  ..]

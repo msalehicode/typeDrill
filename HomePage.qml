@@ -15,14 +15,14 @@ Page
     Rectangle
     {
         anchors.fill: parent;
-        color:"#222424"
+        color:appColors.c_background
 
         Rectangle
         {
             id:topBar
             width: parent.width
             height:55
-            color :"red"
+            color :"transparent"
             CustomComboboxWithIcon
             {
                 id: comboboxDatabases
@@ -54,7 +54,7 @@ Page
         Rectangle
         {
             id:baseContentHomePage
-            color: "lightgreen"
+            color: "transparent"
             anchors
             {
                 top:topBar.bottom
@@ -68,7 +68,7 @@ Page
                 id:weekReport
                 width:parent.width/1.20
                 height:160
-                color:"grey"
+                color:appColors.c_bg_weekReport
                 radius:20
                 anchors
                 {
@@ -79,7 +79,7 @@ Page
                 Image
                 {
                     id:streakIcon
-                    source: "resourses/streak.png"
+                    source: appIcons.icon_streak//"resourses/streak.png"
                     anchors
                     {
                         top: parent.top
@@ -93,8 +93,9 @@ Page
                 {
                     id:dayCountStreak
                     text:"2"
-                    font.pixelSize: 25
+                    font.pixelSize: appFontSizes.f_title
                     font.bold: true
+                    color: appColors.c_fontcolor
                     anchors.left: streakIcon.right
                     anchors.top:streakIcon.top
                 }
@@ -102,8 +103,9 @@ Page
                 Text
                 {
                     text:"Day Streak"
-                    font.pixelSize: 15
+                    font.pixelSize: appFontSizes.f_normal
                     font.bold: true
+                    color: appColors.c_fontcolor
                     anchors.top:dayCountStreak.bottom
                     anchors.topMargin: -5
                     anchors.left:dayCountStreak.left
@@ -144,14 +146,14 @@ Page
                                 Rectangle {
                                     width: 35
                                     height: 35
-                                    color: model.status === "1" ? "blue" : (model.status==="0") ? "red":"lightgray"
+                                    color: model.status === "1" ? appColors.c_dayStreakCompleted : (model.status==="0") ? appColors.c_dayStreakMissed : appColors.c_dayStreakc_dayStreakUnkown
                                     radius: 35
                                     anchors.verticalCenter: parent.verticalCenter
 
                                     Text {
                                         text: days[index]
-                                        color: model.status === "1" ? "blue" : (model.status==="0") ? "red":"lightgray"
-                                        font.pixelSize: 15
+                                        color: model.status === "1" ? appColors.c_dayStreakCompleted : (model.status==="0") ? appColors.c_dayStreakMissed : appColors.c_dayStreakc_dayStreakUnkown
+                                        font.pixelSize: appFontSizes.f_normal
                                         font.bold: true
                                         anchors.top: parent.top
                                         anchors.topMargin: -20
@@ -160,7 +162,7 @@ Page
 
                                     Image {
 
-                                        source: model.status === "1" ? "resourses/check.png" : (model.status==="0") ? "resourses/close.png":"resourses/question.png"
+                                        source: model.status === "1" ? appIcons.icon_check : (model.status==="0") ? appIcons.icon_close: appIcons.icon_question
                                         width: 20
                                         height: 20
                                         anchors.centerIn: parent
@@ -178,7 +180,7 @@ Page
                 id:tableList
                 width: parent.width / 1.20
                 height: 450
-                color: "white"
+                color: appColors.c_bg_tableList
                 radius:20
                 anchors {
                     top: weekReport.bottom
@@ -192,11 +194,13 @@ Page
                     id:searchBoxTableList
                     width:parent.width
                     height:70
-                    color:"yellow"
+                    color:appColors.c_bg_searchTableList
                     TextInput
                     {
                         id:searchTableTextInput
                         text:""
+                        color: appColors.c_fontcolor
+                        font.pixelSize: appFontSizes.f_textInput
                         width:parent.width/1.10
                         height:parent.height
                         anchors.verticalCenter: parent.verticalCenter
@@ -206,15 +210,20 @@ Page
                         }
                     }
 
-                    Button
+                    CustomButton
                     {
                         id:buttonSubmitSearch
+                        setButtonText:"search";
+                        setButtonBorderColor:appColors.c_buttonBorderColor
+                        setButtonBackColor:appColors.c_buttonBgColor
+                        setButtonFontColor: appColors.c_buttonFontColor
+                        setButtonFontsize: appFontSizes.f_buttonFontSize
+                        setButtonsBorderWidth: 5
+                        bwidth: 150
+                        bheight: 70
                         anchors.right:parent.right
                         anchors.top:parent.top
-                        width:50
-                        height:parent.height
-                        text:"search"
-                        onClicked:
+                        onButtonClicked:
                         {
                             refresh()
                         }
@@ -267,13 +276,13 @@ Page
                             {
                                 width: 150
                                 height: 80
-                                color: "lightblue"
-                                border.color: "gray"
+                                color: appColors.c_tableList_itemBg
+                                border.color: appColors.c_tableList_itemBorder
                                 radius: 20
                                 Image
                                 {
                                     id:pinnedIcon
-                                    source: modelData.t_status === "pinned" ? "resourses/pinned.png" : ""
+                                    source: modelData.t_status === "pinned" ? appIcons.icon_pinned : ""
                                     width: 45
                                     height: 45
                                     fillMode: Image.PreserveAspectFit
@@ -298,7 +307,7 @@ Page
                                 }
                                 Text {
                                     text: modelData.t_title
-                                    font.pixelSize: 15
+                                    font.pixelSize: appFontSizes.f_normal
                                     font.bold:true
                                     anchors
                                     {
@@ -311,6 +320,7 @@ Page
                                 Text
                                 {
                                     text:modelData.t_type
+                                    font.pixelSize: appFontSizes.f_small
                                     anchors
                                     {
                                         bottom:parent.bottom;
@@ -361,7 +371,7 @@ Page
             id:indicator
             width:parent.width
             height:75
-            color:"pink"
+            color: appColors.c_bgIndicator
             anchors.bottom: parent.bottom
 
 
@@ -372,69 +382,57 @@ Page
                 height:parent.height
                 spacing: 10
 
-                Rectangle
+                CustomButtonWithIcon
                 {
-                    width:70
-                    height:parent.height
-                    color:"black"
-                    CustomButtonWithIcon
+                    bwidth:70
+                    bheight:parent.height
+                    setButtonText:"Browse";
+                    setButtonBorderColor: "transparent";
+                    setIconSource:  appIcons.icon_browse
+                    onButtonClicked:
                     {
-                        setButtonText:"Browse";
-                        setButtonBorderColor: "transparent";
-                        setIconSource:  "resourses/streak.png"
-                        onButtonClicked:
-                        {
-                            mainStackView.push("BrowsePage.qml")
-                        }
-                    }
-                }
-                Rectangle
-                {
-                    width:70
-                    height:parent.height
-                    color:"black"
-                    CustomButtonWithIcon
-                    {
-                        setButtonText:"Manage";
-                        setButtonBorderColor: "transparent";
-                        setIconSource:  "resourses/check.png"
-                        onButtonClicked:
-                        {
-                            mainStackView.push("ManageWordTableDatabasePage.qml")
-                        }
-                    }
-                }
-                Rectangle
-                {
-                    width:70
-                    height:parent.height
-                    color:"black"
-                    CustomButtonWithIcon
-                    {
-                        setButtonText:"Profile";
-                        setButtonBorderColor: "transparent";
-                        setIconSource:  "resourses/streak.png"
-                        onButtonClicked:
-                        {
-                            mainStackView.push("ProfilePage.qml")
-                        }
+                        mainStackView.push("BrowsePage.qml")
                     }
                 }
 
-                Rectangle
+
+                CustomButtonWithIcon
                 {
-                    width:70
-                    height:parent.height
-                    color:"black"
-                    CustomButtonWithIcon
+                    bwidth:70
+                    bheight:parent.height
+                    setButtonText:"Manage";
+                    setButtonBorderColor: "transparent";
+                    setIconSource:  appIcons.icon_manage
+                    onButtonClicked:
                     {
-                        setButtonText:"Settings";
-                        setButtonBorderColor: "transparent";
-                        setIconSource:  "resourses/streak.png"
-                        onButtonClicked:
-                        {
-                            mainStackView.push("SettingsPage.qml")
-                        }
+                        mainStackView.push("ManageWordTableDatabasePage.qml")
+                    }
+                }
+
+                CustomButtonWithIcon
+                {
+                    bwidth:70
+                    bheight:parent.height
+                    setButtonText:"Profile";
+                    setButtonBorderColor: "transparent";
+                    setIconSource:  appIcons.icon_profile
+                    onButtonClicked:
+                    {
+                        mainStackView.push("ProfilePage.qml")
+                    }
+                }
+
+
+                CustomButtonWithIcon
+                {
+                    bwidth:70
+                    bheight:parent.height
+                    setButtonText:"Settings";
+                    setButtonBorderColor: "transparent";
+                    setIconSource:  appIcons.icon_settings
+                    onButtonClicked:
+                    {
+                        mainStackView.push("SettingsPage.qml")
                     }
                 }
 
@@ -484,7 +482,7 @@ Page
 
             model.push({
                            text: sqliteList[i],
-                           icon: "resourses/streak.png" //dont want icon now
+                           icon: appIcons.icon_streak //dont want icon now
                        });
         }
         return model;

@@ -52,6 +52,25 @@ Page{
             width:parent.width
             anchors.top:idUrl.bottom
             height:150;
+            Text {
+                text: "switch theme current=" + backend.getThemeMode()
+                anchors.centerIn: parent
+                color:"red"
+            }
+            MouseArea
+            {
+                anchors.fill: parent
+                onClicked:
+                {
+                    if(appColors.c_theme==="dark")
+                        backend.setThemeMode("light");
+                    else
+                        backend.setThemeMode("dark");
+
+
+                    rootWindow.reloadTheme();
+                }
+            }
         }
 
         Column

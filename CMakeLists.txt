@@ -23,6 +23,10 @@ qt_add_qml_module(appTypeDrill
         backend.cpp
         database.h
         database.cpp
+        filemanager.h
+        filemanager.cpp
+        settingsmanager.h
+        settingsmanager.cpp
 
     QML_FILES
         main.qml
@@ -30,23 +34,42 @@ qt_add_qml_module(appTypeDrill
         HomePage.qml
         AddNewTableForm.qml
         PracticePage.qml
-
-
         PracticeTimeComponent.qml
-        QML_FILES CustomButton.qml
-        QML_FILES ManageWordTableDatabasePage.qml
-        QML_FILES ProfilePage.qml
-        QML_FILES SettingsPage.qml
-        RESOURCES resourses/streak.png
-        RESOURCES resourses/check.png
-        QML_FILES CustomComboboxWithIcon.qml
-        QML_FILES CustomButtonWithIcon.qml
-        QML_FILES BrowsePage.qml
-        SOURCES settingsmanager.h settingsmanager.cpp
-        QML_FILES CustomProccessBar.qml
-        SOURCES filemanager.h filemanager.cpp
-        RESOURCES resourses/pinned.png
-        RESOURCES resourses/close.png resourses/question.png
+        CustomButton.qml
+        ManageWordTableDatabasePage.qml
+        ProfilePage.qml
+        SettingsPage.qml
+        CustomComboboxWithIcon.qml
+        CustomButtonWithIcon.qml
+        BrowsePage.qml
+        CustomProccessBar.qml
+        themes.js
+
+
+    RESOURCES
+        resourses/darkMode/50x50/browse.png
+        resourses/darkMode/50x50/check.png
+        resourses/darkMode/50x50/close.png
+        resourses/darkMode/50x50/manage.png
+        resourses/darkMode/50x50/menu.png
+        resourses/darkMode/50x50/profile.png
+        resourses/darkMode/50x50/question.png
+        resourses/darkMode/50x50/settings.png
+        resourses/darkMode/50x50/streak.png
+        resourses/darkMode/50x50/back.png
+        resourses/darkMode/50x50/pin.png
+
+        resourses/lightMode/50x50/browse.png
+        resourses/lightMode/50x50/check.png
+        resourses/lightMode/50x50/close.png
+        resourses/lightMode/50x50/manage.png
+        resourses/lightMode/50x50/menu.png
+        resourses/lightMode/50x50/profile.png
+        resourses/lightMode/50x50/question.png
+        resourses/lightMode/50x50/settings.png
+        resourses/lightMode/50x50/streak.png
+        resourses/lightMode/50x50/back.png
+        resourses/lightMode/50x50/pin.png
 )
 
 # Set app properties for macOS/Windows

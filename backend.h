@@ -64,6 +64,9 @@ public:
     Q_INVOKABLE void download(const QString &url, const QString &fileName);
     Q_INVOKABLE void uploadFileToApi(const QString& fileName, const QString& publicStatus);
 
+    Q_INVOKABLE QString getThemeMode();
+    Q_INVOKABLE void setThemeMode(const QString& themeTitle);
+
     Q_INVOKABLE QStringList getStreakDays();
     int calculateStreakDays(QDate& currentDate);
     QDate getLastActivityDate();

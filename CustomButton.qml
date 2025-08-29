@@ -3,13 +3,16 @@ import QtQuick.Window 2.15
 Item
 {
     id:local_root;
-    anchors.fill: parent;
+    // anchors.fill: parent;
+    width:bwidth
+    height:bheight
     Rectangle
     {
         anchors.fill: parent;
-        color:"transparent"
+        color:"black"
     }
-
+    property int bwidth: 25
+    property int bheight: 25
     property int setButtonsBorderWidth: 1;
     property int setRadius: 10;
     property int setWidthButtons: local_root.width;
@@ -19,6 +22,7 @@ Item
     property color setButtonFontColor: "yellow";
     property color setButtonBackColor: "purple";
     property color setButtonBorderColor: "red";
+    property int setButtonFontsize: 12;
     signal buttonClicked;
 
 
