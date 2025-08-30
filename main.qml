@@ -58,7 +58,9 @@ Window
     {
         id:appFontSizes;
         property int f_title:  ThemeConfig.fontSizes["title"];
-        property int f_normal:  ThemeConfig.fontSizes["normal"];
+
+        property int f_large:  ThemeConfig.fontSizes["large"];
+        property int f_normal: ThemeConfig.fontSizes["normal"];
         property int f_small:  ThemeConfig.fontSizes["small"];
 
         property int f_textInput:  ThemeConfig.fontSizes["Textinput"];

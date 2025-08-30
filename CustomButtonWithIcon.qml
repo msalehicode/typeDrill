@@ -19,6 +19,7 @@ Item
     property int setWidthButtons: local_root.width;
     property int setHeightButtons: local_root.height;
 
+    property int setTextMagin: 0
     property string setButtonText: "button";
     property color setButtonFontColor: "yellow";
     property color setButtonBackColor: "purple";
@@ -76,6 +77,7 @@ Item
                     {
                         horizontalCenter:parent.horizontalCenter
                         top:image.bottom
+                        topMargin:setTextMagin
                     }
                 }
 

@@ -9,7 +9,7 @@ Item
     Rectangle
     {
         anchors.fill: parent;
-        color:"black"
+        color:"transparent"
     }
     property int bwidth: 25
     property int bheight: 25
@@ -17,6 +17,7 @@ Item
     property int setRadius: 10;
     property int setWidthButtons: local_root.width;
     property int setHeightButtons: local_root.height;
+    property bool setBold: false
 
     property string setButtonText: "button";
     property color setButtonFontColor: "yellow";
@@ -49,6 +50,7 @@ Item
                     text:setButtonText;
                     anchors.centerIn:parent;
                     color:setButtonFontColor;
+                    font.bold: setBold
                 }
                 MouseArea
                 {
