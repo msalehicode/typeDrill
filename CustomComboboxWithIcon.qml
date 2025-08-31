@@ -3,73 +3,132 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
 Item {
-    id: root
-    width: 150
-    height: 50
-    anchors.right: parent.right
+    width: setWidth
+    height: setHeight
 
-    property var modelData: [
-        { text: "Apple", icon: "resourses/streak.png" },
-        { text: "Banana", icon: "resourses/check.png" },
-        { text: "Cherry", icon: "resourses/streak.png" }
-    ]
+    property color setBgColor:"black"
+    property color setFontColor:"white"
+    property color setBgColorCurrentItem: "red"
+    property int setfontSize: 16
+    property int setRadius: 20
+    property int setWidth: 180
+    property int setHeight: 50
+    property int setMaxHeightItemsList: 300
+
+
     property int currentIndex: 0
     signal activated(int index)
+
+
+    property var modelData: [
+        { text: "Item 1", icon: appIcons.icon_question },
+        { text: "Item 2", icon: appIcons.icon_streak},
+        { text: "Item 3", icon: appIcons.icon_streak},
+        { text: "Item 4", icon: appIcons.icon_streak},
+        { text: "Item 5", icon: appIcons.icon_streak},
+        { text: "Item 6", icon: appIcons.icon_check }
+    ]
+
+
 
     Rectangle {
         id: baseCombobox
         anchors.fill: parent
-        color: "black"
+        color:setBgColor
+        radius:setRadius
 
-        RowLayout {
-            anchors.fill: parent
-            spacing: 5
 
+        Rectangle
+        {
+            id:iconItem
+            color:"transparent"
+            width:30
+            height:30
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.left: parent.left
+            anchors.leftMargin: 10
             Image {
                 source: modelData[currentIndex].icon
-                width: 24
-                height: 24
-                fillMode: Image.PreserveAspectFit
-                Layout.alignment: Qt.AlignVCenter
-                anchors.right: parent.right
+                anchors.fill: parent
             }
+        }
 
-            Text {
-                text: modelData[currentIndex].text
-                color: "white"
-                font.pixelSize: 16
-                Layout.alignment: Qt.AlignVCenter
-                anchors.left: parent.left
-                anchors.leftMargin:15
+
+        Rectangle
+        {
+            id:textItem
+            color:"transparent"
+            width:setWidth/2
+            height:setHeight/2
+            clip:true
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.left: iconItem.right
+            anchors.leftMargin: 10
+            Text
+            {
+                text:modelData[currentIndex].text
+                color:setFontColor
+                font.pixelSize: setfontSize
             }
+        }
 
-            Item { Layout.fillWidth: true } // Spacer
+
+
+
+
+
+
+        Rectangle
+        {
+            id:iconFlashCombobox
+            color:"transparent"
+            width:40
+            height:40
+            rotation: -90
+            anchors.right:parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            Image {
+                source: appIcons.icon_back_white
+                anchors.centerIn: parent
+                width:20
+                height:20
+            }
         }
 
         MouseArea {
             anchors.fill: parent
-            onClicked: popup.open()
+            onClicked:
+            {
+                iconFlashCombobox.rotation=90
+                popup.open()
+            }
         }
     }
 
     Popup {
         id: popup
-        x: baseCombobox.x
-        y: baseCombobox.y + baseCombobox.height
+        x: baseCombobox.x -5
+        y: baseCombobox.y + baseCombobox.height -5
         width: baseCombobox.width
-        height: Math.min(modelData.length * 50, 300) // max height
+        height: Math.min(modelData.length * setHeight, setMaxHeightItemsList) // max height
         modal: true
         focus: true
 
         background: Rectangle {
             color: "transparent"
         }
+        onClosed:
+        {
+            iconFlashCombobox.rotation=-90
+        }
 
         Rectangle
         {
             width: baseCombobox.width
-            color:"black"
-            height: Math.min(modelData.length * 50, 300) // max height
+            color: setBgColor
+            height: Math.min(modelData.length * setHeight, setMaxHeightItemsList) // max height
+            radius: setRadius
+            clip:true
             ListView {
                 anchors.fill: parent
                 model: modelData
@@ -77,50 +136,63 @@ Item {
                 boundsBehavior: Flickable.StopAtBounds
                 anchors.margins: 2
 
-
                 delegate: Rectangle {
                     width: parent.width
-                    height: 50
-                    color: index === currentIndex ? "#555" : "#333"
-                    // border.color: "white"
-                    // border.width: 1
+                    height: setHeight
+                    color: index === currentIndex ? setBgColorCurrentItem : setBgColor
+                    radius: setRadius
 
                     RowLayout {
                         anchors.fill: parent
                         spacing: 5
-                        anchors.margins: 5
 
-                        // Image {
-                        //     source: modelData.icon
-                        //     width: 24
-                        //     height: 24
-                        //     fillMode: Image.PreserveAspectFit
-                        //     Layout.alignment: Qt.AlignVCenter
-                        //     anchors.right: parent.right
-                        // }
-
-                        Text {
-                            text: modelData.text
-                            color: "white"
-                            font.pixelSize: 16
-                            Layout.alignment: Qt.AlignVCenter
+                        Rectangle
+                        {
+                            id:iconItem_onList
+                            color:"transparent"
+                            width:30
+                            height:30
+                            anchors.verticalCenter: parent.verticalCenter
                             anchors.left: parent.left
-                            anchors.leftMargin:15
+                            anchors.leftMargin: 10
+                            Image {
+                                source: modelData.icon
+                                anchors.fill: parent
+                            }
                         }
 
-                        Item { Layout.fillWidth: true }
+                        Rectangle
+                        {
+                            id:textItem_onList
+                            color:"transparent"
+                            width:setWidth/2
+                            height:setHeight/2
+                            clip:true
+                            Text
+                            {
+                                text:modelData.text
+                                color:setFontColor
+                                font.pixelSize: setfontSize
+                            }
+                        }
+
                     }
 
                     MouseArea {
                         anchors.fill: parent
-                        onClicked: {
+                        onClicked:
+                        {
                             activated(index)
                             popup.close()
+
                         }
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
                     }
                 }
+
+
+
             }
 
         }

@@ -30,27 +30,44 @@ Window
         property string c_theme : "light";
         property var currentTheme: ThemeConfig.themeLight
 
+
+        //main colors
         property color c_background : currentTheme["background"];
-        property color c_bg_weekReport : currentTheme["bg_weekReport"];
         property color c_fontcolor : currentTheme["fontColor"];
 
+
         //day streak
+        property color c_bg_weekReport : currentTheme["bg_weekReport"];
         property color c_dayStreakCompleted: currentTheme["dayStreak_completed"];
         property color c_dayStreakMissed : currentTheme["dayStreak_missed"];
         property color c_dayStreakUnkown : currentTheme["dayStreak_unknown"];
+        property color c_weekdayBordercolor: currentTheme["weekDayBordercolor"];
 
+
+        //practice table list
         property color c_bg_tableList : currentTheme["bg_tableList"];
-        property color c_bg_searchTableList : currentTheme["bg_searchTableList"];
+        property color c_bgTableitem : currentTheme["bg_tableItem"];
+        property color c_bgIcon_tableItem : currentTheme["bgIcon_tableItem"];
+        property color c_borderColorIcon_tableItem : currentTheme["borderColorIcon_tableItem"];
+        property color c_borderColorTextInput : currentTheme["borderColorTextInput"];
 
         //buttons
         property color c_buttonBorderColor : currentTheme["buttons_borderColor"];
         property color c_buttonBgColor : currentTheme["buttons_bgColor"];
         property color c_buttonFontColor : currentTheme["buttons_fontColor"];
 
+        //combobox
+        property color c_comboboxBgColor : currentTheme["combobox_bgColor"];
+        property color c_comboboxBgColorCurrentItem : currentTheme["combobox_bgColorCurrentItem"];
 
-        property color c_tableList_itemBg : currentTheme["tableList_ItemBg"];
-        property color c_tableList_itemBorder : currentTheme["tableList_ItemBorder"];
 
+        //textinput
+        property color c_bgColor_textinput : currentTheme["bgColor_textinput"];
+        property color c_borderColor_textinput : currentTheme["borderColor_textinput"];
+        property color c_fontColor_textinput : currentTheme["fontColor_textinput"];
+
+
+        //indicator
         property color c_bgIndicator : currentTheme["bg_indicator"];
     }
 
@@ -59,9 +76,11 @@ Window
         id:appFontSizes;
         property int f_title:  ThemeConfig.fontSizes["title"];
 
+
         property int f_large:  ThemeConfig.fontSizes["large"];
         property int f_normal: ThemeConfig.fontSizes["normal"];
         property int f_small:  ThemeConfig.fontSizes["small"];
+
 
         property int f_textInput:  ThemeConfig.fontSizes["Textinput"];
         property int f_buttonFontSize:  ThemeConfig.fontSizes["buttonsfontSize"];
@@ -73,12 +92,13 @@ Window
         id:appIcons;
         property string i_path: "resourses/" + appColors.c_theme+"Mode/50x50/";
 
-
+        //main.qml
         property string icon_menubar: appIcons.i_path+ "menu.png";
         property string icon_back: appIcons.i_path+ "back.png";
+        property string icon_back_white: "resourses/darkMode/50x50/back.png";
 
 
-        //tableList
+        //practice tableList
         property string icon_pinned: appIcons.i_path + "pin.png";
 
         //day(s) streak and week report

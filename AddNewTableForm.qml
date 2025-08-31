@@ -7,6 +7,7 @@ Page
 {
     id:addNewTableFrom
     anchors.fill: parent
+
     Rectangle
     {
         Text

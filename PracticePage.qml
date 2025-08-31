@@ -5,7 +5,8 @@ import QtQuick.Controls.Material
 
 Page
 {
-    anchors.fill: parent
+    width:parent.width
+    height: parent.height
     property int currentIndex: 0;
     property int mistakesCounter : 0;
 

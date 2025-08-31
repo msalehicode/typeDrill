@@ -6,6 +6,7 @@ Page
 {
     id:homePage
     anchors.fill: parent
+
     property var days: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
     property ListModel statusesModel: ListModel
     {
@@ -26,39 +27,40 @@ Page
         anchors.fill: parent;
         color:appColors.c_background
 
-        Rectangle
+        CustomComboboxWithIcon
         {
-            id:topBar
-            width: parent.width
-            height:55
-            color :"transparent"
-            CustomComboboxWithIcon
+            id: comboboxDatabases
+            setBgColor: appColors.c_comboboxBgColor
+            setFontColor: "white"
+            setBgColorCurrentItem: appColors.c_comboboxBgColorCurrentItem
+            setfontSize: appFontSizes.f_normal
+            setRadius: 10
+            setWidth: 180
+            setHeight: 50
+            anchors
             {
-                id: comboboxDatabases
-                anchors
+                right:parent.right
+                rightMargin:15
+                top:parent.top
+                topMargin:5
+            }
+            onActivated: function(index)
+            {
+                var result = backend.switchDatabase(modelData[index].text);
+                if(result==="successed")
                 {
-                    right:parent.right
-                    rightMargin:15
-                    verticalCenter:parent.verticalCenter
+                    currentIndex = index
+                    // console.log("Selected:", modelData[currentIndex].text)
+                    refresh()
                 }
-                onActivated: function(index)
+                else
                 {
-                    var result = backend.switchDatabase(modelData[index].text);
-                    if(result==="successed")
-                    {
-                        currentIndex = index
-                        // console.log("Selected:", modelData[currentIndex].text)
-                        refresh()
-                    }
-                    else
-                    {
-                        console.log("could not switch database.");
-                    }
+                    console.log("could not switch database.");
                 }
             }
-
-
         }
+
+
 
         Rectangle
         {
@@ -66,7 +68,7 @@ Page
             color: "transparent"
             anchors
             {
-                top:topBar.bottom
+                top:comboboxDatabases.bottom
                 left:parent.left
                 right:parent.right
                 bottom:indicator.top
@@ -89,7 +91,7 @@ Page
                 {
                     width:70
                     height:40
-                    color:"#EBEAFB"
+                    color:appColors.c_background
                     radius:50
                     anchors
                     {
@@ -122,7 +124,7 @@ Page
                         {
                             verticalCenter:parent.verticalCenter;
                             left:parent.left
-                            leftMargin:15
+                            leftMargin:12
                         }
                     }
                 }
@@ -179,9 +181,9 @@ Page
                                 Rectangle {
                                     width: 35
                                     height: 35
-                                    color: model.status === "1" ? appColors.c_dayStreakCompleted : (model.status==="0") ? appColors.c_dayStreakMissed : appColors.c_dayStreakc_dayStreakUnkown
+                                    color: model.status === "1" ? appColors.c_dayStreakCompleted : (model.status==="0") ? appColors.c_dayStreakMissed : appColors.c_dayStreakUnkown
                                     radius: 35
-                                    border.color: "#ebe9f2"
+                                    border.color: appColors.c_weekdayBordercolor
                                     border.width: 3
                                     anchors.verticalCenter: parent.verticalCenter
                                     Image {
@@ -195,7 +197,7 @@ Page
 
                                     Text {
                                         text: days[index]
-                                        color: model.status === "1" ? appColors.c_dayStreakCompleted : (model.status==="0") ? appColors.c_dayStreakMissed : appColors.c_dayStreakc_dayStreakUnkown
+                                        color: model.status === "1" ? appColors.c_dayStreakCompleted : (model.status==="0") ? appColors.c_dayStreakMissed : appColors.c_dayStreakUnkown
                                         font.pixelSize: appFontSizes.f_normal
                                         font.bold: true
                                         anchors
@@ -218,7 +220,7 @@ Page
                 id:selectPracticeOrEtc
                 width: parent.width / 1.20
                 height:70
-                color: "#EBEAFB"
+                color: appColors.c_bg_tableList
                 radius:70
                 anchors
                 {
@@ -235,7 +237,7 @@ Page
                         text:"practice"
                     }
                     Button{
-                        text:"class"
+                        text:"learn"
                     }
                 }
 
@@ -244,7 +246,7 @@ Page
             Rectangle {
                 id:tableList
                 width: parent.width / 1.20
-                height: 450
+                height:parent.height/1.70
                 color: appColors.c_bg_tableList
                 radius:20
                 anchors {
@@ -257,52 +259,47 @@ Page
                 Rectangle
                 {
                     id:searchBoxTableList
-                    width:parent.width/1.10
+                    width:parent.width/1.50
+                    height:60
+                    radius:50
+                    color:"transparent"
                     anchors
                     {
                         horizontalCenter: parent.horizontalCenter
                         top:parent.top
                         topMargin:15
                     }
-                    height:50
-                    radius:50
-                    color:appColors.c_bg_searchTableList
-                    Rectangle
-                    {
-                        id:baseSearchInput
-                        color:"transparent"
-                        width:parent.width/1.50
-                        height:parent.height
-                        border.color:"black"
-                        anchors
-                        {
-                            left:parent.left
-                            leftMargin:25
-                        }
-                        radius:25
-                        clip:true
 
-                        TextInput
+                    CustomTextInput
+                    {
+                        id:searchTableTextInput
+                        setWidth: parent.width/2
+                        setHeight: 50
+                        setBgColor: appColors.c_bgColor_textinput
+                        setBordercolor: appColors.c_borderColor_textinput
+                        setBorderWidth:2
+                        setFontSize:appFontSizes.f_textInput
+                        setFontColor: appColors.c_fontColor_textinput
+                        setRadius:10
+                        theText:""
+                        setTitleText:"Search:"
+
+                        onTheTextChanged:
                         {
-                            id:searchTableTextInput
-                            text:""
-                            color: appColors.c_fontcolor
-                            font.pixelSize: appFontSizes.f_textInput
-                            width:parent.width/1.10
-                            height:parent.height/2
-                            anchors.centerIn: parent
-                            onAccepted:
-                            {
-                                refresh()
-                            }
+                            refresh()
                         }
                     }
 
                     ComboBox
                     {
                         id:searchTableTypeCombobox
-                        anchors.left: baseSearchInput.right
-                        anchors.top:parent.top
+                        anchors
+                        {
+                            top:parent.top
+                            left: searchTableTextInput.right
+                            leftMargin:15
+                        }
+
                         width:70
                         height:parent.height
                         model: ["all","verb","word","single"]
@@ -318,7 +315,7 @@ Page
                         setButtonText:"search";
                         setButtonBorderColor:appColors.c_buttonBorderColor
                         setButtonBackColor: appColors.c_buttonBgColor
-                        setButtonFontColor: "white"
+                        setButtonFontColor: appColors.c_buttonFontColor
                         setBold: true
                         setButtonFontsize: appFontSizes.f_buttonFontSize
                         setButtonsBorderWidth: 0
@@ -328,7 +325,8 @@ Page
                         anchors
                         {
                             top:parent.top
-                            right:parent.right
+                            left:searchTableTypeCombobox.right
+                            leftMargin:15
                         }
                         onButtonClicked:
                         {
@@ -356,127 +354,127 @@ Page
                     spacing: 15
                     delegate:
                         Rectangle
+                    {
+                        width:parent.width/1.50
+                        height:75
+                        color:appColors.c_bgTableitem
+                        radius: 15
+                        clip:true
+                        anchors
                         {
-                            width:parent.width/1.50
-                            height:75
-                            color:"white"
-                            radius: 15
-                            clip:true
-                            anchors
-                            {
-                                horizontalCenter: parent.horizontalCenter
-                            }
+                            horizontalCenter: parent.horizontalCenter
+                        }
 
-                            Rectangle
+                        Rectangle
+                        {
+                            id:baseIconTable
+                            width:50
+                            height:50
+                            color:appColors.c_bgIcon_tableItem
+                            border.color: appColors.c_borderColorIcon_tableItem
+                            border.width: 1
+                            radius:50
+                            anchors.verticalCenter: parent.verticalCenter
+                            anchors.left: parent.left
+                            anchors.leftMargin: 20
+                            Image
                             {
-                                id:baseIconTable
-                                width:50
-                                height:50
-                                color:"grey"
-                                border.color: "yellow"
-                                border.width: 1
-                                radius:50
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.left: parent.left
-                                anchors.leftMargin: 20
-                                Image
-                                {
-                                    source: modelData.t_icon ==="" ? appIcons.icon_question :  modelData.t_icon
-                                    width:45
-                                    height:45
-                                    anchors.centerIn: parent
-                                }
-                            }
-
-                            Rectangle
-                            {
-                                id:baseTableTitles
-                                width:parent.width/1.70
-                                height:parent.height/1.20
-                                color:"transparent"
+                                source: modelData.t_icon ==="" ? appIcons.icon_question :  modelData.t_icon
+                                width:45
+                                height:45
                                 anchors.centerIn: parent
-                                clip:true
-                                Text
-                                {
-                                    id:tableTitleText
-                                    text: modelData.t_title
-                                    color:appColors.c_fontcolor
-                                    font.pixelSize: appFontSizes.f_large
-                                    font.bold:true
-                                    anchors.centerIn: parent
-                                }
+                            }
+                        }
 
-
-                                Text
-                                {
-                                    text:modelData.t_type
-                                    font.pixelSize: appFontSizes.f_normal
-                                    color:appColors.c_fontcolor
-
-                                    anchors
-                                    {
-                                        top:tableTitleText.bottom
-                                        horizontalCenter:parent.horizontalCenter
-                                    }
-                                }
-
-                                Image
-                                {
-                                    source:appIcons.icon_pinned
-                                    width:30
-                                    height:30
-                                    visible: modelData.t_status === "pinned" ? true : false
-                                    anchors
-                                    {
-                                        top:tableTitleText.top
-                                        left:tableTitleText.right
-                                        leftMargin:5
-                                    }
-                                }
+                        Rectangle
+                        {
+                            id:baseTableTitles
+                            width:parent.width/1.70
+                            height:parent.height/1.20
+                            color:"transparent"
+                            anchors.centerIn: parent
+                            clip:true
+                            Text
+                            {
+                                id:tableTitleText
+                                text: modelData.t_title
+                                color:appColors.c_fontcolor
+                                font.pixelSize: appFontSizes.f_large
+                                font.bold:true
+                                anchors.centerIn: parent
                             }
 
 
-                            Rectangle
+                            Text
                             {
-                                width:35
-                                height:35
-                                color:"#6f47d9"
-                                radius:50
-                                rotation: 180
+                                text:modelData.t_type
+                                font.pixelSize: appFontSizes.f_normal
+                                color:appColors.c_fontcolor
+
                                 anchors
                                 {
-                                    right:parent.right
-                                    rightMargin:20
-                                    verticalCenter:parent.verticalCenter
+                                    top:tableTitleText.bottom
+                                    horizontalCenter:parent.horizontalCenter
                                 }
-                                Image
+                            }
+
+                            Image
+                            {
+                                source:appIcons.icon_pinned
+                                width:30
+                                height:30
+                                visible: modelData.t_status === "pinned" ? true : false
+                                anchors
                                 {
-                                    source: appIcons.icon_back
-                                    width:parent.width/1.50
-                                    height:parent.height/1.50
-                                    anchors.centerIn: parent
+                                    top:tableTitleText.top
+                                    left:tableTitleText.right
+                                    leftMargin:5
                                 }
                             }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: {
-                                    backend.switchTable(modelData.t_title, modelData.t_type);
-                                    if (modelData.t_type === "verb")
-                                        mainStackView.push("PracticePage.qml", { practiceMode: "verb" });
-                                    else
-                                        mainStackView.push("PracticePage.qml", { practiceMode: "word" });
-                                }
-                                onPressAndHold: {
-                                    var result = backend.pinTable(modelData.t_id);
-                                    if (result === "table status has been updated.") {
-                                        refresh();
-                                    } else
-                                        console.log("couldn't update pin status of table");
-                                }
-                            }
-
                         }
+
+
+                        Rectangle
+                        {
+                            width:35
+                            height:35
+                            color:appColors.c_buttonBgColor
+                            radius:50
+                            rotation: 180
+                            anchors
+                            {
+                                right:parent.right
+                                rightMargin:20
+                                verticalCenter:parent.verticalCenter
+                            }
+                            Image
+                            {
+                                source: appIcons.icon_back_white
+                                width:parent.width/1.50
+                                height:parent.height/1.50
+                                anchors.centerIn: parent
+                            }
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                backend.switchTable(modelData.t_title, modelData.t_type);
+                                if (modelData.t_type === "verb")
+                                    mainStackView.push("PracticePage.qml", { practiceMode: "verb" });
+                                else
+                                    mainStackView.push("PracticePage.qml", { practiceMode: "word" });
+                            }
+                            onPressAndHold: {
+                                var result = backend.pinTable(modelData.t_id);
+                                if (result === "table status has been updated.") {
+                                    refresh();
+                                } else
+                                    console.log("couldn't update pin status of table");
+                            }
+                        }
+
+                    }
                 }
 
 
@@ -636,7 +634,7 @@ Page
         }
 
         //fetch tables/decks
-        backend.getTables(searchTableTextInput.text,searchTableTypeCombobox.currentText);
+        backend.getTables(searchTableTextInput.theText,searchTableTypeCombobox.currentText);
     }
 
     function sqliteListToModel(sqliteList,currentDatabaseName="")
@@ -649,7 +647,7 @@ Page
 
             model.push({
                            text: sqliteList[i],
-                           icon: appIcons.icon_streak //dont want icon now
+                           icon: appIcons.icon_question //dont want icon now
                        });
         }
         return model;

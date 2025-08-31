@@ -1,112 +1,170 @@
 import QtQuick
 import QtQuick.Controls
 
-Page{
+Page
+{
     anchors.fill: parent
     Rectangle
     {
         anchors.fill: parent
-        color:"Grey"
+        color:appColors.c_background
 
-
-        Column
-        {
-            id:idUrl
-            width:parent.width
-            height:200
-            anchors.top: parent.top
-            anchors.topMargin: 70
-            spacing: 30
-            Text
-            {
-                text:"api_url=";
-                width:parent.width
-                color:"blue"
-                font.pixelSize: 20
-            }
-            TextInput
-            {
-                id:apiUrlText
-                text:backend.getApiUrl();
-                width:parent.width
-                height:30
-                color:"red"
-                font.pixelSize: 15
-            }
-            Button
-            {
-                text:"update api_url"
-                width:parent.width
-                height:30
-                onClicked:
-                {
-                    backend.setApiUrl(apiUrlText.text)
-                }
-            }
-        }
 
         Rectangle
         {
-            id:spacerRect
-            color:"black"
-            width:parent.width
-            anchors.top:idUrl.bottom
-            height:150;
-            Text {
-                text: "switch theme current=" + backend.getThemeMode()
-                anchors.centerIn: parent
-                color:"red"
-            }
-            MouseArea
+            color:"transparent"
+            width:parent.width/2
+            height:parent.height/2
+            anchors.centerIn: parent
+
+            Column
             {
-                anchors.fill: parent
-                onClicked:
+                width:parent.width
+                height: parent.height
+                spacing: 5
+                Rectangle
                 {
-                    if(appColors.c_theme==="dark")
-                        backend.setThemeMode("light");
-                    else
-                        backend.setThemeMode("dark");
+                    color:"transparent"
+                    width:600
+                    height:80
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    CustomTextInput
+                    {
+                        id:apiUrlText
+                        setWidth: 500
+                        setHeight: 50
+                        setBgColor: appColors.c_bgColor_textinput
+                        setBordercolor: appColors.c_borderColor_textinput
+                        setBorderWidth:2
+                        setFontSize:appFontSizes.f_textInput
+                        setFontColor: appColors.c_fontColor_textinput
+                        setRadius:10
+                        theText:backend.getApiUrl()
+                        setTitleText:"Api Url:"
+                        onTheTextChanged:
+                        {
+                            buttonUpdateApiUrl.setVisible=true
+                        }
+                    }
+
+                    CustomButton
+                    {
+                        id:buttonUpdateApiUrl
+                        setButtonText:"apply";
+                        setVisible: false
+                        setButtonBorderColor:appColors.c_buttonBorderColor
+                        setButtonBackColor: appColors.c_buttonBgColor
+                        setButtonFontColor: appColors.c_buttonFontColor
+                        setBold: true
+                        setButtonFontsize: appFontSizes.f_buttonFontSize
+                        setButtonsBorderWidth: 0
+                        setRadius: 20
+                        bwidth: 100
+                        bheight: 50
+                        anchors
+                        {
+                            top:apiUrlText.top
+                            left:apiUrlText.right
+                            leftMargin:5
+                        }
+                        onButtonClicked:
+                        {
+                            backend.setApiUrl(apiUrlText.theText)
+                        }
+                    }
+                }
+
+                Rectangle
+                {
+                    color:"transparent"
+                    width:600
+                    height:80
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    CustomTextInput
+                    {
+                        id:apiKeyText
+                        setWidth: 500
+                        setHeight: 50
+                        setBgColor: appColors.c_bgColor_textinput
+                        setBordercolor: appColors.c_borderColor_textinput
+                        setBorderWidth:2
+                        setFontSize:appFontSizes.f_textInput
+                        setFontColor: appColors.c_fontColor_textinput
+                        setRadius:10
+                        theText:backend.getApiKey()
+                        setTitleText:"Api Key:"
+                        onTheTextChanged:
+                        {
+                            buttonUpdateApiKey.setVisible=true
+                        }
+                    }
+
+                    CustomButton
+                    {
+                        id:buttonUpdateApiKey
+                        setButtonText:"apply";
+                        setVisible: false
+                        setButtonBorderColor:appColors.c_buttonBorderColor
+                        setButtonBackColor: appColors.c_buttonBgColor
+                        setButtonFontColor: appColors.c_buttonFontColor
+                        setBold: true
+                        setButtonFontsize: appFontSizes.f_buttonFontSize
+                        setButtonsBorderWidth: 0
+                        setRadius: 20
+                        bwidth: 100
+                        bheight: 50
+                        anchors
+                        {
+                            top:apiKeyText.top
+                            left:apiKeyText.right
+                            leftMargin:5
+                        }
+                        onButtonClicked:
+                        {
+                            backend.setApiKey(apiKeyText.theText)
+                        }
+                    }
+                }
 
 
-                    rootWindow.reloadTheme();
+                Rectangle
+                {
+                    width:parent.width/1.50
+                    height:70
+                    color:"transparent"
+                    Text
+                    {
+                        id:switchThemeText
+                        text:"Dark Theme: "
+                        color:appColors.c_fontcolor
+                        font.pixelSize: appFontSizes.f_normal
+                        anchors.centerIn: parent
+                    }
+
+                    CustomSwitch
+                    {
+                        anchors.left: switchThemeText.right
+                        anchors.top: switchThemeText.top
+                        setWidth:50
+                        setHeight:40
+                        setBorderWidth: 4;
+                        setBgColorActivated: appColors.c_buttonBgColor
+                        switchStatus:appColors.c_theme==="dark" ? true : false;
+                        setStatusBorder:false;
+                        setSizeSwitchCircle: 2.80;
+                        onSwitchSignalClicked:
+                        {
+                            if(switchStatus==true)
+                                backend.setThemeMode("dark");
+                            else
+                                backend.setThemeMode("light");
+
+
+                            rootWindow.reloadTheme();
+                        }
+                    }
                 }
             }
         }
-
-        Column
-        {
-            width:parent.width
-            height:200
-            anchors.top: spacerRect.bottom
-            spacing:30
-            Text
-            {
-                text:"api_key=";
-                width:parent.width
-                color:"blue"
-                font.pixelSize: 20
-            }
-            TextInput
-            {
-                id:apiKeyText
-                text:backend.getApiKey();
-                width:parent.width
-                height:30
-                color:"red"
-                font.pixelSize: 15
-            }
-            Button
-            {
-                text:"update api key"
-                width:parent.width
-                height:30
-                onClicked:
-                {
-                    backend.setApiKey(apiKeyText.text)
-                }
-            }
-        }
-
-
     }
 }

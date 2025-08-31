@@ -18,6 +18,7 @@ Item
     property int setWidthButtons: local_root.width;
     property int setHeightButtons: local_root.height;
     property bool setBold: false
+    property bool setVisible:true
 
     property string setButtonText: "button";
     property color setButtonFontColor: "yellow";
@@ -36,6 +37,7 @@ Item
             width:local_root.width;
             height:local_root.height;
             color:"transparent";
+            visible: setVisible
             Rectangle
             {
                 id:button;

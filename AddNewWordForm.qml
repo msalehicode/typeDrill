@@ -6,7 +6,9 @@ import QtQuick.Layouts
 Page
 {
     id:addNewWordForm
-    anchors.fill: parent
+    width:parent.width
+    height: parent.height
+
     property string formType: "none"
 
 
