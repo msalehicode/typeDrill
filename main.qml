@@ -22,8 +22,8 @@ Window
     }
 
     //android keyboard check, if its open some elemnts if needed change height or anchors...
-    property bool appKeyboardVisible: Qt.inputMethod.visible
-    property real appKeyboardHeight: Qt.inputMethod.keyboardRectangle.height
+    // property bool appKeyboardVisible: Qt.inputMethod.visible
+    // property real appKeyboardHeight: Qt.inputMethod.keyboardRectangle.height
 
     //theme colors
     QtObject
@@ -256,7 +256,7 @@ Rectangle
     {
         left: parent.left
         top:parent.top
-        topMargin: appKeyboardVisible ? appKeyboardHeight : 0
+        // topMargin: appKeyboardVisible ? appKeyboardHeight : 0
     }
 
 

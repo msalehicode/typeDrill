@@ -39,7 +39,8 @@ Page
             {
                 horizontalCenter: parent.horizontalCenter
                 top:parent.top
-                topMargin: appKeyboardVisible ? appKeyboardHeight : 15
+                // topMargin: appKeyboardVisible ? appKeyboardHeight : 15
+                topMargin:15
             }
         }
 
