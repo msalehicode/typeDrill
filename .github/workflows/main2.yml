@@ -17,58 +17,57 @@ jobs:
       JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
 
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-    - name: Set up JDK 17
-      uses: actions/setup-java@v3
-      with:
-        distribution: 'temurin'
-        java-version: '17'
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
-    - name: Install Android SDK Command line tools
-      run: |
-        mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
-        cd $ANDROID_SDK_ROOT/cmdline-tools
-        curl -o sdk-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
-        unzip sdk-tools.zip
-        rm sdk-tools.zip
-        mv cmdline-tools latest
-        yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT --licenses
-        $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT "platform-tools" "platforms;android-$ANDROID_API_LEVEL" "build-tools;36.0.0" "ndk;$ANDROID_NDK_VERSION"
+      - name: Install Android SDK Command line tools
+        run: |
+          mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
+          cd $ANDROID_SDK_ROOT/cmdline-tools
+          curl -o sdk-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
+          unzip sdk-tools.zip
+          rm sdk-tools.zip
+          mv cmdline-tools latest
+          yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT --licenses
+          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT "platform-tools" "platforms;android-$ANDROID_API_LEVEL" "build-tools;36.0.0" "ndk;$ANDROID_NDK_VERSION"
 
-- name: Download Qt for Android (prebuilt)
-  run: |
-    mkdir -p $HOME/Qt
-    cd $HOME/Qt
-    if [ ! -d "6.5.0" ]; then
-      sudo apt-get update
-      sudo apt-get install -y p7zip-full
-      wget https://download.qt.io/archive/qt/6.5/6.5.0/android_arm64_v8a/qt-linux-android-6.5.0-android_arm64_v8a.7z
-      7z x qt-linux-android-6.5.0-android_arm64_v8a.7z -o6.5.0
-    fi
+      - name: Download Qt for Android (prebuilt)
+        run: |
+          mkdir -p $HOME/Qt
+          cd $HOME/Qt
+          if [ ! -d "6.5.0" ]; then
+            sudo apt-get update
+            sudo apt-get install -y p7zip-full
+            wget https://download.qt.io/archive/qt/6.5/6.5.0/android_arm64_v8a/qt-linux-android-6.5.0-android_arm64_v8a.7z
+            7z x qt-linux-android-6.5.0-android_arm64_v8a.7z -o6.5.0
+          fi
 
-    - name: Configure CMake for Android build
-      run: |
-        mkdir -p build-android
-        cd build-android
-        cmake .. \
-          -DCMAKE_TOOLCHAIN_FILE=$HOME/Qt/6.4.1/android_arm64_v8a/android.toolchain.cmake \
-          -DANDROID_ABI=arm64-v8a \
-          -DANDROID_PLATFORM=android-35 \
-          -DCMAKE_BUILD_TYPE=Release \
-          -G Ninja
+      - name: Configure CMake for Android build
+        run: |
+          mkdir -p build-android
+          cd build-android
+          cmake .. \
+            -DCMAKE_TOOLCHAIN_FILE=$HOME/Qt/6.5.0/android_arm64_v8a/android.toolchain.cmake \
+            -DANDROID_ABI=arm64-v8a \
+            -DANDROID_PLATFORM=android-35 \
+            -DCMAKE_BUILD_TYPE=Release \
+            -G Ninja
 
-    - name: Build APK
-      run: |
-        cd build-android
-        ninja
-        # Navigate to your Android Gradle project directory if different
-        cd ../android
-        ./gradlew assembleDebug
+      - name: Build APK
+        run: |
+          cd build-android
+          ninja
+          cd ../android
+          ./gradlew assembleDebug
 
-    - name: Upload APK artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: TypeDrill-APK
-        path: android/app/build/outputs/apk/debug/app-debug.apk
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TypeDrill-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
