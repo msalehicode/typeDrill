@@ -6,7 +6,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Find required Qt modules
-find_package(Qt6 6.2 COMPONENTS Quick Sql Network REQUIRED)
+find_package(Qt6 6.2 COMPONENTS Quick Sql Network VirtualKeyboard REQUIRED)
 
 # Define the executable target
 qt_add_executable(appTypeDrill
@@ -43,8 +43,10 @@ qt_add_qml_module(appTypeDrill
         CustomButtonWithIcon.qml
         BrowsePage.qml
         CustomProccessBar.qml
+        CustomTextInput.qml
+        CustomSwitch.qml
+        CustomCombobox.qml
         themes.js
-
 
     RESOURCES
         resourses/darkMode/50x50/browse.png
@@ -70,9 +72,7 @@ qt_add_qml_module(appTypeDrill
         resourses/lightMode/50x50/streak.png
         resourses/lightMode/50x50/back.png
         resourses/lightMode/50x50/pin.png
-        QML_FILES CustomTextInput.qml
-        QML_FILES CustomSwitch.qml
-        QML_FILES CustomCombobox.qml
+
 )
 
 # Set app properties for macOS/Windows
@@ -85,7 +85,7 @@ set_target_properties(appTypeDrill PROPERTIES
 
 # Link against Qt libraries
 target_link_libraries(appTypeDrill
-    PRIVATE Qt6::Quick Qt6::Sql Qt6::Network
+    PRIVATE Qt6::Quick Qt6::Sql Qt6::Network Qt6::VirtualKeyboard
 )
 
 if(ANDROID)
