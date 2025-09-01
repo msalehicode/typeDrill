@@ -13,7 +13,7 @@ Page
         Rectangle
         {
             color:"transparent"
-            width:parent.width/2
+            width:parent.width/1.50
             height:parent.height/2
             anchors.centerIn: parent
 
@@ -25,13 +25,13 @@ Page
                 Rectangle
                 {
                     color:"transparent"
-                    width:600
+                    width:parent.width
                     height:80
                     anchors.horizontalCenter: parent.horizontalCenter
                     CustomTextInput
                     {
                         id:apiUrlText
-                        setWidth: 500
+                        setWidth: parent.width-100
                         setHeight: 50
                         setBgColor: appColors.c_bgColor_textinput
                         setBordercolor: appColors.c_borderColor_textinput
@@ -59,8 +59,8 @@ Page
                         setButtonFontsize: appFontSizes.f_buttonFontSize
                         setButtonsBorderWidth: 0
                         setRadius: 20
-                        bwidth: 100
-                        bheight: 50
+                        setWidth: 100
+                        setHeight: 50
                         anchors
                         {
                             top:apiUrlText.top
@@ -77,13 +77,13 @@ Page
                 Rectangle
                 {
                     color:"transparent"
-                    width:600
+                    width:parent.width
                     height:80
                     anchors.horizontalCenter: parent.horizontalCenter
                     CustomTextInput
                     {
                         id:apiKeyText
-                        setWidth: 500
+                        setWidth: parent.width-100
                         setHeight: 50
                         setBgColor: appColors.c_bgColor_textinput
                         setBordercolor: appColors.c_borderColor_textinput
@@ -111,8 +111,8 @@ Page
                         setButtonFontsize: appFontSizes.f_buttonFontSize
                         setButtonsBorderWidth: 0
                         setRadius: 20
-                        bwidth: 100
-                        bheight: 50
+                        setWidth: 100
+                        setHeight: 50
                         anchors
                         {
                             top:apiKeyText.top

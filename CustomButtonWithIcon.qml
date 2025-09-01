@@ -3,17 +3,16 @@ import QtQuick.Window 2.15
 Item
 {
     id:local_root;
-    // anchors.fill: parent;
-    width: bwidth;
-    height: bheight;
+    width: setWidth;
+    height: setHeight;
     Rectangle
     {
         anchors.fill: parent;
         color:"transparent"
     }
 
-    property int bwidth: 10
-    property int bheight: 10
+    property int setWidth: 25
+    property int setHeight: 25
     property int setButtonsBorderWidth: 1;
     property int setRadius: 10;
     property int setWidthButtons: local_root.width;

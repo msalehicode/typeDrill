@@ -31,7 +31,7 @@ Page
         {
             id: comboboxDatabases
             setBgColor: appColors.c_comboboxBgColor
-            setFontColor: "white"
+            setFontColor: appColors.c_buttonFontColor
             setBgColorCurrentItem: appColors.c_comboboxBgColorCurrentItem
             setfontSize: appFontSizes.f_normal
             setRadius: 10
@@ -290,21 +290,24 @@ Page
                         }
                     }
 
-                    ComboBox
+                    CustomCombobox
                     {
-                        id:searchTableTypeCombobox
+                        id: searchTableTypeCombobox
+                        setBgColor: appColors.c_comboboxBgColor
+                        setFontColor: appColors.c_buttonFontColor
+                        setWidth: 100
+                        height:50
+                        modelData:[ { text: "all"}, { text: "word"}, { text: "verb"}, { text: "single"} ]
+                        setBgColorCurrentItem: appColors.c_comboboxBgColorCurrentItem
                         anchors
                         {
                             top:parent.top
                             left: searchTableTextInput.right
                             leftMargin:15
                         }
-
-                        width:70
-                        height:parent.height
-                        model: ["all","verb","word","single"]
-                        onCurrentTextChanged:
+                        onActivated: function(index)
                         {
+                            currentIndex = index
                             refresh()
                         }
                     }
@@ -320,8 +323,8 @@ Page
                         setButtonFontsize: appFontSizes.f_buttonFontSize
                         setButtonsBorderWidth: 0
                         setRadius: 20
-                        bwidth: 70
-                        bheight: 50
+                        setWidth: 70
+                        setHeight:50
                         anchors
                         {
                             top:parent.top
@@ -458,12 +461,13 @@ Page
 
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: {
+                            onClicked:
+                            {
                                 backend.switchTable(modelData.t_title, modelData.t_type);
                                 if (modelData.t_type === "verb")
-                                    mainStackView.push("PracticePage.qml", { practiceMode: "verb" });
+                                    mainStackView.push("PracticePage.qml", { practiceMode: "verb", m_stackView: mainStackView });
                                 else
-                                    mainStackView.push("PracticePage.qml", { practiceMode: "word" });
+                                    mainStackView.push("PracticePage.qml", { practiceMode: "word", m_stackView: mainStackView});
                             }
                             onPressAndHold: {
                                 var result = backend.pinTable(modelData.t_id);
@@ -505,8 +509,8 @@ Page
 
                 CustomButtonWithIcon
                 {
-                    bwidth:70
-                    bheight:parent.height/1.25
+                    setWidth:70
+                    setHeight:parent.height/1.25
                     anchors.centerIn: parent
                     setButtonText:"Browse";
                     setButtonBorderColor: "transparent";
@@ -532,8 +536,8 @@ Page
                 anchors.left: baseBrowse.right
                 CustomButtonWithIcon
                 {
-                    bwidth:70
-                    bheight:parent.height/1.25
+                    setWidth:70
+                    setHeight:parent.height/1.25
                     setButtonText:"Manage";
                     setButtonBorderColor: "transparent";
                     setButtonFontColor:appColors.c_fontcolor;
@@ -559,8 +563,8 @@ Page
                 anchors.left: baseManage.right
                 CustomButtonWithIcon
                 {
-                    bwidth:70
-                    bheight:parent.height/1.25
+                    setWidth:70
+                    setHeight:parent.height/1.25
                     setButtonText:"Profile";
                     setButtonBorderColor: "transparent";
                     setButtonFontColor:appColors.c_fontcolor;
@@ -587,8 +591,8 @@ Page
                 anchors.left: baseProfile.right
                 CustomButtonWithIcon
                 {
-                    bwidth:70
-                    bheight:parent.height/1.25
+                    setWidth:70
+                    setHeight:parent.height/1.25
                     setButtonText:"Settings";
                     setButtonBorderColor: "transparent";
                     setButtonFontColor:appColors.c_fontcolor;
@@ -634,7 +638,8 @@ Page
         }
 
         //fetch tables/decks
-        backend.getTables(searchTableTextInput.theText,searchTableTypeCombobox.currentText);
+        backend.getTables(searchTableTextInput.theText,
+                          searchTableTypeCombobox.currentItemText);
     }
 
     function sqliteListToModel(sqliteList,currentDatabaseName="")

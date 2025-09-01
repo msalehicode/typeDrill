@@ -8,6 +8,11 @@ Page
     Rectangle
     {
         anchors.fill: parent
-        color:"cyan"
+        color:appColors.c_background
+        Text
+        {
+            text:"soon"
+            anchors.centerIn: parent
+        }
     }
 }

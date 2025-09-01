@@ -21,7 +21,9 @@ Window
 
     }
 
-
+    //android keyboard check, if its open some elemnts if needed change height or anchors...
+    property bool appKeyboardVisible: Qt.inputMethod.visible
+    property real appKeyboardHeight: Qt.inputMethod.keyboardRectangle.height
 
     //theme colors
     QtObject
@@ -175,8 +177,8 @@ Window
                         setButtonBackColor:"white"
                         setButtonFontColor: "purple"
                         setButtonsBorderWidth: 5
-                        bwidth: parent.width
-                        bheight: 50
+                        setWidth: parent.width
+                        setHeight: 50
                         onButtonClicked:
                         {
                             mainStackView.push("ProfilePage.qml")
@@ -250,7 +252,13 @@ Rectangle
     width:50
     height:50
     color:"transparent"
-    anchors.left: parent.left
+    anchors
+    {
+        left: parent.left
+        top:parent.top
+        topMargin: appKeyboardVisible ? appKeyboardHeight : 0
+    }
+
 
     Image {
         id: imgBackOrMenu
@@ -272,6 +280,11 @@ Rectangle
 
 
 
+
+    function popStack()
+    {
+        mainStackView.pop()
+    }
 
     function reloadTheme()
     {

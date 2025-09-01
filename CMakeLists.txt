@@ -72,6 +72,7 @@ qt_add_qml_module(appTypeDrill
         resourses/lightMode/50x50/pin.png
         QML_FILES CustomTextInput.qml
         QML_FILES CustomSwitch.qml
+        QML_FILES CustomCombobox.qml
 )
 
 # Set app properties for macOS/Windows

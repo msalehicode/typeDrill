@@ -1,7 +1,5 @@
 import QtQuick
 import QtQuick.Controls
-import QtQuick.Controls.Material
-import QtQuick.Layouts
 
 Page
 {
@@ -9,159 +7,174 @@ Page
     width:parent.width
     height: parent.height
 
+
     property string formType: "none"
+
+    //data order passed by QML to backend
+    //word: text, meaning, example, translate, source, status
+    //verb: verb, past, past perfect, status
+    //single: text, translate,status
+    property var wordTitles: ["Enter Word:", "Enter Meaning:", "Enter Example:", "Enter Translate:", "Enter Source:", "Enter Status:"]
+    property var verbTitles: ["Enter Verb:","Enter Past:", "Enter Past Participle:", "Enter Status:"]
+    property var singleTitles: ["Enter Text:", "Enter Translate", "Enter Status:"]
+
+
+    ListModel
+    {
+        id: titleModel
+    }
+
 
 
     onFormTypeChanged:
     {
-        if(formType=="word")
-        {
-            //text, meaning, example, translate, source, status
-
-        }
-        else if(formType=="verb")
-        {
-            //verb, past, past perfect, status
-            fifthInput.enabled=false;
-            fifthInput.visible=false;
-            sixthInput.visible=false;
-            sixthInput.enabled=false;
-            rec5.visible=false;
-            rec6.visible=false;
-        }
-        else if(formType=="single")
-        {
-           forthInput.visible=false;
-            fifthInput.visible=false;
-            sixthInput.visible=false;
-            rec4.visible=false;
-            rec5.visible=false;
-            rec6.visible=false;
-        }
+        refreshFormInputs()
     }
 
     Rectangle
     {
-        id:baseSelectTable
-        color:"#222424"
+        color:appColors.c_background
         anchors.fill: parent
-        visible: true
 
-        ComboBox {
-            id: tablesComboBox
-            width: 200
-            height: 30
-            anchors.centerIn: parent
-            model: ListModel {}
-
-            // Important! Tell the ComboBox which role to use for display text:
-            textRole: "text"
-        }
-
-        Button
+        Rectangle
         {
-            id:buttonGo
-            text:"select"
-            anchors.top: tablesComboBox.bottom
-            anchors.left: tablesComboBox.left
-            onClicked:
+            id:baseSelectTable
+            color:"transparent"
+            anchors.fill: parent
+            visible: true
+
+            CustomCombobox
             {
-                if(tablesComboBox.currentIndex>=0)
+                id: tablesComboBox
+                setBgColor: appColors.c_comboboxBgColor
+                setFontColor: appColors.c_buttonFontColor
+                setBgColorCurrentItem: appColors.c_comboboxBgColorCurrentItem
+                anchors.centerIn: parent
+                onActivated: function(index)
                 {
-                    var selectedItem = tablesComboBox.model.get(tablesComboBox.currentIndex);
-                    backend.switchTable(selectedItem.t_name,selectedItem.t_type);
-                    formType = selectedItem.t_type
-                    baseForm.visible=true
-                    baseSelectTable.visible=false
+                    currentIndex = index
+                }
+            }
+
+            CustomButton
+            {
+                setButtonText:"select";
+                setButtonBorderColor:appColors.c_buttonBorderColor
+                setButtonBackColor: appColors.c_buttonBgColor
+                setButtonFontColor: appColors.c_buttonFontColor
+                setBold: true
+                setButtonFontsize: appFontSizes.f_buttonFontSize
+                setButtonsBorderWidth: 0
+                setRadius: 20
+                setWidth: 100
+                setHeight: 50
+                anchors.top: tablesComboBox.bottom
+                anchors.topMargin: 15
+                anchors.horizontalCenter: parent.horizontalCenter
+                onButtonClicked:
+                {
+                    if(tablesComboBox.currentIndex>=0)
+                    {
+                        //because we need payload or that table type (t_type)
+                        //don't call tablesComboBox.currentItemText
+                        var selectedItem = tablesComboBox.modelData[tablesComboBox.currentIndex]
+                        backend.switchTable(selectedItem.text,selectedItem.t_type);
+                        formType = selectedItem.t_type
+                        baseForm.visible=true
+                        baseSelectTable.visible=false
+                    }
                 }
             }
         }
-    }
-
-    Rectangle
-    {
-        id:baseForm
-        color:"#222424"
-        anchors.fill: parent
-        visible: false;
 
 
-
-    Item
+        Rectangle
         {
-            id:baseNewWordFrom
+            id:baseForm
+            visible: false
+            color:"transparent"
             width:parent.width/2
-            height:parent.height
-            anchors.horizontalCenter: parent.horizontalCenter
+            height:parent.height/2
+            anchors.centerIn: parent
             Column
             {
-                anchors.fill: parent
-                spacing: 15
-                Rectangle { id:rec1; width:100; height:50; color:"transparent";  border.color: "grey";TextInput { id:firstInput; anchors.fill: parent; color:"white"}}
-                Rectangle { id:rec2;width:100; height:50; color:"transparent"; border.color: "grey"; TextInput { id:secondInput; anchors.fill: parent; color:"white"}}
-                Rectangle { id:rec3;width:100; height:50; color:"transparent";  border.color: "grey";TextInput { id:thirdInput; anchors.fill: parent; color:"white"}}
-                Rectangle { id:rec4;width:100; height:50; color:"transparent"; border.color: "grey"; TextInput { id:forthInput; anchors.fill: parent; color:"white"}}
-                Rectangle { id:rec5;width:100; height:50; color:"transparent";  border.color: "grey";TextInput { id:fifthInput; anchors.fill: parent; color:"white"}}
-                Rectangle { id:rec6;width:100; height:50; color:"transparent"; border.color: "grey"; TextInput { id:sixthInput; anchors.fill: parent; color:"white"}}
-                Button
+                width: parent.width
+                height: parent.height
+                spacing:25
+
+                Repeater
                 {
-                    text:"save"
-                    onClicked:
+                    id: repeater
+                    model: titleModel
+                    delegate: CustomTextInput
                     {
-                        var data
-                        if(formType=="word")
-                        {
-                            //text, meaning, example, translate, source, status
-                            data = [
-                                            firstInput.text,
-                                            secondInput.text,
-                                            thirdInput.text,
-                                            forthInput.text,
-                                            fifthInput.text,
-                                            sixthInput.text
-                                        ];
+                        setWidth: parent.width
+                        setHeight: 50
+                        setBgColor: appColors.c_bgColor_textinput
+                        setBordercolor: appColors.c_borderColor_textinput
+                        setBorderWidth:2
+                        setFocus: index === 0
+                        setFontSize:appFontSizes.f_textInput
+                        setFontColor: appColors.c_fontColor_textinput
+                        setRadius:10
+                        theText:""
+                        setTitleText: model.title
+                    }
+                }
 
-                            backend.addWordToTable(data);
-                        }
-                        else if(formType=="verb")
+                CustomButton
+                {
+                    setButtonText:"add";
+                    setButtonBorderColor:appColors.c_buttonBorderColor
+                    setButtonBackColor: appColors.c_buttonBgColor
+                    setButtonFontColor: appColors.c_buttonFontColor
+                    setBold: true
+                    setButtonFontsize: appFontSizes.f_buttonFontSize
+                    setButtonsBorderWidth: 0
+                    setRadius: 20
+                    setWidth: 100
+                    setHeight: 50
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    onButtonClicked:
+                    {
+                        var data = [];
+                        for (var i = 0; i < repeater.count; i++)
                         {
-                            //verb, past, past perfect, status
-                            data = [
-                                            firstInput.text,
-                                            secondInput.text,
-                                            thirdInput.text,
-                                            forthInput.text
-                                        ];
+                            var item = repeater.itemAt(i);
+                            console.log("Input " + i + ": " + item.theText);
+                            if (item)
+                                data.push(item.theText);
+                        }
 
-                            backend.addWordToTable(data);
-                        }
-                        else if(formType=="single")
-                        {
-                            //data order passed by QML for single: text, translate,status
-                            data = [
-                                            firstInput.text,
-                                            secondInput.text,
-                                            thirdInput.text,
-                                        ];
-                            backend.addWordToTable(data);
-                        }
+
+                        //check empty items
+                        if(data[0]==="" || data[0]===" ")
+                            console.log("you must fill first item atleast")
                         else
-                        {
-                            console.log("formtype undefined.. formType=",formType);
-                        }
-
-
+                            backend.addWordToTable(data);
                     }
                 }
 
             }
-
-
-
-
         }
 
+
     }
+
+    function refreshFormInputs()
+    {
+        titleModel.clear()
+        var arr = []
+        if (formType === "word") arr = wordTitles
+        else if (formType === "verb") arr = verbTitles
+        else if (formType === "single") arr = singleTitles
+
+        for (var i = 0; i < arr.length; i++)
+        {
+            titleModel.append({"title": arr[i]})
+        }
+    }
+
     Connections
     {
         target: backend
@@ -174,15 +187,15 @@ Page
             // console.log("result submit/add item to the table: "+res)
             if (res !== "error")
             {
-                firstInput.clear()
-                secondInput.clear()
-                thirdInput.clear()
-                forthInput.clear()
-                fifthInput.clear()
-                sixthInput.clear()
+                //reset form for next word
+                refreshFormInputs()
+
+                //go to homePage
                 // mainStackView.pop();
                 // mainStackView.pop();
             }
+            else
+                console.log("error: cant add word to table.." + res)
 
 
         }
@@ -190,18 +203,20 @@ Page
         function onTablesList(tables)
         {
             // console.log("Received tables list with", tables.length, "rows");
+            var data = []
             for (var i = 0; i < tables.length; ++i)
             {
                 var row = tables[i];
                 // console.log("Row", i, "t_id:", row.t_id, "t_title:", row.t_title, "t_status:", row.t_status);
-                tablesComboBox.model.append({
+                data.push({
                                                 t_id: row.t_id,
-                                                t_name: row.t_title,
+                                                t_text: row.t_title,
                                                 t_type: row.t_type,
                                                 text: row.t_title,
                                                 value: row.t_status
                                             });
             }
+            tablesComboBox.modelData=data;
         }
     }
     Component.onCompleted:
@@ -210,7 +225,7 @@ Page
         backend.whatIsCurrentTableType();
 
         //first time fetch data from backend
-        backend.getTables("","all")
+        backend.getTables("","all")//empty string is for filter/search between tables, we dont want filter
     }
 
 }

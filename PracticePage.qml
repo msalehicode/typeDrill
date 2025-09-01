@@ -10,22 +10,37 @@ Page
     property int currentIndex: 0;
     property int mistakesCounter : 0;
 
-
+    property var m_stackView: mainStackView
     property string practiceMode: "word" //word or verb
 
-    //for practice verb needs to type whole three inputs:
+    //for practice verb needs to user type whole three inputs to get next word:
     property int passedState:0;
 
+    property bool quitPracticeStatus: false
 
     Rectangle
     {
         id:mainRect
-        color:"#222424"
+        color:appColors.c_background
         anchors.fill: parent
         CustomProccessBar
         {
             id:proccessBar
             currentValue:currentIndex
+            setWidth: parent.width/2
+            setHeight: 20
+            setSpacing:1
+            setFontColor: appColors.c_fontcolor
+            setBgColor: appColors.c_bg_tableList
+            setFontSize: appFontSizes.f_normal
+            setProgressColor: appColors.c_buttonBgColor
+            setCotinainerRadius: parent.width
+            anchors
+            {
+                horizontalCenter: parent.horizontalCenter
+                top:parent.top
+                topMargin: appKeyboardVisible ? appKeyboardHeight : 15
+            }
         }
 
         Item
@@ -35,131 +50,102 @@ Page
             PracticeTimeComponent
             {
                 id:practiceTimeCom
+                onEachTrigger:
+                {
+                    if(quitPracticeStatus)
+                        quitPractice()
+                }
             }
 
-            ColumnLayout
+            Column
             {
                 id:columnPractice
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.verticalCenter: parent.verticalCenter
+                width: parent.width/2
+                height: parent.height/2
+                anchors.centerIn: parent
                 spacing:50
                 Label
                 {
                     id:w_text
-                    text:"w_text"
-                    font.pixelSize: 45
-                    color:"white"
-                    horizontalAlignment: Text.AlignHCenter  // Center text horizontally
-                    Layout.fillWidth: true                   // Fill the available width
-                    wrapMode: Text.WordWrap                  // Enable text wrapping if text is long
-
+                    text:""
+                    font.pixelSize:appFontSizes.f_title
+                    color:appColors.c_fontcolor
+                    horizontalAlignment: Text.AlignHCenter
+                    Layout.fillWidth: true
+                    wrapMode: Text.WordWrap
                 }
+
                 Label
                 {
                     id:w_meaning
-                    text:"w_meaning"
-                    font.pixelSize: 25
-                    color:"white"
-                    horizontalAlignment: Text.AlignHCenter  // Center text horizontally
-                    Layout.fillWidth: true                   // Fill the available width
-                    wrapMode: Text.WordWrap                  // Enable text wrapping if text is long
+                    text:""
+                    font.pixelSize:appFontSizes.f_title
+                    color:appColors.c_fontcolor
+                    horizontalAlignment: Text.AlignHCenter
+                    Layout.fillWidth: true
+                    wrapMode: Text.WordWrap
                 }
                 Label
                 {
                     id:w_example
-                    text:"w_example"
-                    font.pixelSize: 25
-                    color:"white"
-                    horizontalAlignment: Text.AlignHCenter  // Center text horizontally
-                    Layout.fillWidth: true                   // Fill the available width
-                    wrapMode: Text.WordWrap                  // Enable text wrapping if text is long
+                    text:""
+                    font.pixelSize:appFontSizes.f_title
+                    color:appColors.c_fontcolor
+                    horizontalAlignment: Text.AlignHCenter
+                    Layout.fillWidth: true
+                    wrapMode: Text.WordWrap
                 }
+
                 Rectangle
                 {
-                    width: 200;
-                    height: 50
-                    Layout.alignment: Qt.AlignHCenter   // Align horizontally center in layout
                     color:"transparent"
-                    border.color: "grey";
-                    TextInput
+                    width:parent.width
+                    height:50
+                    // anchors.horizontalCenter: parent.horizontalCenter
+                    CustomTextInput
                     {
                         id:text_input
-                        text:"type"
-
-                        color:"white"
-                        font.pixelSize: 30
-                        anchors.fill: parent
-                        focus: true;
-                        onTextChanged:
+                        setWidth: parent.width-100
+                        setHeight: parent.height
+                        setBgColor: appColors.c_bgColor_textinput
+                        setBordercolor: appColors.c_borderColor_textinput
+                        setBorderWidth:2
+                        setFontSize:appFontSizes.f_textInput
+                        setFontColor: appColors.c_fontColor_textinput
+                        setRadius:10
+                        theText:""
+                        setFocus: true
+                        setErrorPosfix: ""
+                        setErrorPrefix: ""
+                        setTitleText:""
+                        onTheTextAccepted:
                         {
-                            text_input.color="white"
+                            checkVerbState()
                         }
+                    }
 
-                        onAccepted:
+                    CustomButton
+                    {
+                        id:buttonNext
+                        setButtonText:"next";
+                        setButtonBorderColor:appColors.c_buttonBorderColor
+                        setButtonBackColor: appColors.c_buttonBgColor
+                        setButtonFontColor: appColors.c_buttonFontColor
+                        setBold: true
+                        setButtonFontsize: appFontSizes.f_buttonFontSize
+                        setButtonsBorderWidth: 0
+                        setRadius: 20
+                        setWidth: 80
+                        setHeight: 50
+                        anchors
                         {
-
-                            switch(practiceMode)
-                            {
-                                case "word":
-                                {
-                                    if(text_input.length>=1)
-                                    {
-                                        text_input.color="white"
-                                        backend.getNextWord(text_input.text)
-                                    }
-                                }break;
-
-                                case "verb":
-                                {
-                                    //verb is inside w_text
-                                    //past is inside w_meaning
-                                    //past perfect is inside w_example
-                                    switch(passedState)
-                                    {
-                                        case 0:
-                                        {
-                                            if(text===w_text.text)
-                                            {
-                                                passedState++;
-                                                text_input.clear()
-                                                w_text.font.bold=false
-                                                w_meaning.font.bold=true;
-                                                w_example.font.bold=false;
-                                            }
-                                            else
-                                                mistakeMade();
-                                        }break;
-                                        case 1:
-                                        {
-                                            if(text===w_meaning.text)
-                                            {
-                                                passedState++;
-                                                text_input.clear()
-                                                w_text.font.bold=false
-                                                w_meaning.font.bold=false;
-                                                w_example.font.bold=true;
-                                            }
-                                            else
-                                                mistakeMade();
-                                        }break;
-                                        case 2:
-                                        {
-                                            if(text===w_example.text)
-                                            {
-                                                backend.getNextWord(w_text.text)//to get next one
-                                                text_input.clear()
-                                            }
-                                            else
-                                                mistakeMade();
-                                        }break;
-                                        default:
-                                            console.log("passedState invalid.")
-                                    }
-
-                                }break;
-                            }
-
-
+                            top:text_input.top
+                            left:text_input.right
+                            leftMargin:5
+                        }
+                        onButtonClicked:
+                        {
+                            checkVerbState()
                         }
                     }
                 }
@@ -200,8 +186,7 @@ Page
                 text:"quit practice"
                 onClicked:
                 {
-                    mainStackView.pop();
-                    quitPractice();
+                    quitPractice()
                 }
             }
 
@@ -216,18 +201,84 @@ Page
         }
     }
 
+    function checkVerbState()
+    {
+        switch(practiceMode)
+        {
+            case "word":
+            {
+                if(text_input.theText.length>=1)
+                {
+                    backend.getNextWord(text_input.theText)
+                }
+            }break;
+
+            case "verb":
+            {
+                //verb is inside w_text
+                //past is inside w_meaning
+                //past perfect is inside w_example
+                switch(passedState)
+                {
+                    case 0:
+                    {
+                        if(text_input.theText===w_text.text)
+                        {
+                            passedState++;
+                            text_input.clear()
+                            w_text.font.bold=false
+                            w_meaning.font.bold=true;
+                            w_example.font.bold=false;
+                        }
+                        else
+                            mistakeMade();
+                    }break;
+                    case 1:
+                    {
+                        if(text_input.theText===w_meaning.text)
+                        {
+                            passedState++;
+                            text_input.clear()
+                            w_text.font.bold=false
+                            w_meaning.font.bold=false;
+                            w_example.font.bold=true;
+                        }
+                        else
+                            mistakeMade();
+                    }break;
+                    case 2:
+                    {
+                        if(text_input.theText===w_example.text)
+                        {
+                            backend.getNextWord(w_text.text)//to get next one
+                            text_input.clear()
+                        }
+                        else
+                            mistakeMade();
+                    }break;
+                    default:
+                        console.log("passedState invalid.")
+                }
+
+            }break;
+        }
+
+    }
+
     function mistakeMade()
     {
         mistakesCounter++;
-        text_input.color="red"
+        console.log("mistakeMade...");
+        text_input.invalidInput("incorrect value")
     }
 
     function quitPractice()
     {
         backend.resetPractice(); //after this, lastWord on backend will become -> "" and we cant get first word by passing ""
-        currentIndex=0;
-        mistakesCounter=0;
+        // currentIndex=0;
+        // mistakesCounter=0;
         practiceTimeCom.stopTimer()
+        m_stackView.pop()
         console.log("quiting the practice");
     }
 
@@ -241,14 +292,18 @@ Page
         backend.resetPractice()
 
         //to fetch first word and get maxium number of content on table
+        var totalWords = backend.getNextWord("");
+        if(totalWords<=0)
+            quitPracticeStatus=true
+        else
+            proccessBar.totalValue = totalWords
 
-        proccessBar.totalValue = backend.getNextWord("")
-        console.log("proccessBar.totalValue="+proccessBar.totalValue)
         currentIndex=0;
         mistakesCounter=0;
         practiceTimeCom.startTimer()
 
     }
+
 
     Connections
     {
@@ -296,7 +351,6 @@ Page
             }
         }
     }
-
 
     Component.onCompleted:
     {

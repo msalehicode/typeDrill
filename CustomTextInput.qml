@@ -13,11 +13,49 @@ Item
     property int setBorderWidth:0
     property int setFontSize:15
     property color setFontColor: "white"
+    property color setErrorColor:"red"
     property int setRadius:10
     property string setTitleText:""
     property string theText:""
+    property bool setFocus:false
+    property string setErrorPrefix: " (Error:"
+    property string setErrorPosfix: ")"
+
+    property bool errorStatus:false
+    signal theTextAccepted;
+
+
+    function clear()
+    {
+        theText="";
+    }
+
+    function invalidInput(errorText)
+    {
+        console.log("invalidInput errorText=",errorText)
+        //change border color and add error text
+        errorStatus = true
+
+        titleText.text += setErrorPrefix+errorText+setErrorPosfix
+        titleText.color = setErrorColor
+        baseCustomTextInput.border.color = setErrorColor
+    }
+
+    onTheTextChanged:
+    {
+        //revert error colors
+        if(errorStatus)
+        {
+            errorStatus=false
+            titleText.text = setTitleText
+            titleText.color = setFontColor
+            baseCustomTextInput.border.color = setBordercolor
+        }
+    }
+
     Rectangle
     {
+        id:baseCustomTextInput
         color:setBgColor
         anchors.fill: parent
         radius:setRadius
@@ -26,8 +64,9 @@ Item
         Rectangle
         {
             color:setBgColor
-            width:50
+            width: titleText.text.length*10
             height:10
+            visible: titleText.text.length > 0 ? true : false
             anchors
             {
                 top:parent.top
@@ -37,32 +76,45 @@ Item
             }
             Text
             {
-                visible: setTitleText.length > 0 ? true : false
+                id:titleText
                 text:setTitleText
                 color: setFontColor
                 font.pixelSize: setFontSize
                 font.bold: true
-                anchors.centerIn: parent
+                anchors.verticalCenter: parent.verticalCenter
             }
         }
 
 
 
-        TextInput
+        Rectangle
         {
-            text:theText
-            color:setFontColor
-            font.pixelSize: setFontSize
-            anchors
+            color:"transparent"
+            anchors.fill: parent
+            clip:true
+            TextInput
             {
-                verticalCenter:parent.verticalCenter
-                left:parent.left
-                right:parent.right
-                leftMargin:5
-            }
-            onTextChanged:
-            {
-                theText = text
+                text:theText
+                color:setFontColor
+                font.pixelSize: setFontSize
+                focus: setFocus
+                anchors
+                {
+                    left:parent.left
+                    right:parent.right
+                    top:parent.top
+                    bottom:parent.bottom
+                    leftMargin:5
+                    topMargin:7
+                }
+                onTextChanged:
+                {
+                    theText = text
+                }
+                onAccepted:
+                {
+                    theTextAccepted()
+                }
             }
         }
     }

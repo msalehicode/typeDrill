@@ -15,50 +15,36 @@ Item {
     property int setHeight: 50
     property int setMaxHeightItemsList: 300
     property string setIconArrow: appIcons.icon_back_white
+
     property string currentItemText:modelData[currentIndex].text
 
     property int currentIndex: 0
     signal activated(int index)
 
-
     property var modelData: [
-        { text: "Item 1", icon: appIcons.icon_question },
-        { text: "Item 2", icon: appIcons.icon_streak},
-        { text: "Item 3", icon: appIcons.icon_streak},
-        { text: "Item 4", icon: appIcons.icon_streak},
-        { text: "Item 5", icon: appIcons.icon_streak},
-        { text: "Item 6", icon: appIcons.icon_check }
+        { text: "Item 1"},
+        { text: "Item 2"},
+        { text: "Item 3"},
+        { text: "Item 4"},
+        { text: "Item 5"},
+        { text: "Item 6"}
     ]
 
-    function addItem(itemTitle,itemIcon)
+
+    function addItem(itemTitle,itemPayload)
     {
-        modelData.push({ text: itemTitle, icon: itemIcon });
+        modelData.push({ text: itemTitle, payload: itemPayload });
         theListview.model = [];
         theListview.model = modelData;
     }
+
+
 
     Rectangle {
         id: baseCombobox
         anchors.fill: parent
         color:setBgColor
         radius:setRadius
-
-
-        Rectangle
-        {
-            id:iconItem
-            color:"transparent"
-            width:30
-            height:30
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.left: parent.left
-            anchors.leftMargin: 10
-            Image {
-                source: modelData[currentIndex].icon
-                anchors.fill: parent
-            }
-        }
-
 
         Rectangle
         {
@@ -68,7 +54,7 @@ Item {
             height:setHeight/2
             clip:true
             anchors.verticalCenter: parent.verticalCenter
-            anchors.left: iconItem.right
+            anchors.left: parent.left
             anchors.leftMargin: 10
             Text
             {
@@ -77,12 +63,6 @@ Item {
                 font.pixelSize: setfontSize
             }
         }
-
-
-
-
-
-
 
         Rectangle
         {
@@ -155,21 +135,6 @@ Item {
 
                         Rectangle
                         {
-                            id:iconItem_onList
-                            color:"transparent"
-                            width:30
-                            height:30
-                            anchors.verticalCenter: parent.verticalCenter
-                            anchors.left: parent.left
-                            anchors.leftMargin: 10
-                            Image {
-                                source: modelData.icon
-                                anchors.fill: parent
-                            }
-                        }
-
-                        Rectangle
-                        {
                             id:textItem_onList
                             color:"transparent"
                             width:setWidth/2
@@ -180,6 +145,8 @@ Item {
                                 text:modelData.text
                                 color:setFontColor
                                 font.pixelSize: setfontSize
+                                anchors.left: parent.left
+                                anchors.leftMargin:10
                             }
                         }
 

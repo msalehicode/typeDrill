@@ -15,6 +15,7 @@ Item
 
 
     signal eachTrigger;
+    signal timerRunningChanged;
 
     function startTimer()
     {
@@ -43,6 +44,11 @@ Item
         interval: 1000  // 1 second
         repeat: true
         running: false
+        onRunningChanged:
+        {
+            timerRunningChanged();
+        }
+
         onTriggered: {
             secondsPassed += 1
 
@@ -56,16 +62,16 @@ Item
                           (minutes < 10 ? "0" + minutes : minutes) + ":" +
                           (seconds < 10 ? "0" + seconds : seconds);
 
-            displayPassedTime.text = "Time passed: " + timerString;
+            // displayPassedTime.text = "Time passed: " + timerString;
             eachTrigger();
         }
     }
 
-    Label
-    {
-        id:displayPassedTime
-        anchors.centerIn: parent
-        font.pixelSize: 20
-        color:"cyan"
-    }
+    // Label
+    // {
+    //     id:displayPassedTime
+    //     anchors.centerIn: parent
+    //     font.pixelSize: 20
+    //     color:"cyan"
+    // }
 }

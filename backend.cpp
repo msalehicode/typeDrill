@@ -323,6 +323,7 @@ void Backend::whatIsCurrentTableType()
 
 void Backend::addWordToTable(const QStringList &data)
 {
+    qInfo() << "addWordToTable received data = " << data;
     QString result;
     bool qresult;
     if(currentTableType=="word" && data.size() >=6)
