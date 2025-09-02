@@ -141,7 +141,7 @@ Page
                         for (var i = 0; i < repeater.count; i++)
                         {
                             var item = repeater.itemAt(i);
-                            console.log("Input " + i + ": " + item.theText);
+                            // console.log("Input " + i + ": " + item.theText);
                             if (item)
                                 data.push(item.theText);
                         }

@@ -4,7 +4,7 @@ import QtQuick.Controls
 
 Page
 {
-    id:addNewTableFrom
+    id:addNewDatabaseFrom
     anchors.fill: parent
     Rectangle
     {
@@ -25,7 +25,7 @@ Page
                 spacing:15
                 CustomTextInput
                 {
-                    id:tableName
+                    id:databaseName
                     setWidth: parent.width
                     setHeight: 50
                     setBgColor: appColors.c_bgColor_textinput
@@ -36,22 +36,8 @@ Page
                     setFontColor: appColors.c_fontColor_textinput
                     setRadius:10
                     theText:""
-                    setTitleText:"Table Name:"
+                    setTitleText:"Database Name:"
                 }
-
-                CustomCombobox
-                {
-                    id: comboType
-                    modelData:[ { text: "word"}, { text: "verb"}, { text: "single"} ]
-                    setBgColor: appColors.c_comboboxBgColor
-                    setFontColor: appColors.c_buttonFontColor
-                    setBgColorCurrentItem: appColors.c_comboboxBgColorCurrentItem
-                    onActivated: function(index)
-                    {
-                        currentIndex = index
-                    }
-                }
-
 
                 CustomButton
                 {
@@ -68,16 +54,16 @@ Page
                     // anchors.verticalCenter:parent.verticalCenter
                     onButtonClicked:
                     {
-                        //replcae spaces with _ then validation sql tableName
-                        var tableValidName = replaceSpaces(tableName.theText , "_")
-                        if(isValidSQLiteTableName(tableValidName))
+                        //replcae spaces with _ then validation sql databaseName
+                        var tableValidName = replaceSpaces(databaseName.theText , "_")
+                        if(isValidSQLitedatabaseName(tableValidName))
                         {
-                            backend.createTable(tableValidName, comboType.currentItemText)
+                            backend.createDatabase(tableValidName)
                         }
                         else
                         {
-                            tableName.invalidInput("invalid charecters");
-                            console.log("invalid charecters for table name")
+                            databaseName.invalidInput("invalid charecters");
+                            console.log("invalid charecters for database name")
                         }
                     }
                 }
@@ -91,7 +77,7 @@ Page
         return str.replace(/ /g, fillWith);
     }
 
-    function isValidSQLiteTableName(name)
+    function isValidSQLitedatabaseName(name)
     {
         // List of some common SQLite reserved keywords (case-insensitive)
         const reservedKeywords = new Set([
@@ -131,7 +117,6 @@ Page
 
         if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) return false;
 
-        if(name === "user_tables") return false;
         // Passed all checks
         return true;
     }
@@ -139,16 +124,16 @@ Page
     Connections
     {
         target: backend
-        function onTableCreationResult(result)
+        function onDatabaseCreationResult(result)
         {
-            console.log("table creation result=", result)
-            if (result !== "error")
+            console.log("database creation result=", result)
+            if (result==="1")
             {
                 mainStackView.pop();
             }
             else
             {
-                console.log("error while creating table...")
+                console.log("error while creating database...")
             }
         }
     }

@@ -28,7 +28,7 @@ class Backend : public QObject
     QDate lastPracticeDate;
 
     void wordIs();
-    bool init();
+    bool init(QString databaseName="");
     QString m_api_url;
     QString m_api_key;
     QString m_dbPath;
@@ -42,15 +42,16 @@ class Backend : public QObject
 
 public:
     explicit Backend(QObject *parent = nullptr);
-    Q_INVOKABLE int getNextWord(const QString& userText); // Call from QML
+    Q_INVOKABLE int getNextWord(const QString& userText);
     Q_INVOKABLE void setPracticeResult(const QString& mistakeCount, const QString& timeSpent);
-    Q_INVOKABLE void getTables(const QString& searchedTitle, const QString& tableType); // Call from QML
+    Q_INVOKABLE void getTables(const QString& searchedTitle, const QString& tableType);
     Q_INVOKABLE QString pinTable(const QString& tableId);
-    Q_INVOKABLE void createTable(const QString& tableName, const QString& tableType); // Call from QML
-    Q_INVOKABLE void switchTable(const QString& tableName, const QString& ttype); // Call from QML
-    Q_INVOKABLE void whatIsCurrentTableType(); // Call from QML
-    Q_INVOKABLE void addWordToTable(const QStringList& data); // Call from QML
-    Q_INVOKABLE void resetPractice(); // Call from QML
+    Q_INVOKABLE void createTable(const QString& tableName, const QString& tableType);
+    Q_INVOKABLE void switchTable(const QString& tableName, const QString& ttype);
+    Q_INVOKABLE void createDatabase(const QString& databaseName);
+    Q_INVOKABLE void whatIsCurrentTableType();
+    Q_INVOKABLE void addWordToTable(const QStringList& data);
+    Q_INVOKABLE void resetPractice();
     Q_INVOKABLE QString databasePath();
     Q_INVOKABLE QStringList listOfDatabases();
     Q_INVOKABLE QString switchDatabase(const QString& databaseName);
@@ -83,6 +84,7 @@ signals:
     void wordIsIncorrect(const QString& correctStatus);
     void tablesList(const QVariantList& tableList);  // Emit to QML
     void tableCreationResult(const QString& tableCreationResult);
+    void databaseCreationResult(const QString& databaseCreationResult);
     void tableTypeIs(const QString& currentTableType);
     void addItemtoTableResult(const QString& result);
 

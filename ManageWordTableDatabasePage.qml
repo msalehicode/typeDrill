@@ -8,104 +8,202 @@ Page
     Rectangle
     {
         anchors.fill: parent
-        color:"green"
-
-        Column
+        color:appColors.c_background
+        Rectangle
         {
-            width:parent.width/2
-            height:parent.height/2
+            color:"transparent"
+            width:parent.width/1.50
+            height:parent.height/1.50
             anchors.centerIn: parent
-            spacing: 25
-            Button
-            {
-                text:"add word"
-                onClicked:
-                {
-                    mainStackView.push("AddNewWordForm.qml")
-                }
-            }
 
-
-            Button
-            {
-                text:"add table"
-                onClicked:
-                {
-                    mainStackView.push("AddNewTableForm.qml")
-                }
-            }
-
-            Text
-            {
-                id:uploadResultText
-                text:"upload result:"
-                visible:false
-                color:"blue"
-                font.pixelSize: 15
-                anchors.horizontalCenter: parent.horizontalCenter
-            }
-
-
-            Rectangle
+            Column
             {
                 width:parent.width
-                height:300
-                color:"purple"
-
-                CustomComboboxWithIcon
+                height:parent.height
+                spacing:20
+                Row
                 {
-                    id: comboboxDatabases
-                    anchors
+                    width:parent.width/1.50
+                    height:100
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 35
+                    CustomButtonWithIcon
                     {
-                        right:parent.right
-                        rightMargin:15
-                        verticalCenter:parent.verticalCenter
+                        setWidth:80
+                        setHeight:80
+                        setButtonText:"Add Word";
+                        setButtonFontColor:appColors.c_fontcolor
+                        setButtonBackColor:"transparent"
+                        setTextMagin: 5
+                        setIconHeight: 50
+                        setIconWidth: 50
+                        setButtonsBorderWidth:2
+                        setButtonBorderColor:appColors.c_fontcolor
+                        setIconSource:  appIcons.icon_settings
+                        onButtonClicked:
+                        {
+                            mainStackView.push("AddNewWordForm.qml")
+                        }
                     }
-                    onActivated: function(index)
+
+
+                    CustomButtonWithIcon
                     {
-                        currentIndex = index
+                        setWidth:80
+                        setHeight:80
+                        setButtonText:"New Table";
+                        setButtonFontColor:appColors.c_fontcolor
+                        setButtonBackColor:"transparent"
+                        setTextMagin: 5
+                        setIconHeight: 50
+                        setIconWidth: 50
+                        setButtonsBorderWidth:2
+                        setButtonBorderColor:appColors.c_fontcolor
+                        setIconSource:  appIcons.icon_browse
+                        onButtonClicked:
+                        {
+                            mainStackView.push("AddNewTableForm.qml")
+                        }
                     }
+
+                    CustomButtonWithIcon
+                    {
+                        setWidth:80
+                        setHeight:80
+                        setButtonText:"New Database";
+                        setButtonFontColor:appColors.c_fontcolor
+                        setButtonBackColor:"transparent"
+                        setTextMagin: 5
+                        setIconHeight: 50
+                        setIconWidth: 50
+                        setButtonsBorderWidth:2
+                        setButtonBorderColor:appColors.c_fontcolor
+                        setIconSource:  appIcons.icon_settings
+                        onButtonClicked:
+                        {
+                            mainStackView.push("AddNewDatabaseForm.qml")
+                        }
+                    }
+
                 }
 
-                CheckBox
+
+                Rectangle
                 {
-                    id:isitPublicCheckBox
-                    checkState: "Unchecked"
-                    text:"is it public?"
+                    color:"transparent"
+                    width:parent.width/1.50
+                    height:250
+                    border.width: 2
+                    radius:20
+                    border.color: appColors.c_fontcolor
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    clip:true
+                    Column
+                    {
+                        width:parent.width
+                        height:parent.height
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        spacing: 25
+
+                        CheckBox
+                        {
+                            id:isitPublicCheckBox
+                            checkState: "Unchecked"
+                            text:"is it public?"
+                            anchors.horizontalCenter: parent.horizontalCenter
+                        }
+
+                        CustomComboboxWithIcon
+                        {
+                            id: comboboxDatabases
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            setBgColor: appColors.c_comboboxBgColor
+                            setFontColor: appColors.c_buttonFontColor
+                            setBgColorCurrentItem: appColors.c_comboboxBgColorCurrentItem
+                            setfontSize: appFontSizes.f_normal
+                            setRadius: 10
+                            setWidth: 180
+                            setHeight: 50
+                            onActivated: function(index)
+                            {
+                                currentIndex = index
+                            }
+                        }
+
+                        CustomButton
+                        {
+                            id:buttonSubmitSearch
+                            setButtonText:"upload";
+                            setButtonBorderColor:appColors.c_buttonBorderColor
+                            setButtonBackColor: appColors.c_buttonBgColor
+                            setButtonFontColor: appColors.c_buttonFontColor
+                            setBold: true
+                            setButtonFontsize: appFontSizes.f_buttonFontSize
+                            setButtonsBorderWidth: 0
+                            setRadius: 20
+                            setWidth: 70
+                            setHeight:50
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            onButtonClicked:
+                            {
+                                appBlockBackButton=true
+                                popup.open()
+                                var isItPublic = isitPublicCheckBox.checked ? "true" : "false"
+                                var selectedDbName = comboboxDatabases.modelData[comboboxDatabases.currentIndex].text;
+                                backend.uploadFileToApi(selectedDbName,isItPublic);
+                            }
+                        }
+                    }
+
+
                 }
 
-                Button
-                {
-                    text:"upload database"
-                    anchors.top:isitPublicCheckBox.bottom
-                    onClicked:
-                    {
-                        var isItPublic = isitPublicCheckBox.checked ? "true" : "false"
-                        uploadResultText.visible=true
-                        var selectedDbName = comboboxDatabases.modelData[comboboxDatabases.currentIndex].text;
-                        backend.uploadFileToApi(selectedDbName,isItPublic);
-                    }
-                }
+
             }
+
+
+
         }
+
 
     }
 
-
-    function sqliteListToModel(sqliteList)
+    CustomPopupMessage
     {
-        //get currentDatabase name
-        var cDatabaseName = backend.whatIsCurrentDatabase();
+        id: popup
+        setDefaultText: "uploading... wait..."
+        setBtnText: "Ok"
+        setFailColor: appColors.c_bgPopupContentFailed
+        setSuccessColor:appColors.c_bgPopupContentSuccess
+        setBgContent: appColors.c_bgPopupContentDefault
+        setTextFontSize: appFontSizes.f_normal
+        setTextColor:  appColors.c_fontcolor
+        setBgColorPopup: appColors.c_background
+        setBgButton: appColors.c_buttonBgColor
+        setBordercolorButton: appColors.c_buttonBorderColor
+    }
 
+    function refresh()
+    {
+        console.log("Manage Words/tables/databases is refreshing!");
+
+
+        //get currentDatabase name and fetch and set available databases
+        var cDatabaseName = backend.whatIsCurrentDatabase();
+        var filesNames = backend.listOfDatabases();
+        comboboxDatabases.modelData = sqliteListToModel(filesNames,cDatabaseName);
+    }
+    function sqliteListToModel(sqliteList,currentDatabaseName="")
+    {
         var model = [];
         for(var i = 0; i < sqliteList.length; i++)
         {
-            if(sqliteList[i]===cDatabaseName)
+            if(sqliteList[i]===currentDatabaseName)
                 comboboxDatabases.currentIndex = i;
 
             model.push({
                            text: sqliteList[i],
-                           icon: "resourses/streak.png" //dont want icon now
+                           icon: appIcons.icon_question //dont want icon now
                        });
         }
         return model;
@@ -115,13 +213,20 @@ Page
         target:backend
         function onUploadDone(result)
         {
-            uploadResultText.text = result;
+            if(result==="Upload succeeded.")
+            {
+                popup.setResult(result,"1")
+            }
+            else
+            {
+                popup.setResult(result,"0")
+            }
+            appBlockBackButton=false
         }
     }
 
     Component.onCompleted:
     {
-        var files = backend.listOfDatabases();
-        comboboxDatabases.modelData = sqliteListToModel(files);
+        refresh()
     }
 }

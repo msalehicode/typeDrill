@@ -30,9 +30,10 @@ qt_add_qml_module(appTypeDrill
 
     QML_FILES
         main.qml
-        AddNewWordForm.qml
         HomePage.qml
+        AddNewWordForm.qml
         AddNewTableForm.qml
+        AddNewDatabaseForm.qml
         PracticePage.qml
         PracticeTimeComponent.qml
         CustomButton.qml
@@ -46,6 +47,7 @@ qt_add_qml_module(appTypeDrill
         CustomTextInput.qml
         CustomSwitch.qml
         CustomCombobox.qml
+        CustomPopupMessage.qml
         themes.js
 
     RESOURCES
@@ -72,6 +74,10 @@ qt_add_qml_module(appTypeDrill
         resourses/lightMode/50x50/streak.png
         resourses/lightMode/50x50/back.png
         resourses/lightMode/50x50/pin.png
+        resourses/darkMode/50x50/download.png
+        resourses/darkMode/50x50/upload.png
+        resourses/lightMode/50x50/download.png
+        resourses/lightMode/50x50/upload.png
 
 )
 

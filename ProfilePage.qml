@@ -12,6 +12,8 @@ Page
         Text
         {
             text:"soon"
+            color:appColors.c_fontcolor
+            font.pixelSize: appFontSizes.f_title
             anchors.centerIn: parent
         }
     }

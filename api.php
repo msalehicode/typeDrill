@@ -37,8 +37,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     foreach ($files as $file) {
         $urls[] = [
-            'name' => $file,
-            'url' => $baseUrl . '/' . rawurlencode($file)
+            'd_name' => $file,
+            'd_url' => $baseUrl . '/' . rawurlencode($file),
+            'd_icon' => ""
         ];
     }
 

@@ -21,6 +21,8 @@ Item
     property color setFontColor : "white"
     property color setBgColor: "white"
     property color setProgressColor: "blue"
+    property string setSeperatorWord: " of "
+    property bool setStatusTotalValueText: true
 
     property int setFontSize: 15
     property int setCotinainerRadius: 100
@@ -73,7 +75,7 @@ Item
         }
         Text
         {
-            text:currentValue + " of " + totalValue
+            text: (setStatusTotalValueText) ? (currentValue + setSeperatorWord +  totalValue) : (currentValue + setSeperatorWord)
             color: setFontColor
             font.pixelSize: setFontSize
             font.bold: true

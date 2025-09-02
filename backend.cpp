@@ -30,20 +30,22 @@ void Backend::wordIs()
     // qInfo() <<"wordisresult:"<< last_word;
 }
 
-bool Backend::init()
+bool Backend::init(QString databaseName)
 {
+    if(databaseName.length()<=0)
+        databaseName = settings.getValue("currentDatabase").toString();
+
     settings.initSettings();
 
     min_id=0;
-    QString dbFileName = settings.getValue("currentDatabase").toString();
     m_api_key = settings.getValue("api_key").toString();
     m_api_url = settings.getValue("api_url").toString();
 
     //set them into variables
 
-    databaseFullPath = QDir(m_dbPath).filePath(dbFileName);
+    databaseFullPath = QDir(m_dbPath).filePath(databaseName);
 
-    if(m_db.init(m_dbPath, dbFileName))
+    if(m_db.init(m_dbPath, databaseName))
     {
         m_query = new QSqlQuery(m_db.getDatabase());
     }
@@ -117,10 +119,14 @@ int Backend::getNextWord(const QString &userText)
 
 void Backend::setPracticeResult(const QString &mistakeCount, const QString &timeSpent)
 {
+    QDateTime currentDate = QDateTime::currentDateTime();
+
     QMap<QString, QVariant> rowData;
     rowData["tp_table_id"] = m_db.searchTable("user_tables","t_title",currentTableName,"t_id");;
     rowData["tp_timeSpent"] = timeSpent;
     rowData["tp_mistakesCount"] = mistakeCount;
+    rowData["tp_date"] = currentDate.toString("yyyy-MM-dd HH:mm:ss");
+
 
     // for (auto it = rowData.constBegin(); it != rowData.constEnd(); ++it) {
     //     qInfo() << it.key() << ":" << it.value().toString();
@@ -316,6 +322,12 @@ void Backend::switchTable(const QString &tableName, const QString& ttype)
     qInfo() << "maxid=" << max_id << "\tminid=" << min_id;
 }
 
+void Backend::createDatabase(const QString &databaseName)
+{
+    bool res = init(databaseName);
+    emit databaseCreationResult(QString::number(res));
+}
+
 void Backend::whatIsCurrentTableType()
 {
     emit tableTypeIs(currentTableType);
@@ -489,11 +501,11 @@ void Backend::setThemeMode(const QString &themeTitle)
 
 QStringList Backend::getStreakDays()
 {
-    //first item ==> streak days number e.g [26,  ..]
-    //week days are on or off [26, 0,1,1..]
-    //today will become question mark "?" [26, 1,0,1,?,1]
+    //first item ==> streak days number e.g [26, ...]
+    //week days are on or off [26, 0,1,1,...]
+    //next days will be question mark [26, 1,0,1,?,?]
     QStringList streak;
-    if (m_db.isOpen())
+    if (m_db.isOpen()) //because its on launch application, need to check db has loaded
     {
 
         QDate theDate = QDate::currentDate();
@@ -625,8 +637,9 @@ void Backend::onUrlListReceived() {
                 if (item.isObject()) {
                     QJsonObject obj = item.toObject();
                     QVariantMap map;
-                    map["name"] = obj["name"].toString();
-                    map["url"] = obj["url"].toString();
+                    map["d_name"] = obj["d_name"].toString();
+                    map["d_url"] = obj["d_url"].toString();
+                    map["d_icon"] = obj["d_icon"].toString();
                     urlList.append(map);
                 }
             }

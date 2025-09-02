@@ -32,6 +32,12 @@ const themeDark =
     "borderColor_textinput":"#6f47d9",
     "fontColor_textinput":"white",
 
+    //popup
+    "bgPopupContentFailed": "#6b281c",
+    "bgPopupContentSuccess": "#30613d",
+    "bgPopupContentDefault" : "#383347",
+
+
     //indicator
     "bg_indicator" : "transparent"
 }
@@ -71,6 +77,13 @@ const themeLight =
     "bgColor_textinput":"white",
     "borderColor_textinput":"#6f47d9",
     "fontColor_textinput":"black",
+
+
+    //popup
+    "bgPopupContentFailed": "#c94b34",
+    "bgPopupContentSuccess": "#66d483",
+    "bgPopupContentDefault" : "#a281fc",
+
 
     //indicator
     "bg_indicator" : "white"

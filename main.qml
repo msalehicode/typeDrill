@@ -6,14 +6,26 @@ import "./themes.js" as ThemeConfig
 Window
 {
     id:rootWindow
-    width: 720
+    width: 450
     height: 1600
     visible: true
     title: qsTr("TypeDrill")
     color:"#222424"
+
+    //in some pages user have to wait for result, e.g network upload/download
+    //so need to blockBackButton to avoid any problem
+    property bool appBlockBackButton: false
+
+    //android keyboard check, if its open some elemnts if needed change height or anchors...
+    // property bool appKeyboardVisible: Qt.inputMethod.visible
+    // property real appKeyboardHeight: Qt.inputMethod.keyboardRectangle.height
+
+
     onClosing:
     {
-        if(mainStackView.depth>1)
+        if(appBlockBackButton)
+            close.accepted = false;
+        else if(mainStackView.depth>1)
         {
             mainStackView.pop();
             close.accepted = false;
@@ -21,9 +33,6 @@ Window
 
     }
 
-    //android keyboard check, if its open some elemnts if needed change height or anchors...
-    // property bool appKeyboardVisible: Qt.inputMethod.visible
-    // property real appKeyboardHeight: Qt.inputMethod.keyboardRectangle.height
 
     //theme colors
     QtObject
@@ -69,6 +78,12 @@ Window
         property color c_fontColor_textinput : currentTheme["fontColor_textinput"];
 
 
+        //popup
+        property color c_bgPopupContentFailed : currentTheme["bgPopupContentFailed"];
+        property color c_bgPopupContentSuccess : currentTheme["bgPopupContentSuccess"];
+        property color c_bgPopupContentDefault : currentTheme["bgPopupContentDefault"];
+
+
         //indicator
         property color c_bgIndicator : currentTheme["bg_indicator"];
     }
@@ -109,6 +124,9 @@ Window
         property string icon_check: appIcons.i_path + "check.png";
         property string icon_question: appIcons.i_path + "question.png";
 
+        //browse
+        property string icon_download: appIcons.i_path + "download.png"
+        property string icon_upload: appIcons.i_path + "upload.png"
 
         //indicator icons
         property string icon_browse: appIcons.i_path + "browse.png";
@@ -270,7 +288,9 @@ Rectangle
         anchors.fill: parent
         onClicked:
         {
-            if(mainStackView.depth>1)
+            if(appBlockBackButton)
+                close.accepted = false;
+            else if(mainStackView.depth>1)
                 mainStackView.pop()
             else
                 drawer.open()
