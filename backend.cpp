@@ -51,7 +51,7 @@ bool Backend::init(QString databaseName)
     }
     else
     {
-        qFatal("failed to init database..");
+        // qFatal("failed to init database..");
         return false;
     }
 
