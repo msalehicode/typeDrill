@@ -17,17 +17,23 @@ Item
     property int setRadius:10
     property string setTitleText:""
     property string theText:""
-    property bool setFocus:false
     property string setErrorPrefix: " (Error:"
+    property bool setFocus:false
     property string setErrorPosfix: ")"
 
     property bool errorStatus:false
     signal theTextAccepted;
 
-
     function clear()
     {
         theText="";
+    }
+
+
+    function openPhoneKeyboard()
+    {
+        theTextinput.forceActiveFocus()
+        Qt.inputMethod.show()
     }
 
     function invalidInput(errorText)
@@ -94,10 +100,11 @@ Item
             clip:true
             TextInput
             {
+                id:theTextinput
                 text:theText
                 color:setFontColor
-                font.pixelSize: setFontSize
                 focus: setFocus
+                font.pixelSize: setFontSize
                 anchors
                 {
                     left:parent.left
@@ -118,4 +125,5 @@ Item
             }
         }
     }
+
 }

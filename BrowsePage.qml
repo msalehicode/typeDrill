@@ -28,7 +28,6 @@ Page
                 anchors
                 {
                     top:parent.top
-                    topMargin:80 //for app topbar (backbutton)
                     left:parent.left
                     right:parent.right
                     bottom:parent.bottom
@@ -37,7 +36,15 @@ Page
 
                 ListView {
                     id: listView
-                    anchors.fill: parent
+                    anchors
+                    {
+                        top:parent.top
+                        topMargin:25
+                        left:parent.left
+                        right:parent.right
+                        bottom:parent.bottom
+                    }
+
                     model: urlModel //d_name, d_url, d_icon
                     visible: false
                     spacing: 15

@@ -38,7 +38,7 @@ Page
                 horizontalCenter: parent.horizontalCenter
                 top:parent.top
                 // topMargin: appKeyboardVisible ? appKeyboardHeight : 15
-                topMargin:15
+                topMargin:55
             }
         }
 
@@ -70,7 +70,7 @@ Page
                     font.pixelSize:appFontSizes.f_title
                     color:appColors.c_fontcolor
                     horizontalAlignment: Text.AlignHCenter
-                    Layout.fillWidth: true
+                    // Layout.fillWidth: true
                     wrapMode: Text.WordWrap
                 }
 
@@ -81,7 +81,7 @@ Page
                     font.pixelSize:appFontSizes.f_title
                     color:appColors.c_fontcolor
                     horizontalAlignment: Text.AlignHCenter
-                    Layout.fillWidth: true
+                    // Layout.fillWidth: true
                     wrapMode: Text.WordWrap
                 }
                 Label
@@ -91,7 +91,7 @@ Page
                     font.pixelSize:appFontSizes.f_title
                     color:appColors.c_fontcolor
                     horizontalAlignment: Text.AlignHCenter
-                    Layout.fillWidth: true
+                    // Layout.fillWidth: true
                     wrapMode: Text.WordWrap
                 }
 
@@ -100,7 +100,7 @@ Page
                     color:"transparent"
                     width:parent.width
                     height:50
-                    // anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.horizontalCenter: parent.horizontalCenter
                     CustomTextInput
                     {
                         id:text_input
@@ -113,7 +113,6 @@ Page
                         setFontColor: appColors.c_fontColor_textinput
                         setRadius:10
                         theText:""
-                        setFocus: true
                         setErrorPosfix: ""
                         setErrorPrefix: ""
                         setTitleText:""
@@ -261,6 +260,7 @@ Page
 
             }break;
         }
+        text_input.openPhoneKeyboard()
 
     }
 
