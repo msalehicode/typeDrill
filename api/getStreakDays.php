@@ -1,8 +1,6 @@
 <?php
 header('Content-Type: image/png');
-header('Catch-Control: no-cache, no-store, must-revalidate');
-header('Pragma: no-cache');
-header('Expires: 0');
+header('Catch-Control: max-age=1800, s-maxage=1800, must-revalidate'); //every 30 minutes
 
 date_default_timezone_set('UTC');
 
