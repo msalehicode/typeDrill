@@ -79,7 +79,7 @@ Page
                         //don't call tablesComboBox.currentItemText
                         var selectedItem = tablesComboBox.modelData[tablesComboBox.currentIndex]
                         backend.switchTable(selectedItem.text,selectedItem.t_type);
-                        formType = selectedItem.t_type
+                        backend.whatIsCurrentTableType();
                         baseForm.visible=true
                         baseSelectTable.visible=false
                     }
@@ -221,9 +221,6 @@ Page
     }
     Component.onCompleted:
     {
-        // console.log("add new word page component loaded")
-        backend.whatIsCurrentTableType();
-
         //first time fetch data from backend
         backend.getTables("","all")//empty string is for filter/search between tables, we dont want filter
     }
