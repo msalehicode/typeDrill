@@ -111,8 +111,8 @@ Item
                     right:parent.right
                     top:parent.top
                     bottom:parent.bottom
-                    leftMargin:5
-                    topMargin:7
+                    leftMargin:7
+                    topMargin:11
                 }
                 onTextChanged:
                 {

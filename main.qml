@@ -6,11 +6,11 @@ import "./themes.js" as ThemeConfig
 Window
 {
     id:rootWindow
-    width: 450
-    height: 1600
+    width: 412
+    height: 776
     visible: true
-    title: qsTr("TypeDrill")
-    color:"#222424"
+    title: "TypeDrill Application"
+    color:appColors.c_background
 
     //in some pages user have to wait for result, e.g network upload/download
     //so need to blockBackButton to avoid any problem
@@ -19,7 +19,16 @@ Window
     //android keyboard check, if its open some elemnts if needed change height or anchors...
     // property bool appKeyboardVisible: Qt.inputMethod.visible
     // property real appKeyboardHeight: Qt.inputMethod.keyboardRectangle.height
-
+    onWidthChanged:
+    {
+        backend.setLastWindowSize("w",width);
+        console.log("window width changed:", width)
+    }
+    onHeightChanged:
+    {
+        backend.setLastWindowSize("h",height);
+        console.log("window height changed:", height)
+    }
 
     onClosing:
     {
@@ -30,7 +39,6 @@ Window
             mainStackView.pop();
             close.accepted = false;
         }
-
     }
 
 
@@ -111,8 +119,14 @@ Window
 
         //main.qml
         property string icon_menubar: appIcons.i_path+ "menu.png";
+        property string icon_menubar2: appIcons.i_path + "menubar.png"
         property string icon_back: appIcons.i_path+ "back.png";
         property string icon_back_white: "resourses/darkMode/50x50/back.png";
+
+
+        //homePage
+        property string icon_search: appIcons.i_path + "search.png";
+        property string icon_search_white: "resourses/darkMode/50x50/search.png";
 
 
         //practice tableList
@@ -134,6 +148,10 @@ Window
         property string icon_manage: appIcons.i_path + "manage.png";
         property string icon_settings: appIcons.i_path + "settings.png";
 
+        //settings
+        property string icon_save: appIcons.i_path + "save.png";
+        property string icon_save_white: "resourses/darkMode/50x50/save.png";
+
     }
 
 
@@ -152,11 +170,10 @@ Window
         onDepthChanged:
         {
             if(mainStackView.depth>1)
-                imgBackOrMenu.source = appIcons.icon_back
+                buttonBackOrDrawer.setIconSource = appIcons.icon_back
             else
             {
-                imgBackOrMenu.source = appIcons.icon_menubar
-
+                buttonBackOrDrawer.setIconSource = appIcons.icon_menubar2
                 refreshHomePageRequested();
             }
         }
@@ -264,42 +281,37 @@ Window
 
 
 
-Rectangle
-{
-    id:buttonBackOrDrawer
-    width:50
-    height:50
-    color:"transparent"
-    anchors
+
+
+    CustomButtonWithIcon
     {
-        left: parent.left
-        top:parent.top
-        // topMargin: appKeyboardVisible ? appKeyboardHeight : 0
-    }
-
-
-    Image {
-        id: imgBackOrMenu
-        source: appIcons.icon_menubar
-    }
-
-    MouseArea
-    {
-        anchors.fill: parent
-        onClicked:
+        id:buttonBackOrDrawer
+        setButtonText:"";
+        setIconSource: appIcons.icon_menubar2
+        setButtonBorderColor: "transparent"
+        setButtonBackColor: "transparent"
+        setButtonFontColor: "transparent"
+        setIconWidth: 50
+        setIconHeight: 50
+        setButtonsBorderWidth: 0
+        setRadius: 50
+        setWidth: 50
+        setHeight:50
+        anchors
         {
-            if(appBlockBackButton)
-                close.accepted = false;
-            else if(mainStackView.depth>1)
-                mainStackView.pop()
-            else
+            left: parent.left
+            leftMargin:5
+            top:parent.top
+            topMargin:5
+        }
+        onButtonClicked:
+        {
+            if(buttonBackOrDrawer.setIconSource === appIcons.icon_menubar2)
                 drawer.open()
+            else
+                mainStackView.pop()
         }
     }
-}
-
-
-
 
     function popStack()
     {
@@ -331,5 +343,7 @@ Rectangle
     Component.onCompleted:
     {
         reloadTheme();
+        rootWindow.width = backend.getLastWindowSize("w");
+        rootWindow.height = backend.getLastWindowSize("h");
     }
 }

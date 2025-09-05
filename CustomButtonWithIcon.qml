@@ -63,14 +63,16 @@ Item
                     visible: setIconSource==="resources/default.png"||setIconSource==="" ? false:true
                     anchors
                     {
-                        top:parent.top
-                        horizontalCenter:parent.horizontalCenter
+                        // top:parent.top
+                        // horizontalCenter:parent.horizontalCenter
+                        centerIn:parent
                     }
                 }
                 Text
                 {
 
                     text:setButtonText;
+                    visible: setButtonText.length>0
                     color:setButtonFontColor;
                     font.bold: true
                     anchors

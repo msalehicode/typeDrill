@@ -6,7 +6,8 @@ Page
     anchors.fill: parent
 
 
-    Loader {
+    Loader
+    {
         id: theLoader
         anchors.fill: parent
     }

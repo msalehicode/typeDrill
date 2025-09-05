@@ -73,6 +73,10 @@ public:
     QDate getLastActivityDate();
 
 
+    Q_INVOKABLE int getLastWindowSize(const QString& widthOrHeight);
+    Q_INVOKABLE void setLastWindowSize(const QString& wOrh , const int &value);
+
+
     QSqlQuery* m_query;
     int min_id;
     int max_id;

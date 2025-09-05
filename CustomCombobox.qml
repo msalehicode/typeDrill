@@ -9,6 +9,7 @@ Item {
     property color setFontColor:"white"
     property color setBgColorCurrentItem: "red"
     property int setfontSize: 16
+    property int setItemsFontSize: 10
     property int setRadius: 20
     property int setWidth: 180
     property int setHeight: 50
@@ -136,8 +137,9 @@ Item {
                         {
                             id:textItem_onList
                             color:"transparent"
-                            width:setWidth/2
+                            width:setWidth
                             height:setHeight/2
+                            anchors.verticalCenter: parent.verticalCenter
                             clip:true
                             Text
                             {
@@ -145,7 +147,7 @@ Item {
                                 color:setFontColor
                                 font.pixelSize: setfontSize
                                 anchors.left: parent.left
-                                anchors.leftMargin:10
+                                anchors.leftMargin:15
                             }
                         }
 

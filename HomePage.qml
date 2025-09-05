@@ -76,8 +76,8 @@ Page
             Rectangle
             {
                 id:weekReport
-                width:parent.width/1.20
-                height:160
+                width:parent.width/1.35
+                height:140
                 color:appColors.c_bg_weekReport
                 radius:30
                 anchors
@@ -96,8 +96,8 @@ Page
                     {
                         top: parent.top
                         right:parent.right
-                        topMargin: 25
-                        rightMargin: 25
+                        topMargin: 15
+                        rightMargin: 15
                     }
                     Image
                     {
@@ -138,17 +138,17 @@ Page
                     color: appColors.c_fontcolor
                     anchors
                     {
-                        top:parent.top
-                        topMargin:25
+                        top: parent.top
                         left:parent.left
-                        leftMargin:25
+                        topMargin: 20
+                        leftMargin: 20
                     }
                 }
 
                 Rectangle
                 {
                     id:weekDaysStreak
-                    width: parent.width/1.25
+                    width: parent.width/1.10
                     height:70
                     radius:25
                     color:"transparent"
@@ -158,23 +158,16 @@ Page
                         topMargin:15
                         horizontalCenter:parent.horizontalCenter
                     }
-
                     //streak status of this week
                     Row {
-                        spacing: 0
-                        anchors {
-                            top: parent.top
-                            // topMargin: 20
-                            horizontalCenter: parent.horizontalCenter
-                        }
-
-
-
+                        spacing: parent.width/50
+                        anchors.fill: parent
+                        // leftPadding: parent.width/50
                         Repeater {
                             model: statusesModel
                             delegate: Rectangle {
-                                width: 60
-                                height: 45
+                                width: parent.width/7.75
+                                height: 40
                                 color: "transparent"
 
                                 Rectangle {
@@ -217,10 +210,10 @@ Page
             Rectangle
             {
                 id:selectPracticeOrEtc
-                width: parent.width / 1.20
+                width:parent.width/1.35
                 height:70
                 color: appColors.c_bg_tableList
-                radius:70
+                radius:90
                 anchors
                 {
                     top:weekReport.bottom
@@ -244,24 +237,24 @@ Page
 
             Rectangle {
                 id:tableList
-                width: parent.width / 1.20
-                height:parent.height/1.70
+                width:parent.width/1.35
+                height:parent.height/1.85
                 color: appColors.c_bg_tableList
-                radius:20
-                anchors {
+                radius:30
+                anchors
+                {
                     top: selectPracticeOrEtc.bottom
                     topMargin: 35
-                    bottom: indicator.top
                     horizontalCenter: parent.horizontalCenter
                 }
 
                 Rectangle
                 {
                     id:searchBoxTableList
-                    width:parent.width/1.50
+                    width:parent.width/1.10
                     height:60
-                    radius:50
                     color:"transparent"
+                    // clip:true
                     anchors
                     {
                         horizontalCenter: parent.horizontalCenter
@@ -269,74 +262,49 @@ Page
                         topMargin:15
                     }
 
-                    CustomTextInput
+                    Row
                     {
-                        id:searchTableTextInput
-                        setWidth: parent.width/2
-                        setHeight: 50
-                        setBgColor: appColors.c_bgColor_textinput
-                        setBordercolor: appColors.c_borderColor_textinput
-                        setBorderWidth:2
-                        setFontSize:appFontSizes.f_textInput
-                        setFontColor: appColors.c_fontColor_textinput
-                        setRadius:10
-                        theText:""
-                        setTitleText:"Search:"
-
-                        onTheTextChanged:
+                        spacing:3
+                        width:parent.width
+                        height:parent.height
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        CustomTextInput
                         {
-                            refresh()
+                            id:searchTableTextInput
+                            setWidth: parent.width/1.50
+                            setHeight: 45
+                            setBgColor: appColors.c_bgColor_textinput
+                            setBordercolor: appColors.c_borderColor_textinput
+                            setBorderWidth:2
+                            setFontSize:appFontSizes.f_textInput
+                            setFontColor: appColors.c_fontColor_textinput
+                            setRadius:10
+                            theText:""
+                            setTitleText:"Search:"
+
+                            onTheTextChanged:
+                            {
+                                refresh()
+                            }
+                        }
+
+                        CustomCombobox
+                        {
+                            id: searchTableTypeCombobox
+                            setBgColor: appColors.c_comboboxBgColor
+                            setFontColor: appColors.c_buttonFontColor
+                            setfontSize: appFontSizes.f_normal
+                            setWidth: 80
+                            height:45
+                            modelData:[ { text: "all"}, { text: "word"}, { text: "verb"}, { text: "single"} ]
+                            setBgColorCurrentItem: appColors.c_comboboxBgColorCurrentItem
+                            onActivated: function(index)
+                            {
+                                currentIndex = index
+                                refresh()
+                            }
                         }
                     }
-
-                    CustomCombobox
-                    {
-                        id: searchTableTypeCombobox
-                        setBgColor: appColors.c_comboboxBgColor
-                        setFontColor: appColors.c_buttonFontColor
-                        setWidth: 100
-                        height:50
-                        modelData:[ { text: "all"}, { text: "word"}, { text: "verb"}, { text: "single"} ]
-                        setBgColorCurrentItem: appColors.c_comboboxBgColorCurrentItem
-                        anchors
-                        {
-                            top:parent.top
-                            left: searchTableTextInput.right
-                            leftMargin:15
-                        }
-                        onActivated: function(index)
-                        {
-                            currentIndex = index
-                            refresh()
-                        }
-                    }
-
-                    CustomButton
-                    {
-                        id:buttonSubmitSearch
-                        setButtonText:"search";
-                        setButtonBorderColor:appColors.c_buttonBorderColor
-                        setButtonBackColor: appColors.c_buttonBgColor
-                        setButtonFontColor: appColors.c_buttonFontColor
-                        setBold: true
-                        setButtonFontsize: appFontSizes.f_buttonFontSize
-                        setButtonsBorderWidth: 0
-                        setRadius: 20
-                        setWidth: 70
-                        setHeight:50
-                        anchors
-                        {
-                            top:parent.top
-                            left:searchTableTypeCombobox.right
-                            leftMargin:15
-                        }
-                        onButtonClicked:
-                        {
-                            refresh()
-                        }
-                    }
-
-
 
 
                 }
@@ -354,13 +322,12 @@ Page
                     model: gridModel
                     clip: true
                     spacing: 15
-                    delegate:
-                        Rectangle
+                    delegate:Rectangle
                     {
-                        width:parent.width/1.50
-                        height:75
+                        width:parent.width/1.10
+                        height:60
                         color:appColors.c_bgTableitem
-                        radius: 15
+                        radius: 20
                         clip:true
                         anchors
                         {
@@ -370,20 +337,20 @@ Page
                         Rectangle
                         {
                             id:baseIconTable
-                            width:50
-                            height:50
+                            width:35
+                            height:35
                             color:appColors.c_bgIcon_tableItem
-                            border.color: appColors.c_borderColorIcon_tableItem
-                            border.width: 1
+                            border.color: modelData.t_status === "pinned" ? appColors.c_borderColorIcon_tableItem : "transparent"
+                            border.width: 3
                             radius:50
                             anchors.verticalCenter: parent.verticalCenter
                             anchors.left: parent.left
-                            anchors.leftMargin: 20
+                            anchors.leftMargin: 15
                             Image
                             {
                                 source: modelData.t_icon ==="" ? appIcons.icon_question :  modelData.t_icon
-                                width:45
-                                height:45
+                                width:25
+                                height:25
                                 anchors.centerIn: parent
                             }
                         }
@@ -391,62 +358,72 @@ Page
                         Rectangle
                         {
                             id:baseTableTitles
-                            width:parent.width/1.70
-                            height:parent.height/1.20
+                            width:parent.width/1.60
+                            height:parent.height/1.50
                             color:"transparent"
-                            anchors.centerIn: parent
-                            clip:true
+                            // anchors.centerIn: parent
+                            anchors.left: baseIconTable.right
+                            anchors.top: baseIconTable.top
+                            // clip:true
                             Text
                             {
                                 id:tableTitleText
+                                width:parent.width/1.10
+                                height:parent.height
+                                wrapMode: Text.WordWrap
                                 text: modelData.t_title
                                 color:appColors.c_fontcolor
-                                font.pixelSize: appFontSizes.f_large
+                                font.pixelSize: text.length>20 ? appFontSizes.f_small : appFontSizes.f_normal
                                 font.bold:true
-                                anchors.centerIn: parent
-                            }
-
-
-                            Text
-                            {
-                                text:modelData.t_type
-                                font.pixelSize: appFontSizes.f_normal
-                                color:appColors.c_fontcolor
-
                                 anchors
                                 {
-                                    top:tableTitleText.bottom
-                                    horizontalCenter:parent.horizontalCenter
+                                    left:parent.left
+                                    leftMargin:10
+                                    top:parent.top
+                                    topMargin:7
+                                    // horizontalCenter:parent.horizontalCenter
                                 }
                             }
+                            // Text
+                            // {
+                            //     text:"table-type"//modelData.t_type
+                            //     font.pixelSize: appFontSizes.f_small
+                            //     color:appColors.c_fontcolor
 
-                            Image
-                            {
-                                source:appIcons.icon_pinned
-                                width:30
-                                height:30
-                                visible: modelData.t_status === "pinned" ? true : false
-                                anchors
-                                {
-                                    top:tableTitleText.top
-                                    left:tableTitleText.right
-                                    leftMargin:5
-                                }
-                            }
+                            //     anchors
+                            //     {
+                            //         top:baseTableTitles.bottom
+                            //         left:baseTableTitles.left
+                            //         // horizontalCenter:parent.horizontalCenter
+                            //     }
+                            // }
+                            // Image
+                            // {
+                            //     source:appIcons.icon_pinned
+                            //     width:30
+                            //     height:30
+                            //     visible: modelData.t_status === "pinned" ? true : false
+                            //     anchors
+                            //     {
+                            //         top:tableTitleText.top
+                            //         left:tableTitleText.right
+                            //         leftMargin:5
+                            //     }
+                            // }
                         }
 
 
                         Rectangle
                         {
-                            width:35
-                            height:35
+                            width:25
+                            height:25
                             color:appColors.c_buttonBgColor
                             radius:50
                             rotation: 180
                             anchors
                             {
                                 right:parent.right
-                                rightMargin:20
+                                rightMargin:10
                                 verticalCenter:parent.verticalCenter
                             }
                             Image
@@ -500,7 +477,7 @@ Page
                 id:baseBrowse
                 color:"transparent"
                 width:parent.width/5
-                height:100
+                height:60
                 anchors
                 {
                     left:parent.left
@@ -532,7 +509,7 @@ Page
                 id:baseManage
                 color:"transparent"
                 width:parent.width/5
-                height:100
+                height:60
                 anchors.left: baseBrowse.right
                 CustomButtonWithIcon
                 {
@@ -559,7 +536,7 @@ Page
                 id:baseProfile
                 color:"transparent"
                 width:parent.width/5
-                height:100
+                height:60
                 anchors.left: baseManage.right
                 CustomButtonWithIcon
                 {
@@ -587,7 +564,7 @@ Page
                 id:baseSettings
                 color:"transparent"
                 width:parent.width/5
-                height:100
+                height:60
                 anchors.left: baseProfile.right
                 CustomButtonWithIcon
                 {

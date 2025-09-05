@@ -621,6 +621,30 @@ QDate Backend::getLastActivityDate()
     return lastDate;
 }
 
+int Backend::getLastWindowSize(const QString &widthOrHeight)
+{
+    if(widthOrHeight=="w" || widthOrHeight=="width")
+    {
+        return settings.getValue("last_window_width").toInt();
+    }
+    else
+    {
+        return settings.getValue("last_window_height").toInt();
+    }
+}
+
+void Backend::setLastWindowSize(const QString& wOrh , const int &value)
+{
+    if(wOrh=="w" || wOrh=="width")
+    {
+        settings.setValue("last_window_width",value);
+    }
+    else
+    {
+         settings.setValue("last_window_height",value);
+    }
+}
+
 
 void Backend::onUrlListReceived() {
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
