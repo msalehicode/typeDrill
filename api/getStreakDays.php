@@ -1,5 +1,9 @@
 <?php
 header('Content-Type: image/png');
+header('Catch-Control: no-cache, no-store, must-revalidate');
+header('Pragma: no-cache');
+header('Expires: 0');
+
 date_default_timezone_set('UTC');
 
 // --- Configuration ---
