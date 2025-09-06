@@ -3,360 +3,232 @@ import QtQuick.Controls
 
 Page
 {
+    id:practiceCore
     width:parent.width
     height: parent.height
-    property int currentIndex: 0;
-    property int mistakesCounter : 0;
 
+
+    //to pass mainStackView from parent
     property var m_stackView: mainStackView
-    property string practiceMode: "word" //word or verb
 
-    //for practice verb needs to user type whole three inputs to get next word:
-    property int passedState:0;
+    //fill up outside/before pushing to mainStackView
+    property string tableType: "none"
 
-    property bool quitPracticeStatus: false
+
+    //each practice can fill these values to report their result
+
+    //fill in order by targetPractice(e.g: by typePractice.qml):
+    //practiceTypeId codes: (typePractice:1, flashcardPractice:2)
+    property var practiceResult: {"mistakeCount":"15", "timeSpent":"10:00:20", "practiceTypeId":1}
+
+
+
+    Loader
+    {
+        id:practiceLoader
+        anchors.fill: parent
+        visible: false
+        source:""
+    }
+
 
     Rectangle
     {
-        id:mainRect
-        color:appColors.c_background
+        id:selectPracticeBase
         anchors.fill: parent
-        CustomProccessBar
+        color:appColors.c_background
+        Column
         {
-            id:proccessBar
-            currentValue:currentIndex
-            setWidth: parent.width/2
-            setHeight: 20
-            setSpacing:1
-            setFontColor: appColors.c_fontcolor
-            setBgColor: appColors.c_bg_tableList
-            setFontSize: appFontSizes.f_normal
-            setProgressColor: appColors.c_buttonBgColor
-            setCotinainerRadius: parent.width
-            anchors
+            width:parent.width/2
+            height:parent.height/2
+            anchors.centerIn: parent
+            spacing:25
+            CustomButton
             {
-                horizontalCenter: parent.horizontalCenter
-                top:parent.top
-                // topMargin: appKeyboardVisible ? appKeyboardHeight : 15
-                topMargin:55
+                setButtonText:"type practice"
+                setButtonBorderColor:appColors.c_buttonBorderColor
+                setButtonBackColor: appColors.c_buttonBgColor
+                setButtonFontColor: appColors.c_buttonFontColor
+                setBold: true
+                setButtonFontsize: appFontSizes.f_buttonFontSize
+                setButtonsBorderWidth: 0
+                setRadius: 20
+                setWidth: parent.width
+                setVisible: tableType==="verb" || tableType==="word"
+                setHeight:50
+                anchors.horizontalCenter: parent.horizontalCenter
+                onButtonClicked:
+                {
+                    joinMode("practiceModes/typePractice.qml","practiceMode",tableType)
+                }
+            }
+
+            CustomButton
+            {
+                setButtonText:"flashcard practice"
+                setButtonBorderColor:appColors.c_buttonBorderColor
+                setButtonBackColor: appColors.c_buttonBgColor
+                setButtonFontColor: appColors.c_buttonFontColor
+                setBold: true
+                setButtonFontsize: appFontSizes.f_buttonFontSize
+                setButtonsBorderWidth: 0
+                setRadius: 20
+                setWidth: parent.width
+                setVisible: tableType==="single" || tableType==="word"
+                setHeight:50
+                anchors.horizontalCenter: parent.horizontalCenter
+                onButtonClicked:
+                {
+                    joinMode("practiceModes/flashcardPractice.qml")
+                }
             }
         }
 
-        Item
-        {
-            id:itemContent
-            anchors.fill: parent
-            PracticeTimeComponent
-            {
-                id:practiceTimeCom
-                onEachTrigger:
-                {
-                    if(quitPracticeStatus)
-                        quitPractice()
-                }
-            }
-
-            Column
-            {
-                id:columnPractice
-                width: parent.width/2
-                height: parent.height/2
-                anchors.centerIn: parent
-                spacing:50
-                Label
-                {
-                    id:w_text
-                    text:""
-                    font.pixelSize:appFontSizes.f_title
-                    color:appColors.c_fontcolor
-                    horizontalAlignment: Text.AlignHCenter
-                    // Layout.fillWidth: true
-                    wrapMode: Text.WordWrap
-                }
-
-                Label
-                {
-                    id:w_meaning
-                    text:""
-                    font.pixelSize:appFontSizes.f_title
-                    color:appColors.c_fontcolor
-                    horizontalAlignment: Text.AlignHCenter
-                    // Layout.fillWidth: true
-                    wrapMode: Text.WordWrap
-                }
-                Label
-                {
-                    id:w_example
-                    text:""
-                    font.pixelSize:appFontSizes.f_title
-                    color:appColors.c_fontcolor
-                    horizontalAlignment: Text.AlignHCenter
-                    // Layout.fillWidth: true
-                    wrapMode: Text.WordWrap
-                }
-
-                Rectangle
-                {
-                    color:"transparent"
-                    width:parent.width
-                    height:50
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    CustomTextInput
-                    {
-                        id:text_input
-                        setWidth: parent.width-100
-                        setHeight: parent.height
-                        setBgColor: appColors.c_bgColor_textinput
-                        setBordercolor: appColors.c_borderColor_textinput
-                        setBorderWidth:2
-                        setFontSize:appFontSizes.f_textInput
-                        setFontColor: appColors.c_fontColor_textinput
-                        setRadius:10
-                        theText:""
-                        setErrorPosfix: ""
-                        setErrorPrefix: ""
-                        setTitleText:""
-                        onTheTextAccepted:
-                        {
-                            checkVerbState()
-                        }
-                    }
-
-                    CustomButton
-                    {
-                        id:buttonNext
-                        setButtonText:"next";
-                        setButtonBorderColor:appColors.c_buttonBorderColor
-                        setButtonBackColor: appColors.c_buttonBgColor
-                        setButtonFontColor: appColors.c_buttonFontColor
-                        setBold: true
-                        setButtonFontsize: appFontSizes.f_buttonFontSize
-                        setButtonsBorderWidth: 0
-                        setRadius: 20
-                        setWidth: 80
-                        setHeight: 50
-                        anchors
-                        {
-                            top:text_input.top
-                            left:text_input.right
-                            leftMargin:5
-                        }
-                        onButtonClicked:
-                        {
-                            checkVerbState()
-                        }
-                    }
-                }
-            }
-        }
 
     }
 
+
     Rectangle
     {
-        id:finishRect
-        color:"lime"
+        id:resultBase
+        color: appColors.c_background
         anchors.fill: parent
         visible: false;
-
 
         Column
         {
             width:parent.width/2
-            height:parent.height
-            anchors.horizontalCenter: parent.horizontalCenter
+            height:parent.height/2
+            anchors.centerIn: parent
             spacing:25
 
-            Text
+            Label
             {
-                id:mistakesCount
-                text: "mistakes: "
+                text: "mistakes: " + practiceResult["mistakeCount"]
+                font.pixelSize: appFontSizes.f_large
+                color: appColors.c_fontcolor
             }
 
-            Text
+            Label
             {
-                id:timeSpent
-                text: "time spent: "
+                text: "time spent: " + practiceResult["timeSpent"]
+                font.pixelSize: appFontSizes.f_large
+                color: appColors.c_fontcolor
             }
 
-            Button
+            CustomButton
             {
-                text:"quit practice"
-                onClicked:
+                setButtonText:"OK"
+                setButtonBorderColor:appColors.c_buttonBorderColor
+                setButtonBackColor: appColors.c_buttonBgColor
+                setButtonFontColor: appColors.c_buttonFontColor
+                setBold: true
+                setButtonFontsize: appFontSizes.f_buttonFontSize
+                setButtonsBorderWidth: 0
+                setRadius: 20
+                setWidth: parent.width
+                setHeight:50
+                anchors.horizontalCenter: parent.horizontalCenter
+                onButtonClicked:
                 {
-                    quitPractice()
-                }
-            }
-
-            Button
-            {
-                text:"start again"
-                onClicked:
-                {
-                    startPractice()
+                    closeResult()
                 }
             }
         }
     }
 
-    function checkVerbState()
+
+
+
+
+    CustomButtonWithIcon
     {
-        switch(practiceMode)
+        id:backToPracticePage
+        setButtonText:"";
+        setIconSource: appIcons.icon_back
+        setButtonBorderColor: "transparent"
+        setButtonBackColor: "transparent"
+        setButtonFontColor: "transparent"
+        setIconWidth: 40
+        setIconHeight: 40
+        setButtonsBorderWidth: 0
+        setRadius: 50
+        setWidth: 50
+        setHeight:50
+        anchors
         {
-            case "word":
-            {
-                if(text_input.theText.length>=1)
-                {
-                    backend.getNextWord(text_input.theText)
-                }
-            }break;
-
-            case "verb":
-            {
-                //verb is inside w_text
-                //past is inside w_meaning
-                //past perfect is inside w_example
-                switch(passedState)
-                {
-                    case 0:
-                    {
-                        if(text_input.theText===w_text.text)
-                        {
-                            passedState++;
-                            text_input.clear()
-                            w_text.font.bold=false
-                            w_meaning.font.bold=true;
-                            w_example.font.bold=false;
-                        }
-                        else
-                            mistakeMade();
-                    }break;
-                    case 1:
-                    {
-                        if(text_input.theText===w_meaning.text)
-                        {
-                            passedState++;
-                            text_input.clear()
-                            w_text.font.bold=false
-                            w_meaning.font.bold=false;
-                            w_example.font.bold=true;
-                        }
-                        else
-                            mistakeMade();
-                    }break;
-                    case 2:
-                    {
-                        if(text_input.theText===w_example.text)
-                        {
-                            backend.getNextWord(w_text.text)//to get next one
-                            text_input.clear()
-                        }
-                        else
-                            mistakeMade();
-                    }break;
-                    default:
-                        console.log("passedState invalid.")
-                }
-
-            }break;
+            left: parent.left
+            leftMargin:5
+            top:parent.top
+            topMargin:5
         }
-        text_input.openPhoneKeyboard()
-
+        onButtonClicked:
+        {
+            //if user is on result stage: hide result stage then go to select stage.
+            if(resultBase.visible)
+            {
+                resultBase.visible=false
+                quitMode(false)
+            }
+            //so we are not in stage result or practiceMode, can quit practicePage
+            else if(practiceLoader.source.toString()==="")
+            {
+                m_stackView.pop()
+            }
+            else //go to select stage.
+                quitMode(false)
+        }
     }
 
-    function mistakeMade()
+
+
+    function quitMode(saving=true,message="")
     {
-        mistakesCounter++;
-        console.log("mistakeMade...");
-        text_input.invalidInput("incorrect value")
-    }
+        console.log("quitMode called. saving:",saving)
+        practiceLoader.visible=false
+        practiceLoader.source = ""
 
-    function quitPractice()
-    {
-        backend.resetPractice(); //after this, lastWord on backend will become -> "" and we cant get first word by passing ""
-        // currentIndex=0;
-        // mistakesCounter=0;
-        practiceTimeCom.stopTimer()
-        m_stackView.pop()
-        console.log("quiting the practice");
-    }
-
-    function startPractice()
-    {
-
-        mainRect.visible=true
-        finishRect.visible=false
-
-
-        backend.resetPractice()
-
-        //to fetch first word and get maxium number of content on table
-        var totalWords = backend.getNextWord("");
-        if(totalWords<=0)
-            quitPracticeStatus=true
+        if(saving===true)
+        {
+            resultBase.visible=true
+            //saving on database, in order (mistakecount(str), timespent(str), practiceTypeid(int)
+            backend.setPracticeResult(practiceResult["mistakeCount"],
+                                      practiceResult["timeSpent"],
+                                      practiceResult["practiceTypeId"]);
+        }
         else
-            proccessBar.totalValue = totalWords
+            selectPracticeBase.visible=true
 
-        currentIndex=0;
-        mistakesCounter=0;
-        practiceTimeCom.startTimer()
-
+        if(message.length>1)
+            console.log("quitMode message=",message)
     }
 
 
-    Connections
+
+    function closeResult()
     {
-        target: backend
-        function onWordReady(word)
-        {
-            w_text.text = word[0]
-            w_meaning.text = word[1]
-            w_example.text = word[2]
-            text_input.clear()
-            if(practiceMode==="verb")
-            {
-                passedState=0;
-
-
-                //verb is inside w_text
-                //past is inside w_meaning
-                //past perfect is inside w_example
-                w_text.font.bold=true
-                w_meaning.font.bold=false;
-                w_example.font.bold=false;
-            }
-
-            //logic to check if practice is end, show results
-            if(currentIndex>=proccessBar.totalValue-1)
-            {
-                //switch to result
-                mainRect.visible=false
-                finishRect.visible=true
-                currentIndex=0;
-                mistakesCount.text= "mistakes: "+ mistakesCounter //because first time it starts
-                timeSpent.text =  "time spent: "+ practiceTimeCom.timerString
-
-                //save practice result on backend
-                backend.setPracticeResult(mistakesCounter,practiceTimeCom.timerString);
-            }
-            else
-                currentIndex++;
-        }
-        function onWordIsIncorrect(correctStatus)
-        {
-            if(correctStatus==="incorrect")
-            {
-                mistakeMade();
-            }
-        }
+        resultBase.visible=false
+        selectPracticeBase.visible=true
     }
 
+    function joinMode(practiceSource,param="",data="")
+    {
+        practiceLoader.visible=true
+        selectPracticeBase.visible=false
+
+        if(param==="" && data==="")
+            practiceLoader.source = practiceSource;
+        else
+            practiceLoader.setSource(practiceSource, { [param]: data});
+
+
+    }
     Component.onCompleted:
     {
-        startPractice()
+        appVisibleBackOrMenuButton=false
     }
     Component.onDestruction:
     {
-        quitPractice();
+        appVisibleBackOrMenuButton=true
     }
 }

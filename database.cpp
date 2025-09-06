@@ -65,12 +65,12 @@ bool DataBase::init(const QString &path, const QString &fileName)
 
             if(createTable.exec())
             {
-                // qInfo() << "database not found, we have been made one for you.";
+                qInfo() << "database not found, we have been made one for you.";
                 result=true;
             }
             else
             {
-                // qInfo() << "database creation exec failed.";//createTable.lastError().text();
+                qInfo() << "database creation exec failed." << createTable.lastError().text();
                 result=false;
             }
 

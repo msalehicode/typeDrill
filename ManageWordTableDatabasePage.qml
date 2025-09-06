@@ -12,7 +12,7 @@ Page
         Rectangle
         {
             color:"transparent"
-            width:parent.width/1.50
+            width:parent.width/1.10
             height:parent.height/1.50
             anchors.centerIn: parent
 
@@ -20,12 +20,12 @@ Page
             {
                 width:parent.width
                 height:parent.height
-                spacing:20
+                spacing:5
                 Row
                 {
-                    width:parent.width/1.50
+                    width:parent.width
                     height:100
-                    anchors.horizontalCenter: parent.horizontalCenter
+                    // anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 35
                     CustomButtonWithIcon
                     {
@@ -82,6 +82,26 @@ Page
                         onButtonClicked:
                         {
                             mainStackView.push("AddNewDatabaseForm.qml")
+                        }
+                    }
+
+
+                    CustomButtonWithIcon
+                    {
+                        setWidth:80
+                        setHeight:80
+                        setButtonText:"delete Database";
+                        setButtonFontColor:appColors.c_fontcolor
+                        setButtonBackColor:"transparent"
+                        setTextMagin: 5
+                        setIconHeight: 50
+                        setIconWidth: 50
+                        setButtonsBorderWidth:2
+                        setButtonBorderColor:appColors.c_fontcolor
+                        setIconSource:  appIcons.icon_delete
+                        onButtonClicked:
+                        {
+                            mainStackView.push("RemoveDatabaseForm.qml")
                         }
                     }
 

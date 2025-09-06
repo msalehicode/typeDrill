@@ -15,6 +15,8 @@
 #include <QJsonObject>
 #include "filemanager.h"
 
+#include <QRandomGenerator>
+
 
 class Backend : public QObject
 {
@@ -43,12 +45,13 @@ class Backend : public QObject
 public:
     explicit Backend(QObject *parent = nullptr);
     Q_INVOKABLE int getNextWord(const QString& userText);
-    Q_INVOKABLE void setPracticeResult(const QString& mistakeCount, const QString& timeSpent);
+    Q_INVOKABLE void setPracticeResult(const QString& mistakeCount, const QString& timeSpent, const int& practiceType);
     Q_INVOKABLE void getTables(const QString& searchedTitle, const QString& tableType);
     Q_INVOKABLE QString pinTable(const QString& tableId);
     Q_INVOKABLE void createTable(const QString& tableName, const QString& tableType);
     Q_INVOKABLE void switchTable(const QString& tableName, const QString& ttype);
     Q_INVOKABLE void createDatabase(const QString& databaseName);
+    Q_INVOKABLE void removeDatabase(const QString& databaseName);
     Q_INVOKABLE void whatIsCurrentTableType();
     Q_INVOKABLE void addWordToTable(const QStringList& data);
     Q_INVOKABLE void resetPractice();
@@ -71,7 +74,7 @@ public:
     Q_INVOKABLE QStringList getStreakDays();
     int calculateStreakDays(QDate& currentDate);
     QDate getLastActivityDate();
-
+    bool removeFile(const QString& filepath);
 
     Q_INVOKABLE int getLastWindowSize(const QString& widthOrHeight);
     Q_INVOKABLE void setLastWindowSize(const QString& wOrh , const int &value);
@@ -89,6 +92,7 @@ signals:
     void tablesList(const QVariantList& tableList);  // Emit to QML
     void tableCreationResult(const QString& tableCreationResult);
     void databaseCreationResult(const QString& databaseCreationResult);
+    void databaseRemoveResult(const bool& result);
     void tableTypeIs(const QString& currentTableType);
     void addItemtoTableResult(const QString& result);
 

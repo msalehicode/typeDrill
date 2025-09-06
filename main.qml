@@ -11,11 +11,15 @@ Window
     visible: true
     title: "TypeDrill Application"
     color:appColors.c_background
-
+    
     //in some pages user have to wait for result, e.g network upload/download
     //so need to blockBackButton to avoid any problem
     property bool appBlockBackButton: false
 
+
+    //make top icon (menu bar/back) controlable by other pages if source(icon)===menubar2
+    property bool appVisibleBackOrMenuButton : true
+    
     //android keyboard check, if its open some elemnts if needed change height or anchors...
     // property bool appKeyboardVisible: Qt.inputMethod.visible
     // property real appKeyboardHeight: Qt.inputMethod.keyboardRectangle.height
@@ -29,7 +33,7 @@ Window
         backend.setLastWindowSize("h",height);
         console.log("window height changed:", height)
     }
-
+    
     onClosing:
     {
         if(appBlockBackButton)
@@ -41,6 +45,10 @@ Window
         }
     }
 
+    readonly property var appPracticeTypesList: Object.freeze({
+                                                         typePractice: 1,
+                                                         flashcardPractice: 2
+                                                     })
 
     //theme colors
     QtObject
@@ -48,116 +56,119 @@ Window
         id:appColors;
         property string c_theme : "light";
         property var currentTheme: ThemeConfig.themeLight
-
-
+        
+        
         //main colors
         property color c_background : currentTheme["background"];
         property color c_fontcolor : currentTheme["fontColor"];
-
-
+        
+        
         //day streak
         property color c_bg_weekReport : currentTheme["bg_weekReport"];
         property color c_dayStreakCompleted: currentTheme["dayStreak_completed"];
         property color c_dayStreakMissed : currentTheme["dayStreak_missed"];
         property color c_dayStreakUnkown : currentTheme["dayStreak_unknown"];
         property color c_weekdayBordercolor: currentTheme["weekDayBordercolor"];
-
-
+        
+        
         //practice table list
         property color c_bg_tableList : currentTheme["bg_tableList"];
         property color c_bgTableitem : currentTheme["bg_tableItem"];
         property color c_bgIcon_tableItem : currentTheme["bgIcon_tableItem"];
         property color c_borderColorIcon_tableItem : currentTheme["borderColorIcon_tableItem"];
         property color c_borderColorTextInput : currentTheme["borderColorTextInput"];
-
+        
         //buttons
         property color c_buttonBorderColor : currentTheme["buttons_borderColor"];
         property color c_buttonBgColor : currentTheme["buttons_bgColor"];
         property color c_buttonFontColor : currentTheme["buttons_fontColor"];
-
+        
         //combobox
         property color c_comboboxBgColor : currentTheme["combobox_bgColor"];
         property color c_comboboxBgColorCurrentItem : currentTheme["combobox_bgColorCurrentItem"];
-
-
+        
+        
         //textinput
         property color c_bgColor_textinput : currentTheme["bgColor_textinput"];
         property color c_borderColor_textinput : currentTheme["borderColor_textinput"];
         property color c_fontColor_textinput : currentTheme["fontColor_textinput"];
-
-
+        
+        
         //popup
         property color c_bgPopupContentFailed : currentTheme["bgPopupContentFailed"];
         property color c_bgPopupContentSuccess : currentTheme["bgPopupContentSuccess"];
         property color c_bgPopupContentDefault : currentTheme["bgPopupContentDefault"];
-
-
+        
+        
         //indicator
         property color c_bgIndicator : currentTheme["bg_indicator"];
     }
-
+    
     QtObject
     {
         id:appFontSizes;
+        property int f_mega: ThemeConfig.fontSizes["mega"];
         property int f_title:  ThemeConfig.fontSizes["title"];
-
-
+        
+        
         property int f_large:  ThemeConfig.fontSizes["large"];
         property int f_normal: ThemeConfig.fontSizes["normal"];
         property int f_small:  ThemeConfig.fontSizes["small"];
-
-
+        
+        
         property int f_textInput:  ThemeConfig.fontSizes["Textinput"];
         property int f_buttonFontSize:  ThemeConfig.fontSizes["buttonsfontSize"];
-
+        
     }
-
+    
     QtObject
     {
         id:appIcons;
         property string i_path: "resourses/" + appColors.c_theme+"Mode/50x50/";
-
+        
         //main.qml
         property string icon_menubar: appIcons.i_path+ "menu.png";
         property string icon_menubar2: appIcons.i_path + "menubar.png"
         property string icon_back: appIcons.i_path+ "back.png";
         property string icon_back_white: "resourses/darkMode/50x50/back.png";
-
-
+        
+        
         //homePage
         property string icon_search: appIcons.i_path + "search.png";
         property string icon_search_white: "resourses/darkMode/50x50/search.png";
-
-
+        
+        
         //practice tableList
         property string icon_pinned: appIcons.i_path + "pin.png";
-
+        
         //day(s) streak and week report
         property string icon_streak: appIcons.i_path  + "streak.png";
         property string icon_close: appIcons.i_path + "close.png";
         property string icon_check: appIcons.i_path + "check.png";
         property string icon_question: appIcons.i_path + "question.png";
-
+        
         //browse
         property string icon_download: appIcons.i_path + "download.png"
         property string icon_upload: appIcons.i_path + "upload.png"
-
+        
         //indicator icons
         property string icon_browse: appIcons.i_path + "browse.png";
         property string icon_profile: appIcons.i_path + "profile.png";
         property string icon_manage: appIcons.i_path + "manage.png";
         property string icon_settings: appIcons.i_path + "settings.png";
-
+        
         //settings
         property string icon_save: appIcons.i_path + "save.png";
         property string icon_save_white: "resourses/darkMode/50x50/save.png";
+        
 
+        property string icon_delete: appIcons.i_path + "delete.png"
     }
-
-
-
+    
+    
+    
     signal refreshHomePageRequested()
-
+    
     StackView
     {
         id:mainStackView;
@@ -177,9 +188,9 @@ Window
                 refreshHomePageRequested();
             }
         }
-
+        
     }
-
+    
     Drawer
     {
         id: drawer;
@@ -191,20 +202,20 @@ Window
             focus: true
             currentIndex: -1
             anchors.fill: parent
-
+            
             Rectangle
             {
                 width:parent.width
                 height:parent.height
                 color:"black"
-
+                
                 Column
                 {
                     width:parent.width
                     height:parent.height
                     spacing: 25
-
-
+                    
+                    
                     CustomButton
                     {
                         setButtonText:"profile";
@@ -235,7 +246,7 @@ Window
                             }
                         }
                     }
-
+                    
                     Rectangle{
                         width:parent.width;
                         height:50
@@ -251,7 +262,7 @@ Window
                             }
                         }
                     }
-
+                    
                     Rectangle{
                         width:parent.width;
                         height:50
@@ -267,22 +278,22 @@ Window
                             }
                         }
                     }
-
+                    
                 }
-
+                
             }
-
+            
         }
-
+        
         ScrollIndicator.vertical: ScrollIndicator { }
     }
-
-
-
-
-
-
-
+    
+    
+    
+    
+    
+    
+    
     CustomButtonWithIcon
     {
         id:buttonBackOrDrawer
@@ -294,6 +305,7 @@ Window
         setIconWidth: 50
         setIconHeight: 50
         setButtonsBorderWidth: 0
+        setVisible: buttonBackOrDrawer.setIconSource === appIcons.icon_menubar2 ? true : appVisibleBackOrMenuButton
         setRadius: 50
         setWidth: 50
         setHeight:50
@@ -312,12 +324,12 @@ Window
                 mainStackView.pop()
         }
     }
-
+    
     function popStack()
     {
         mainStackView.pop()
     }
-
+    
     function reloadTheme()
     {
         const rs_theme = backend.getThemeMode();
@@ -325,7 +337,7 @@ Window
         {
             if(rs_theme === appColors.c_theme)
                 return;
-
+            
             if(rs_theme === "light")
             {
                 appColors.currentTheme = ThemeConfig.themeLight;
@@ -339,7 +351,7 @@ Window
             console.log("theme="+appColors.c_theme, "icon pack=",JSON.stringify(appColors.currentTheme, null, 2))
         }
     }
-
+    
     Component.onCompleted:
     {
         reloadTheme();

@@ -91,6 +91,7 @@ const themeLight =
 
 const fontSizes =
 {
+    "mega": 30,
     "title" : 25,
     "large" : 20,
     "normal": 16,

@@ -160,7 +160,7 @@ Item {
                             height:30
                             anchors.verticalCenter: parent.verticalCenter
                             anchors.left: parent.left
-                            anchors.leftMargin: 10
+                            anchors.leftMargin: 5
                             Image {
                                 source: modelData.icon
                                 anchors.fill: parent
@@ -171,14 +171,17 @@ Item {
                         {
                             id:textItem_onList
                             color:"transparent"
-                            width:setWidth/2
+                            width:setWidth
                             height:setHeight/2
+                            anchors.verticalCenter: parent.verticalCenter
                             clip:true
                             Text
                             {
                                 text:modelData.text
                                 color:setFontColor
                                 font.pixelSize: setfontSize
+                                anchors.left: parent.left
+                                anchors.leftMargin:35
                             }
                         }
 

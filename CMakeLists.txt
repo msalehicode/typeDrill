@@ -30,25 +30,37 @@ qt_add_qml_module(appTypeDrill
 
     QML_FILES
         main.qml
-        HomePage.qml
-        AddNewWordForm.qml
-        AddNewTableForm.qml
-        AddNewDatabaseForm.qml
-        PracticePage.qml
+        themes.js
+
+        #components
         PracticeTimeComponent.qml
         CustomButton.qml
-        ManageWordTableDatabasePage.qml
-        ProfilePage.qml
-        SettingsPage.qml
         CustomComboboxWithIcon.qml
         CustomButtonWithIcon.qml
-        BrowsePage.qml
         CustomProccessBar.qml
         CustomTextInput.qml
         CustomSwitch.qml
         CustomCombobox.qml
         CustomPopupMessage.qml
-        themes.js
+
+        #pages
+        ManageWordTableDatabasePage.qml
+        BrowsePage.qml
+        ProfilePage.qml
+        SettingsPage.qml
+        PracticePage.qml
+        HomePage.qml
+
+        # forms
+        RemoveDatabaseForm.qml
+        AddNewWordForm.qml
+        AddNewTableForm.qml
+        AddNewDatabaseForm.qml
+
+        # practiceModes
+        practiceModes/flashcardPractice.qml
+        practiceModes/typePractice.qml
+
 
     RESOURCES
         resourses/darkMode/50x50/browse.png
@@ -62,7 +74,6 @@ qt_add_qml_module(appTypeDrill
         resourses/darkMode/50x50/streak.png
         resourses/darkMode/50x50/back.png
         resourses/darkMode/50x50/pin.png
-
         resourses/lightMode/50x50/browse.png
         resourses/lightMode/50x50/check.png
         resourses/lightMode/50x50/close.png
@@ -84,7 +95,6 @@ qt_add_qml_module(appTypeDrill
         resourses/darkMode/50x50/save.png
         resourses/lightMode/50x50/menubar.png
         resourses/darkMode/50x50/menubar.png
-
 )
 
 # Set app properties for macOS/Windows

@@ -23,10 +23,10 @@ void SettingsManager::remove(const QString &key) {
 void SettingsManager::initSettings()
 {
     if(!settings.contains("api_url"))
-        settings.setValue("api_url","");
+        settings.setValue("api_url","http://typedrill.ir/typedrill/api/api.php");
 
     if(!settings.contains("api_key"))
-        settings.setValue("api_key","");
+        settings.setValue("api_key","YOUR_SECRET_API_KEY");
 
     if (!settings.contains("theme"))
         settings.setValue("theme", "dark");

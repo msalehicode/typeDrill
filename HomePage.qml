@@ -440,10 +440,7 @@ Page
                             onClicked:
                             {
                                 backend.switchTable(modelData.t_title, modelData.t_type);
-                                if (modelData.t_type === "verb")
-                                    mainStackView.push("PracticePage.qml", { practiceMode: "verb", m_stackView: mainStackView });
-                                else
-                                    mainStackView.push("PracticePage.qml", { practiceMode: "word", m_stackView: mainStackView});
+                                mainStackView.push("PracticePage.qml", { tableType: modelData.t_type, m_stackView: mainStackView});
                             }
                             onPressAndHold: {
                                 var result = backend.pinTable(modelData.t_id);

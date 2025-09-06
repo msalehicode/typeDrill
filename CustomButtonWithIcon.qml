@@ -25,6 +25,7 @@ Item
     property color setButtonBackColor: "purple";
     property color setButtonBorderColor: "red";
 
+    property bool setVisible: true
     property string setIconSource: "resources/default.png";
     property int setIconWidth: 45
     property int setIconHeight: 45
@@ -41,7 +42,7 @@ Item
             width:local_root.width;
             height:local_root.height;
             color:"transparent";
-
+            visible: setVisible
             Rectangle
             {
                 id:button;

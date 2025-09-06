@@ -32,16 +32,15 @@ void Backend::wordIs()
 
 bool Backend::init(QString databaseName)
 {
+    settings.initSettings();
+
+    //for switching between databases
     if(databaseName.length()<=0)
         databaseName = settings.getValue("currentDatabase").toString();
-
-    settings.initSettings();
 
     min_id=0;
     m_api_key = settings.getValue("api_key").toString();
     m_api_url = settings.getValue("api_url").toString();
-
-    //set them into variables
 
     databaseFullPath = QDir(m_dbPath).filePath(databaseName);
 
@@ -69,6 +68,7 @@ bool Backend::init(QString databaseName)
                      tp_table_id INTEGER,\
                      tp_timeSpent TEXT,\
                      tp_mistakesCount TEXT,\
+                     tp_practiceType INTEGER,\
                      tp_date TEXT DEFAULT CURRENT_TIMESTAMP,\
                      FOREIGN KEY(tp_table_id) REFERENCES user_tables(t_id)"
                      );
@@ -111,13 +111,14 @@ int Backend::getNextWord(const QString &userText)
     }
     else //incorrect value entered.
     {
+        // qInfo() << "userText=" << userText << " last_word[0]=" << last_word[0];
         QString correctStatus = "incorrect";
         emit wordIsIncorrect(correctStatus);
     }
     return -1;
 }
 
-void Backend::setPracticeResult(const QString &mistakeCount, const QString &timeSpent)
+void Backend::setPracticeResult(const QString &mistakeCount, const QString &timeSpent, const int& practiceType)
 {
     QDateTime currentDate = QDateTime::currentDateTime();
 
@@ -125,6 +126,7 @@ void Backend::setPracticeResult(const QString &mistakeCount, const QString &time
     rowData["tp_table_id"] = m_db.searchTable("user_tables","t_title",currentTableName,"t_id");;
     rowData["tp_timeSpent"] = timeSpent;
     rowData["tp_mistakesCount"] = mistakeCount;
+    rowData["tp_practiceType"] = practiceType;
     rowData["tp_date"] = currentDate.toString("yyyy-MM-dd HH:mm:ss");
 
 
@@ -326,6 +328,56 @@ void Backend::createDatabase(const QString &databaseName)
 {
     bool res = init(databaseName);
     emit databaseCreationResult(QString::number(res));
+}
+
+void Backend::removeDatabase(const QString &databaseName)
+{
+    qInfo() << "removeDatabase.. " << databaseName;
+    QString currentdb = settings.getValue("currentDatabase").toString();
+    bool allowedToRemove=true;
+    if(databaseName==currentdb)
+    {
+        QStringList dbList = listOfDatabases();
+
+        if(dbList.size()>1)
+        {
+            QString otherDbName="";
+            int randomInt=0;
+
+            do
+            {
+                randomInt = QRandomGenerator::global()->bounded(dbList.size());
+                otherDbName = dbList[randomInt];
+            }
+            while(otherDbName==currentdb);
+
+            if(switchDatabase(otherDbName)=="successed")
+            {
+                qDebug () <<"switch database successed.";
+            }
+            else
+            {
+               //error switch to db
+                qDebug() << "error switch to db";
+                allowedToRemove=false;
+            }
+
+        }
+        else
+        {
+            //not enough database..
+            qDebug() << "not enough database..";
+            allowedToRemove=false;
+        }
+    }
+
+    if(allowedToRemove)
+    {
+        QString filePath = m_dbPath +"/"+ databaseName;
+        allowedToRemove = removeFile(filePath);
+    }
+
+    emit databaseRemoveResult(allowedToRemove);
 }
 
 void Backend::whatIsCurrentTableType()
@@ -619,6 +671,28 @@ QDate Backend::getLastActivityDate()
 
     qInfo() << "Last activity date from DB:" << lastDate.toString("yyyy-MM-dd");
     return lastDate;
+}
+
+bool Backend::removeFile(const QString &filepath)
+{
+    qDebug() << "filepath to remove: " << filepath;
+    if (QFile::exists(filepath))
+    {
+        if (QFile::remove(filepath))
+        {
+            qDebug() << "File removed successfully:" << filepath;
+            return true;
+        }
+        else
+        {
+            qWarning() << "Failed to remove file:" << filepath;
+        }
+    }
+    else
+    {
+        qDebug() << "File does not exist:" << filepath;
+    }
+    return false;
 }
 
 int Backend::getLastWindowSize(const QString &widthOrHeight)
