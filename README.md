@@ -1,15 +1,6 @@
-.
 # TypeDrill
-A practice tool where you improve by repeatedly typing words or phrases — helping you build memory and fluency.
-<br/><br/>
-## v1.14.0 preview gif
-![previewapp](./screenshots/preview-v1.14.0.gif)
+## v1.20.5 preview (size:2.2MB):
+https://github.com/user-attachments/assets/e001cd52-0279-4ba6-b0f0-a8be6c69b397
 
 
 
-
-
-
-### widget version (branch)
-<br/><br/>
-![Screenshot](screenshots/latest.png)
