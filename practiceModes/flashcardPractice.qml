@@ -16,6 +16,7 @@ Page {
     property int maxWordId: 0
     property int currentWordId:0
 
+    property string practiceMode: "none"
 
     property bool isThisWordModified: false;
 
@@ -38,7 +39,7 @@ Page {
         CustomProccessBar
         {
             id:proccessBar
-            currentValue:currentWordId
+            currentValue:currentWordId-1
             setWidth: parent.width/2
             setHeight: 20
             setSpacing:1
@@ -357,7 +358,7 @@ Page {
 
         doTiltAnimation(animationVal)
 
-        backend.getNextWord(lblText.text,isThisWordModified)
+        backend.getNextWord(getValueByKey(currentWord,"text","verb"),isThisWordModified)
 
         //turn flag off for next word
         isThisWordModified=false
@@ -368,7 +369,7 @@ Page {
         isThisWordModified=true;
         practiceTimeCom.stopTimer()
         practiceCore.m_stackView.push("../ModifyWordForm.qml",
-                                          {"formType":"word",
+                                          {"formType":practiceMode,
                                           "wordId":currentWordId,
                                           "formData": currentWord,
                                           "parentName": flashcardPracticeCore})
@@ -411,9 +412,19 @@ Page {
 
     function updateTextValues()
     {
-        lblText.text=""+getValueByKey(currentWord,"text","text")
-        lblMeaning.text="Meaning: \n"+getValueByKey(currentWord,"meaning","meaning")
-        lblExample.text="\nExample: \n"+getValueByKey(currentWord,"example","example")
+        if(practiceMode==="word")
+        {
+            lblText.text=""+getValueByKey(currentWord,"text","text")
+            lblMeaning.text="Meaning: \n"+getValueByKey(currentWord,"meaning","meaning")
+            lblExample.text="\nExample: \n"+getValueByKey(currentWord,"example","example")
+        }
+        else if(practiceMode==="verb")
+        {
+            lblText.text=""+getValueByKey(currentWord,"verb","verb")
+            lblText.text+="\n\n"+getValueByKey(currentWord,"past","past")
+            lblText.text+="\n\n"+getValueByKey(currentWord,"past_perfect","past_perfect")
+        }
+
         lblTranslate.text="\nTranslate: \n"+getValueByKey(currentWord,"translate","translate")
         currentWordId=getValueByKey(currentWord,"id","id")
     }

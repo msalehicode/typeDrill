@@ -53,7 +53,7 @@ Page
                 setButtonsBorderWidth: 0
                 setRadius: 20
                 setWidth: parent.width
-                setVisible: tableType==="verb" || tableType==="word"
+                setVisible: tableType==="word" || tableType==="verb"
                 setHeight:50
                 anchors.horizontalCenter: parent.horizontalCenter
                 onButtonClicked:
@@ -75,12 +75,12 @@ Page
                 setButtonsBorderWidth: 0
                 setRadius: 20
                 setWidth: parent.width
-                setVisible: tableType==="single" || tableType==="word"
+                setVisible: tableType==="word" || tableType==="verb"
                 setHeight:50
                 anchors.horizontalCenter: parent.horizontalCenter
                 onButtonClicked:
                 {
-                    joinMode("practiceModes/flashcardPractice.qml")
+                    joinMode("practiceModes/flashcardPractice.qml", {practiceMode: tableType});
                 }
             }
         }
