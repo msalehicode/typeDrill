@@ -1,35 +1,5 @@
 #include "backend.h"
 
-void Backend::wordIs()
-{
-    last_word.clear();
-    if(currentTableType=="word")
-    {
-        last_word << m_db.searchTable(currentTableName, "id", QString::number(last_id), "text");
-        last_word << m_db.searchTable(currentTableName, "id", QString::number(last_id), "meaning");
-        last_word << m_db.searchTable(currentTableName, "id", QString::number(last_id), "example");
-    }
-    else if(currentTableType=="verb")
-    {
-        last_word << m_db.searchTable(currentTableName, "id", QString::number(last_id), "verb");
-        last_word << m_db.searchTable(currentTableName, "id", QString::number(last_id), "past");
-        last_word << m_db.searchTable(currentTableName, "id", QString::number(last_id), "past_perfect");
-    }
-    else if(currentTableType=="single")
-    {
-        last_word << m_db.searchTable(currentTableName, "id", QString::number(last_id), "text");
-        last_word << m_db.searchTable(currentTableName, "id", QString::number(last_id), "translate");
-        last_word << m_db.searchTable(currentTableName, "id", QString::number(last_id), "status");
-    }
-    else
-    {
-        //just to fill last word with somethinge
-        last_word << "error";//, could not detect current table type.
-    }
-
-    // qInfo() <<"wordisresult:"<< last_word;
-}
-
 bool Backend::init(QString databaseName)
 {
     settings.initSettings();
@@ -89,30 +59,66 @@ Backend::Backend(QObject *parent)
 
 }
 
-int Backend::getNextWord(const QString &userText)
+int Backend::getNextWord(const QString &userText, const bool& isModified)
 {
+    QString correctStatus = "incorrect";
 
-
-    // qInfo() <<"debuggg"<< last_word << "" << last_word[0];
-    if (last_word.size() > 0 && userText == last_word[0])
+    qInfo() << "getNextWord() starts, " << userText << "ismod:"<< isModified;
+    if (!userText.isEmpty() && //check for filled value isn't empty and
+          ((
+                current_word.isEmpty() //for first time this is empty. to get first word
+             || userText == current_word.first().value("text").toString() //check for text
+             || userText == current_word.first().value("verb").toString() //check for verb
+            ) || isModified)
+        )
     {
-
         if(last_id>=max_id)
-            last_id=min_id;
+            emit practiceFinished();
+        else
+        {
+            //increase to get next word, else again get currentIndex for changes
+            if(!isModified)
+            {
+                qInfo()<< "lets get next word...";
+                last_id++;
+            }
+            else
+            {
+                qInfo() << "lets fetch again that word its modified";
+            }
 
-        last_id++;
+            current_word = m_db.searchTable(currentTableName, "id", QString::number(last_id));
+            if(isModified)
+            {
+                qInfo () << "lets check again..";
+                if(userText == current_word.first().value("text").toString()
+                    || userText == current_word.first().value("verb").toString())
+                {
+                    qInfo() <<" your right, its match.. lets get new word";
+                    current_word = m_db.searchTable(currentTableName, "id", QString::number(++last_id));
+                    emit wordReady(current_word);
+                }
+                else
+                    emit wordIsIncorrect(correctStatus);
+            }
+            else
+                emit wordReady(current_word);
 
-        wordIs();
-        // qInfo() << "usertext= " << userText;
-        // qInfo() << "last_wrod=" << last_word;
-        // qInfo() << "last id =" << last_id << "maxid="<<max_id<< "minud="<<min_id;
-        emit wordReady(last_word);
+
+            // Print results
+            qDebug() << "Search Results:";
+            for (const auto& row : current_word)
+            {
+                for (auto it = row.constBegin(); it != row.constEnd(); ++it)
+                    qDebug() << it.key() << ":" << it.value();
+                qDebug() << "ccc------";
+            }
+        }
+
         return max_id;
     }
     else //incorrect value entered.
     {
-        // qInfo() << "userText=" << userText << " last_word[0]=" << last_word[0];
-        QString correctStatus = "incorrect";
         emit wordIsIncorrect(correctStatus);
     }
     return -1;
@@ -156,7 +162,7 @@ void Backend::getTables(const QString& searchedTitle,const QString& tableType)
         // If tableType is "all" or empty, include everything
         if (tableType.isEmpty() || tableType == "all")
             pinnedTables.append(row);
-        // Otherwise, filter by t_type (verb,word,single)
+        // Otherwise, filter by t_type (verb,word,etc)
         else if (row["t_type"].toString() == tableType)
             pinnedTables.append(row);
     }
@@ -181,7 +187,7 @@ void Backend::getTables(const QString& searchedTitle,const QString& tableType)
                 filteredTables.append(row);
         }
 
-        // Otherwise, filter by t_type (verb,word,single)
+        // Otherwise, filter by t_type (verb,word,etc)
         else if (row["t_type"].toString() == tableType)
         {
             if(searchedTitle.isEmpty()) //searchedTitle didn't provide
@@ -256,6 +262,7 @@ void Backend::createTable(const QString &tableName, const QString &tableType)
                                         verb TEXT,\
                                         past TEXT,\
                                         past_perfect TEXT,\
+                                        translate TEXT,\
                                         status TEXT"
                                         );
         if(qresult)
@@ -276,32 +283,6 @@ void Backend::createTable(const QString &tableName, const QString &tableType)
         }
         else
             result="error";//: table verb failed to create.
-    }
-    else if(tableType=="single")
-    {
-        bool qresult = m_db.createTable(tableName, "id INTEGER PRIMARY KEY AUTOINCREMENT,\
-                                        text TEXT,\
-                                        translate TEXT,\
-                                        status TEXT"
-                                        );
-        if(qresult)
-        {
-            result="single table successfully created.";
-
-            QMap<QString, QVariant> rowData;
-            rowData["t_title"] = tableName;
-            rowData["t_type"] = tableType;
-            rowData["t_icon"] = "";
-            rowData["t_status"] = "0";
-
-            qresult = m_db.insertIntoTable("user_tables", rowData);
-            if(qresult)
-                result+= " and added to user_tables.";
-            else
-                result= "error";// but could not add to user_tables this will occure problem.
-        }
-        else
-            result="error";//: table single failed to create.
     }
     else
     {
@@ -407,48 +388,81 @@ void Backend::addWordToTable(const QStringList &data)
         else
             result= "error";//:failed to add word into the table.
     }
-    else if(currentTableType=="verb" && data.size() >=4)
+    else if(currentTableType=="verb" && data.size() >=5)
     {
-        //data order passed by QML for verb: verb, past, past perfect, status
+        //data order passed by QML for verb: verb, past, past perfect, translate, status
         QMap<QString, QVariant> rowData;
         rowData["verb"] = data[0];
         rowData["past"] = data[1];
         rowData["past_perfect"] = data[2];
-        rowData["status"] = data[3];
+        rowData["translate"] = data[3];
+        rowData["status"] = data[4];
         qresult = m_db.insertIntoTable(currentTableName, rowData);
         if(qresult)
             result= "verb added to the table.";
         else
             result= "error";//failed to add verb into the table.
     }
-    else if(currentTableType=="single" && data.size() >=3)
-    {
-        //data order passed by QML for single: text, translate,status
-        QMap<QString, QVariant> rowData;
-        rowData["text"] = data[0];
-        rowData["translate"] = data[1];
-        rowData["status"] = data[2];
-        qresult = m_db.insertIntoTable(currentTableName, rowData);
-        if(qresult)
-            result= "single added to the table.";
-        else
-            result= "error";//failed to add single into the table.
-    }
     else
     {
-        // qInfo() << "undefined table type or invalid parameters.";
+        qInfo() << "undefined table type or invalid parameters to add word";
         result="error";//, underined table type or invalid parameters
     }
 
     emit addItemtoTableResult(result);
 }
 
+void Backend::modifyWordOnTable(const int& targetWordId,
+                                const QString& tagetTableType, const QStringList &data)
+{
+    // qInfo() << "modifyWordOnTable received id=" << targetWordId << ",data=" << data;
+    QString result;
+    bool qresult;
+    QMap<QString, QVariant> rowData;
+
+    if(tagetTableType=="word" && data.size() >=6)
+    {
+        //data order passed by QML for word: text, meaning, example, translate, source, status
+        rowData["text"] = data[0];
+        rowData["meaning"] = data[1];
+        rowData["example"] = data[2];
+        rowData["translate"] = data[3];
+        rowData["source"] = data[4];
+        rowData["status"] = data[5];
+
+        qresult = m_db.updateTableRow(currentTableName, "id", targetWordId, rowData);
+        if(qresult)
+            result= "word modified in the table.";
+        else
+            result= "error";//:failed to modify word on the table.
+    }
+    else if(tagetTableType=="verb" && data.size() >=5)
+    {
+        //data order passed by QML for verb: verb, past, past perfect, translate , status
+        rowData["verb"] = data[0];
+        rowData["past"] = data[1];
+        rowData["past_perfect"] = data[2];
+        rowData["translate"] = data[3];
+        rowData["status"] = data[4];
+        qresult = m_db.updateTableRow(currentTableName, "id", targetWordId, rowData);
+        if(qresult)
+            result= "verb modified on the table.";
+        else
+            result= "error";//failed to modify verb on the table.
+    }
+    else
+    {
+        qInfo() << "undefined table type or invalid parameters to modify word.";
+        result="error";//, underined table type or invalid parameters
+    }
+
+    emit modifyWordOnTableResult(result);
+}
+
 void Backend::resetPractice()
 {
     last_id=min_id;
-    last_word.clear();
-    //to avoid empty QStringList.
-    last_word << "";
+    current_word.clear();
     // qInfo() << "practice reseted.";
 }
 
@@ -720,19 +734,24 @@ void Backend::setLastWindowSize(const QString& wOrh , const int &value)
 }
 
 
-void Backend::onUrlListReceived() {
+void Backend::onUrlListReceived()
+{
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
     if (!reply)
         return;
 
-    if (reply->error() == QNetworkReply::NoError) {
+    if (reply->error() == QNetworkReply::NoError)
+    {
         QVariantList urlList;
         QByteArray data = reply->readAll();
         QJsonDocument doc = QJsonDocument::fromJson(data);
-        if (doc.isArray()) {
+        if (doc.isArray())
+        {
             QJsonArray arr = doc.array();
-            for (const auto &item : arr) {
-                if (item.isObject()) {
+            for (const auto &item : arr)
+            {
+                if (item.isObject())
+                {
                     QJsonObject obj = item.toObject();
                     QVariantMap map;
                     map["d_name"] = obj["d_name"].toString();

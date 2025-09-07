@@ -41,6 +41,12 @@ public:
     bool insertIntoTable(const QString& tableName, const QMap<QString, QVariant>& data);
     bool updateTableValue(const QString& tableName, const QString& keyColumn, const QVariant& keyValue,
                           const QString& updateColumn, const QVariant& updateValue);
+
+    bool updateTableRow(const QString& tableName,
+                        const QString& keyColumn,
+                        const QVariant& keyValue,
+                        const QMap<QString, QVariant>& updateValues);
+
     QList<QMap<QString, QVariant>> searchTable(const QString& tableName,
                                                const QString& columnName,
                                                const QVariant& searchValue);

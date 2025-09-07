@@ -42,7 +42,7 @@ Page
                 CustomCombobox
                 {
                     id: comboType
-                    modelData:[ { text: "word"}, { text: "verb"}, { text: "single"} ]
+                    modelData:[ { text: "word"}, { text: "verb"}]
                     setBgColor: appColors.c_comboboxBgColor
                     setFontColor: appColors.c_buttonFontColor
                     setBgColorCurrentItem: appColors.c_comboboxBgColorCurrentItem

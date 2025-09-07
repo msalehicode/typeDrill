@@ -22,7 +22,6 @@ Page
     property var practiceResult: {"mistakeCount":"15", "timeSpent":"10:00:20", "practiceTypeId":1}
 
 
-
     Loader
     {
         id:practiceLoader
@@ -59,7 +58,9 @@ Page
                 anchors.horizontalCenter: parent.horizontalCenter
                 onButtonClicked:
                 {
-                    joinMode("practiceModes/typePractice.qml","practiceMode",tableType)
+                    // joinMode("practiceModes/typePractice.qml","practiceMode",tableType)
+                    joinMode("practiceModes/typePractice.qml", {practiceMode: tableType});
+
                 }
             }
 
@@ -211,17 +212,15 @@ Page
         selectPracticeBase.visible=true
     }
 
-    function joinMode(practiceSource,param="",data="")
+    function joinMode(practiceSource, params = {})
     {
-        practiceLoader.visible=true
-        selectPracticeBase.visible=false
+        practiceLoader.visible = true;
+        selectPracticeBase.visible = false;
 
-        if(param==="" && data==="")
+        if (Object.keys(params).length === 0)
             practiceLoader.source = practiceSource;
         else
-            practiceLoader.setSource(practiceSource, { [param]: data});
-
-
+            practiceLoader.setSource(practiceSource, params);
     }
     Component.onCompleted:
     {

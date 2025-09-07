@@ -3,89 +3,93 @@ import QtQuick.Controls
 
 Item
 {
+    id: root
     width: setWidth
     height: setHeight
 
-    property int setAnimationDuration:150;
-    property int setBorderWidth: 6;
-    signal switchSignalClicked;
-
-    property int setWidth:50
+    property int setAnimationDuration: 150
+    property int setWidth: 50
     property int setHeight: 40
+    property int setRadius: 20
     property color setBgColorActivated: "blue"
     property color setBgColorDeactivated: "grey"
 
-    property bool switchStatus:false;
-    property bool setStatusBorder:true;
-    property double setSizeSwitchCircle: 3.80;
-    Rectangle
-    {
-        id:mySwitsch;
-        width:  setWidth;
-        height: setWidth/1.80;
-        radius:50;
-        color:switchStatus<=0? setBgColorDeactivated: setBgColorActivated;
+
+    property bool switchStatus: true
+
+    property int setSwitchBorderWidth: 3
+    property int setSwitchWith: 20
+    property int setSwitchMargin: 6
+    property int setSwitchRadius: 20
+    property color setSwitchBorderColor: "transparent"
+    property color setSwitchColor: "white"
+
+
+    signal switchClicked;
+
+    Rectangle {
+        id: mySwitsch
+        anchors.fill: parent
+        radius: setRadius
+        color: switchStatus ? setBgColorActivated : setBgColorDeactivated
+        border.width: setSwitchBorderWidth
+        border.color: setSwitchBorderColor
+
         Rectangle
         {
-            id:switchCircle;
-            width: parent.width/setSizeSwitchCircle;
-            height: width;
-            color:cUnknown;
-            radius:50;
-            anchors.verticalCenter: parent.verticalCenter;
-            x:switchStatus<=0? mySwitsch.width/8: mySwitsch.width/1.90;
-//            y:setSwitchWidth/7;
-        }
-        border.width: setStatusBorder<=0? 0:setBorderWidth;
-        border.color: setStatusBorder<=0? cBG_Unknown:cUnknown;
-        MouseArea
-        {
-            anchors.fill: parent;
-            onClicked:
-            {
-                if(switchCircle.x>mySwitsch.width/5) //switchStatus)
-                {
-                    animactionDeactive.running=true;
-                    mySwitsch.color = setBgColorDeactivated;
-                    switchStatus=false;
-                    switchSignalClicked();
-                }
-                else
-                {
-                    animationAcvite.running=true;
-                    mySwitsch.color = setBgColorActivated;
-                    switchStatus=true;
-                    switchSignalClicked();
-                }
+            id: switchCircle
+            width: setSwitchWith
+            height: setSwitchWith
+            color: setSwitchColor
+            radius: setSwitchRadius
+            anchors.verticalCenter: parent.verticalCenter
 
-
+            // Initial X position depends on switchStatus:
+            x: switchStatus ? (mySwitsch.width - width - setSwitchMargin) : setSwitchMargin
+            Behavior on x {
+                NumberAnimation {
+                    duration: 150
+                    easing.type: Easing.InOutQuad
+                }
             }
         }
 
-    }
-    SequentialAnimation
-    {
-        id:animationAcvite;
-        running:false;
-        NumberAnimation
-        {
-            target: switchCircle;
-            property: 'x';
-            to:mySwitsch.width/1.90;
-            duration: setAnimationDuration;
-        }
-    }
-    SequentialAnimation
-    {
-        id:animactionDeactive;
-        running:false;
-        NumberAnimation
-        {
-            target: switchCircle;
-            property: 'x';
-            to:mySwitsch.width/8;
-            duration: setAnimationDuration;
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                changeStatus()
+            }
         }
     }
 
+    // Animation for turning switch ON (circle moves right)
+    NumberAnimation {
+        id: animationActivate
+        target: switchCircle
+        property: "x"
+        to: mySwitsch.width - switchCircle.width - setSwitchMargin
+        duration: setAnimationDuration
+    }
+
+    // Animation for turning switch OFF (circle moves left)
+    NumberAnimation {
+        id: animationDeactivate
+        target: switchCircle
+        property: "x"
+        to: setSwitchMargin
+        duration: setAnimationDuration
+    }
+
+    function changeStatus() {
+        if (switchStatus) {
+            animationDeactivate.start()
+            mySwitsch.color = setBgColorDeactivated
+            switchStatus = false
+        } else {
+            animationActivate.start()
+            mySwitsch.color = setBgColorActivated
+            switchStatus = true
+        }
+        switchClicked()
+    }
 }

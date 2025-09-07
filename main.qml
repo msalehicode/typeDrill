@@ -163,6 +163,7 @@ Window
         
 
         property string icon_delete: appIcons.i_path + "delete.png"
+        property string icon_modify: appIcons.i_path+ "modify.png"
     }
     
     
@@ -357,5 +358,9 @@ Window
         reloadTheme();
         rootWindow.width = backend.getLastWindowSize("w");
         rootWindow.height = backend.getLastWindowSize("h");
+
+        //manually reload icon
+        //often it's color is default theme since loading, doesn't change with theme at start
+        buttonBackOrDrawer.setIconSource = appIcons.icon_menubar2
     }
 }

@@ -12,11 +12,9 @@ Page
 
     //data order passed by QML to backend
     //word: text, meaning, example, translate, source, status
-    //verb: verb, past, past perfect, status
-    //single: text, translate,status
+    //verb: verb, past, past perfect, translate, status
     property var wordTitles: ["Enter Word:", "Enter Meaning:", "Enter Example:", "Enter Translate:", "Enter Source:", "Enter Status:"]
-    property var verbTitles: ["Enter Verb:","Enter Past:", "Enter Past Participle:", "Enter Status:"]
-    property var singleTitles: ["Enter Text:", "Enter Translate", "Enter Status:"]
+    property var verbTitles: ["Enter Verb:","Enter Past:", "Enter Past Participle:", "Enter Translate:","Enter Status:"]
 
 
     ListModel
@@ -165,9 +163,13 @@ Page
     {
         titleModel.clear()
         var arr = []
-        if (formType === "word") arr = wordTitles
-        else if (formType === "verb") arr = verbTitles
-        else if (formType === "single") arr = singleTitles
+        if (formType === "word")
+            arr = wordTitles
+        else if (formType === "verb")
+            arr = verbTitles
+        else
+            console.log("formType unkown, formType=",formType)
+
 
         for (var i = 0; i < arr.length; i++)
         {
@@ -184,20 +186,17 @@ Page
         }
         function onAddItemtoTableResult(res)
         {
-            // console.log("result submit/add item to the table: "+res)
             if (res !== "error")
             {
                 //reset form for next word
                 refreshFormInputs()
-
+                console.log("word added into the table. res="+res)
                 //go to homePage
                 // mainStackView.pop();
                 // mainStackView.pop();
             }
             else
-                console.log("error: cant add word to table.." + res)
-
-
+                console.log("error: cant add word to table.. res=" + res)
         }
 
         function onTablesList(tables)

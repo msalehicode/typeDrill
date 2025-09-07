@@ -29,7 +29,7 @@ class Backend : public QObject
     int currentStreakCount;
     QDate lastPracticeDate;
 
-    void wordIs();
+
     bool init(QString databaseName="");
     QString m_api_url;
     QString m_api_key;
@@ -44,7 +44,7 @@ class Backend : public QObject
 
 public:
     explicit Backend(QObject *parent = nullptr);
-    Q_INVOKABLE int getNextWord(const QString& userText);
+    Q_INVOKABLE int getNextWord(const QString& userText, const bool& isModified=false);
     Q_INVOKABLE void setPracticeResult(const QString& mistakeCount, const QString& timeSpent, const int& practiceType);
     Q_INVOKABLE void getTables(const QString& searchedTitle, const QString& tableType);
     Q_INVOKABLE QString pinTable(const QString& tableId);
@@ -54,6 +54,7 @@ public:
     Q_INVOKABLE void removeDatabase(const QString& databaseName);
     Q_INVOKABLE void whatIsCurrentTableType();
     Q_INVOKABLE void addWordToTable(const QStringList& data);
+    Q_INVOKABLE void modifyWordOnTable(const int& targetWordId, const QString& tagetTableType, const QStringList& data);
     Q_INVOKABLE void resetPractice();
     Q_INVOKABLE QString databasePath();
     Q_INVOKABLE QStringList listOfDatabases();
@@ -84,10 +85,11 @@ public:
     int min_id;
     int max_id;
     int last_id;
-    QStringList last_word;
+    QList<QMap<QString, QVariant>> current_word;
 
 signals:
-    void wordReady(const QStringList& word);  // Emit to QML
+    void wordReady(const QList<QMap<QString, QVariant>>& word);  // Emit to QML
+    void practiceFinished();
     void wordIsIncorrect(const QString& correctStatus);
     void tablesList(const QVariantList& tableList);  // Emit to QML
     void tableCreationResult(const QString& tableCreationResult);
@@ -95,6 +97,7 @@ signals:
     void databaseRemoveResult(const bool& result);
     void tableTypeIs(const QString& currentTableType);
     void addItemtoTableResult(const QString& result);
+    void modifyWordOnTableResult(const QString& result);
 
 
     void urlListReady(const QVariantList &list);

@@ -4,30 +4,39 @@ import "../"
 
 Page
 {
+    id:typePracticeCore
     width: parent ? parent.width : 400
     height: parent ? parent.height : 400
 
+
     //this will set from parent before start.
     property string practiceMode: "none" //word or verb
+
+    property bool isThisWordModified: false;
 
 
     //private
     property int mistakesCounter : 0;
     property int currentIndex: 0;
+    property int maxIndex: 100;
 
     //for practice verb needs to user type whole three inputs to get next word:
     property int passedState:0;
 
 
+    property var practiceData: []
     Rectangle
     {
         id:mainRect
         color:appColors.c_background
         anchors.fill: parent
+
+
         CustomProccessBar
         {
             id:proccessBar
             currentValue:currentIndex-1
+            totalValue: maxIndex
             setWidth: parent.width/2
             setHeight: 20
             setSpacing:1
@@ -41,7 +50,29 @@ Page
                 horizontalCenter: parent.horizontalCenter
                 top:parent.top
                 // topMargin: appKeyboardVisible ? appKeyboardHeight : 15
-                topMargin:55
+                topMargin:65
+            }
+        }
+
+        CustomButtonWithIcon
+        {
+            id:modifyWordButton
+            setWidth:30
+            setHeight:30
+            setButtonText:"";
+            setButtonBorderColor: "transparent";
+            setButtonFontColor:appColors.c_fontcolor;
+            setButtonBackColor:"transparent"
+            setTextMagin: 5
+            setIconHeight: 25
+            setIconWidth: 25
+            anchors.top:proccessBar.top
+            anchors.right: parent.right
+            anchors.rightMargin: 15
+            setIconSource:  appIcons.icon_modify
+            onButtonClicked:
+            {
+                routeToModifyPage()
             }
         }
 
@@ -81,6 +112,17 @@ Page
             {
                 id:w_example
                 text:""
+                font.pixelSize:appFontSizes.f_title
+                color:appColors.c_fontcolor
+                horizontalAlignment: Text.AlignHCenter
+                wrapMode: Text.WordWrap
+            }
+
+            Label
+            {
+                id:w_translate
+                text:""
+                visible: text.length>0 ? true : false
                 font.pixelSize:appFontSizes.f_title
                 color:appColors.c_fontcolor
                 horizontalAlignment: Text.AlignHCenter
@@ -150,7 +192,7 @@ Page
             case "word":
             {
                 if(text_input.theText.length>=1)
-                    backend.getNextWord(text_input.theText)
+                    getNextWord(text_input.theText)
             }break;
 
             case "verb":
@@ -190,10 +232,11 @@ Page
                     {
                         if(text_input.theText===w_example.text)
                         {
-                            // console.log("w_text.text=",w_text.text)
-                            backend.getNextWord(w_text.text)
+                            getNextWord(w_text.text)
+
+                            //reset for next round
                             text_input.clear()
-                            passedState=0;//for next round
+                            passedState=0;
                         }
                         else
                             mistakeMade();
@@ -212,8 +255,16 @@ Page
     {
         mistakesCounter++;
         text_input.invalidInput("incorrect value");
+
     }
 
+    function getNextWord(text)
+    {
+        backend.getNextWord(text, isThisWordModified)
+
+        //turn flag off for next word
+        isThisWordModified=false
+    }
 
     function quitPractice()
     {
@@ -234,7 +285,7 @@ Page
         practiceTimeCom.startTimer()
 
         //to fetch first word and get maxium number of content on table
-        var totalWords = backend.getNextWord("");
+        var totalWords = backend.getNextWord("firstword");
 
 
         if(totalWords<=0)
@@ -243,21 +294,81 @@ Page
             practiceCore.quitMode(false,"this table doesn't have enough words to practice, add some word..")
         }
         else
-            proccessBar.totalValue = totalWords
+            maxIndex = totalWords //because first id of word is 1
+    }
+
+    function routeToModifyPage()
+    {
+        text_input.clear()
+        isThisWordModified=true;
+        practiceTimeCom.stopTimer()
+        practiceCore.m_stackView.push("../ModifyWordForm.qml",
+                                          {"formType":practiceMode,
+                                          "wordId":currentIndex,
+                                          "formData": practiceData,
+                                          "parentName": typePracticeCore})
+    }
+
+    function routeBackFromModifyPage(modifiedData)
+    {
+        practiceCore.m_stackView.pop()
+        practiceData = modifiedData
+
+        /*
+        console.log("routeBackFromModifyPage, data=")
+        for (var i = 0; i < practiceData.length; ++i)
+        {
+            var row = practiceData[i]
+            for (var key in row)
+            {
+                console.log("  " + key + ": " + row[key])
+            }
+            console.log("---")
+        }*/
+
+        updateTextValues()
+        practiceTimeCom.startTimer()
+    }
+
+    function getValueByKey(dataList, firstKey, secondKey)
+    {
+        if (!dataList || dataList.length === 0)
+            return "";
+
+        for (var i = 0; i < dataList.length; ++i)
+        {
+            var row = dataList[i];
+            if (firstKey in row)
+                return row[firstKey];
+            else if (secondKey in row)
+                return row[secondKey];
+        }
+        return "";
+    }
+
+    function updateTextValues()
+    {
+        w_text.text=getValueByKey(practiceData,"text","verb")
+        w_meaning.text=getValueByKey(practiceData,"meaning","past")
+        w_example.text=getValueByKey(practiceData,"example","past_perfect")
+        w_translate.text=getValueByKey(practiceData,"translate","translate")
+        currentIndex=getValueByKey(practiceData,"id","id")
     }
 
 
     Connections
     {
         target: backend
+        function onPracticeFinished()
+        {
+            quitPractice()
+        }
+
         function onWordReady(word)
         {
-            // for(var i=0;i<=word.length; i++)
-                // console.log("wordready,word[",i,"]=",word[i])
+            practiceData=word
+            updateTextValues()
 
-            w_text.text = word[0]
-            w_meaning.text = word[1]
-            w_example.text = word[2]
             text_input.clear()
             if(practiceMode==="verb")
             {
@@ -267,25 +378,19 @@ Page
                 w_text.font.bold=true
                 w_meaning.font.bold=false;
                 w_example.font.bold=false;
-            }
+            }                
 
-            //logic to check if practice is end, show results
-            if(currentIndex>=proccessBar.totalValue)
-                quitPractice()
-            else
-                currentIndex++;
         }
         function onWordIsIncorrect(correctStatus)
         {
             if(correctStatus==="incorrect")
                 mistakeMade();
+
         }
     }
 
-
     Component.onCompleted:
     {
-        console.log("practiceMode=",practiceMode)
         startPractice()
     }
 }

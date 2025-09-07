@@ -10,10 +10,10 @@ Page
     property ListModel statusesModel: ListModel
     {
         ListElement{status:"0"}
-        ListElement{status:"0"}
         ListElement{status:"1"}
-        ListElement{status:"1"}
-        ListElement{status:"1"}
+        ListElement{status:"?"}
+        ListElement{status:"?"}
+        ListElement{status:"?"}
         ListElement{status:"?"}
         ListElement{status:"?"}
     }
@@ -211,40 +211,75 @@ Page
             {
                 id:selectPracticeOrEtc
                 width:parent.width/1.35
-                height:70
+                height:60
                 color: appColors.c_bg_tableList
                 radius:90
                 anchors
                 {
                     top:weekReport.bottom
-                    topMargin: 25
+                    topMargin: 15
                     horizontalCenter: parent.horizontalCenter
                 }
-
-                Row
+                CustomSwitchText
                 {
+                    setWidth:parent.width
+                    setHeight:parent.height
+                    setRadius: parent.radius
+                    setBgColor: appColors.c_bg_tableList
+                    setSwitchColor: appColors.c_buttonBgColor
+                    setSwitchOpacity: 0.5
+                    setFontColor:appColors.c_fontcolor
+                    setFontSize: appFontSizes.f_normal
+                    setRighttText:"Learn"
+                    setLeftText: "Practice"
+                    switchStatus: false
                     anchors.centerIn: parent
-                    spacing:30
-                    Button{
-                        text:"practice"
+                    onSwitchClicked:
+                    {
+                        console.log("switchClicked");
+                        if(switchStatus)
+                        {
+                            tableList.visible=false
+                            learnList.visible=true
+                        }
+                        else
+                        {
+                            tableList.visible=true
+                            learnList.visible=false
+                        }
+
                     }
-                    Button{
-                        text:"learn"
-                    }
+
                 }
 
+            }
+            Rectangle
+            {
+                id:learnList
+                width:parent.width/1.35
+                height:parent.height/1.75
+                color: appColors.c_bg_tableList
+                radius:30
+                clip:true
+                anchors
+                {
+                    top: selectPracticeOrEtc.bottom
+                    topMargin: 15
+                    horizontalCenter: parent.horizontalCenter
+                }
             }
 
             Rectangle {
                 id:tableList
                 width:parent.width/1.35
-                height:parent.height/1.85
+                height:parent.height/1.75
                 color: appColors.c_bg_tableList
                 radius:30
+                clip:true
                 anchors
                 {
                     top: selectPracticeOrEtc.bottom
-                    topMargin: 35
+                    topMargin: 15
                     horizontalCenter: parent.horizontalCenter
                 }
 
@@ -254,7 +289,7 @@ Page
                     width:parent.width/1.10
                     height:60
                     color:"transparent"
-                    // clip:true
+                    clip:true
                     anchors
                     {
                         horizontalCenter: parent.horizontalCenter
@@ -296,7 +331,7 @@ Page
                             setfontSize: appFontSizes.f_normal
                             setWidth: 80
                             height:45
-                            modelData:[ { text: "all"}, { text: "word"}, { text: "verb"}, { text: "single"} ]
+                            modelData:[ { text: "all"}, { text: "word"}, { text: "verb"}]
                             setBgColorCurrentItem: appColors.c_comboboxBgColorCurrentItem
                             onActivated: function(index)
                             {

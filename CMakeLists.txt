@@ -42,6 +42,7 @@ qt_add_qml_module(appTypeDrill
         CustomSwitch.qml
         CustomCombobox.qml
         CustomPopupMessage.qml
+        CustomSwitchText.qml
 
         #pages
         ManageWordTableDatabasePage.qml
@@ -56,6 +57,7 @@ qt_add_qml_module(appTypeDrill
         AddNewWordForm.qml
         AddNewTableForm.qml
         AddNewDatabaseForm.qml
+        ModifyWordForm.qml
 
         # practiceModes
         practiceModes/flashcardPractice.qml
@@ -95,6 +97,8 @@ qt_add_qml_module(appTypeDrill
         resourses/darkMode/50x50/save.png
         resourses/lightMode/50x50/menubar.png
         resourses/darkMode/50x50/menubar.png
+        resourses/lightMode/50x50/modify.png
+        resourses/darkMode/50x50/modify.png
 )
 
 # Set app properties for macOS/Windows

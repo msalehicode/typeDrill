@@ -41,43 +41,31 @@ bool DataBase::init(const QString &path, const QString &fileName)
 
     QString fullPath = path+"/"+fileName;
     m_db.setDatabaseName(fullPath);
+    bool fileExistedBefore = QFile::exists(fullPath);
 
-    if(QFile::exists(fullPath))
+    if(fileExistedBefore)
     {
         // qInfo() << "databae exists, we will trying to open it.";
         if(m_db.open())
+        {
+            qInfo() << "Database file opened.";
             result=true;
+        }
     }
     else
     {
         QDir dbDire(path);
-        dbDire.mkpath(".");
-        QFile dbFile(fullPath);
+        if (!dbDire.exists())
+            dbDire.mkpath(".");
+
         if(m_db.open())
         {
-            QSqlQuery createTable(m_db);  // pass the opened database connection
-            QString sql("CREATE TABLE settings\
-            (\
-              id INTEGER PRIMARY KEY,\
-              theme_mode TEXT\
-            );");
-            createTable.prepare(sql);
-
-            if(createTable.exec())
-            {
-                qInfo() << "database not found, we have been made one for you.";
-                result=true;
-            }
-            else
-            {
-                qInfo() << "database creation exec failed." << createTable.lastError().text();
-                result=false;
-            }
-
+            qInfo() << "an empty database file created.";
+            result=true;
         }
         else
         {
-            qInfo() << "m_db could not open database file.";
+            qInfo() << "error: could not create database file.";
             result=false;
         }
     }
@@ -89,7 +77,8 @@ bool DataBase::isOpen()
     return m_db.open();
 }
 
-QSqlDatabase DataBase::getDatabase() const {
+QSqlDatabase DataBase::getDatabase() const
+{
     return m_db;
 }
 
@@ -177,6 +166,47 @@ bool DataBase::updateTableValue(const QString& tableName, const QString& keyColu
     }
     return true;
 }
+
+bool DataBase::updateTableRow(const QString& tableName,
+                              const QString& keyColumn,
+                              const QVariant& keyValue,
+                              const QMap<QString, QVariant>& updateValues)
+{
+    if (!m_db.isOpen() || updateValues.isEmpty())
+        return false;
+
+    QStringList setClauses;
+    QMap<QString, QVariant>::const_iterator it;
+
+    for (it = updateValues.constBegin(); it != updateValues.constEnd(); ++it)
+    {
+        setClauses << QString("%1 = :%2").arg(it.key(), it.key()); // named bind keys
+    }
+
+    QString sql = QString("UPDATE %1 SET %2 WHERE %3 = :keyVal;")
+                      .arg(tableName, setClauses.join(", "), keyColumn);
+
+    QSqlQuery query(m_db);
+    query.prepare(sql);
+
+    // Bind all column values
+    for (it = updateValues.constBegin(); it != updateValues.constEnd(); ++it)
+    {
+        query.bindValue(":" + it.key(), it.value());
+    }
+
+    // Bind the key
+    query.bindValue(":keyVal", keyValue);
+
+    if (!query.exec())
+    {
+        qWarning() << "Update failed:" << query.lastError().text();
+        return false;
+    }
+
+    return true;
+}
+
 
 // Search table where columnName matches searchValue, returns list of maps with column-value pairs
 QList<QMap<QString, QVariant>> DataBase::searchTable(const QString& tableName, const QString& columnName,

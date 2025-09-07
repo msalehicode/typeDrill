@@ -5,7 +5,7 @@ import "../"
 
 
 Page {
-    id: root
+    id: flashcardPracticeCore
     width: 400
     height: 600
 
@@ -16,11 +16,15 @@ Page {
     property int maxWordId: 0
     property int currentWordId:0
 
-    property var currentWord: {
-        "word": "Apple",
-        "translate": "Elma",
+
+    property bool isThisWordModified: false;
+
+    property var currentWord:
+    {
+        "text": "Apple",
         "meaning": "A fruit",
-        "example": "An apple a day keeps the doctor away."
+        "example": "An apple a day keeps the doctor away.",
+        "translate": "Elma"
     }
     PracticeTimeComponent
     {
@@ -49,6 +53,27 @@ Page {
                 top:parent.top
                 // topMargin: appKeyboardVisible ? appKeyboardHeight : 15
                 topMargin:55
+            }
+        }
+        CustomButtonWithIcon
+        {
+            id:modifyWordButton
+            setWidth:30
+            setHeight:30
+            setButtonText:"";
+            setButtonBorderColor: "transparent";
+            setButtonFontColor:appColors.c_fontcolor;
+            setButtonBackColor:"transparent"
+            setTextMagin: 5
+            setIconHeight: 25
+            setIconWidth: 25
+            anchors.top:proccessBar.top
+            anchors.right: parent.right
+            anchors.rightMargin: 15
+            setIconSource:  appIcons.icon_modify
+            onButtonClicked:
+            {
+                routeToModifyPage()
             }
         }
 
@@ -81,8 +106,9 @@ Page {
                 visible: !showInfo  && !flipAnimation.running
                 Label
                 {
+                    id:lblText
                     anchors.centerIn: parent
-                    text: currentWord.word
+                    text: ""
                     font.pixelSize: appFontSizes.f_title
                     font.bold: true
                     color: appColors.c_fontcolor
@@ -102,27 +128,30 @@ Page {
                     spacing: 10
                     Label
                     {
+                        id:lblTranslate
                         width: parent.width
                         height: parent.height/3
-                        text: "Translate: \n" + currentWord.translate
+                        text:""
                         font.pixelSize: appFontSizes.f_large
                         color: appColors.c_fontcolor
                         wrapMode: Text.WordWrap
                     }
                     Label
                     {
+                        id:lblMeaning
                         width: parent.width
                         height: parent.height/3
-                        text: "Meaning: \n" + currentWord.meaning
+                        text:""
                         font.pixelSize: appFontSizes.f_large
                         color: appColors.c_fontcolor
                         wrapMode: Text.WordWrap
                     }
                     Label
                     {
+                        id:lblExample
                         width: parent.width
                         height: parent.height/3
-                        text: "Example: \n" + currentWord.example
+                        text:""
                         font.pixelSize: appFontSizes.f_large
                         color: appColors.c_fontcolor
                         wrapMode: Text.WordWrap
@@ -209,15 +238,11 @@ Page {
                         if (deltaX > 0)
                         {
                             // console.log("swiped right")
-                            tiltAnimation.to = 50
-                            tiltAnimation.start()
                             getNextWord()
                         }
                         else
                         {
                             // console.log("swiped left")
-                            tiltAnimation.to = -50
-                            tiltAnimation.start()
                             mistakeMade()
                         }
                     }
@@ -298,10 +323,19 @@ Page {
     }
 
 
+    function doTiltAnimation(val)
+    {
+        if (!tiltAnimation.running)
+        {
+            tiltAnimation.to = val
+            tiltAnimation.start()
+        }
+    }
+
     function mistakeMade()
     {
         mistakesCounter++
-        getNextWord()
+        getNextWord(-50)
     }
 
     function showDetails()
@@ -313,17 +347,87 @@ Page {
         }
     }
 
-    function getNextWord()
+    function getNextWord(animationVal=50)
     {
-        //flip card to word
+
+        //reset by fliping card to frontFace(word)
         if(showInfo)
             showDetails()
 
 
+        doTiltAnimation(animationVal)
+
+        backend.getNextWord(lblText.text,isThisWordModified)
+
+        //turn flag off for next word
+        isThisWordModified=false
+    }
+
+    function routeToModifyPage()
+    {
+        isThisWordModified=true;
+        practiceTimeCom.stopTimer()
+        practiceCore.m_stackView.push("../ModifyWordForm.qml",
+                                          {"formType":"word",
+                                          "wordId":currentWordId,
+                                          "formData": currentWord,
+                                          "parentName": flashcardPracticeCore})
+    }
+
+    function routeBackFromModifyPage(modifiedData)
+    {
+        practiceCore.m_stackView.pop()
+        currentWord = modifiedData
+
+        /*
+        console.log("routeBackFromModifyPage, data=")
+        for (var i = 0; i < currentWord.length; ++i)
+        {
+            var row = currentWord[i]
+            for (var key in row)
+            {
+                console.log("  " + key + ": " + row[key])
+            }
+            console.log("---")
+        }*/
+        updateTextValues()
+        practiceTimeCom.startTimer()
+    }
+    function getValueByKey(dataList, firstKey, secondKey)
+    {
+        if (!dataList || dataList.length === 0)
+            return "";
+
+        for (var i = 0; i < dataList.length; ++i)
+        {
+            var row = dataList[i];
+            if (firstKey in row)
+                return row[firstKey];
+            else if (secondKey in row)
+                return row[secondKey];
+        }
+        return "";
+    }
+
+    function updateTextValues()
+    {
+        lblText.text=""+getValueByKey(currentWord,"text","text")
+        lblMeaning.text="Meaning: \n"+getValueByKey(currentWord,"meaning","meaning")
+        lblExample.text="\nExample: \n"+getValueByKey(currentWord,"example","example")
+        lblTranslate.text="\nTranslate: \n"+getValueByKey(currentWord,"translate","translate")
+        currentWordId=getValueByKey(currentWord,"id","id")
+    }
 
 
-        //check for finished list/words
-        if(currentWordId>=maxWordId-1)
+    Connections
+    {
+        target: backend
+        function onWordReady(word)
+        {
+            currentWord=word
+            updateTextValues()
+        }
+        function onPracticeFinished()
         {
             //finished
             practiceTimeCom.stopTimer()
@@ -334,34 +438,12 @@ Page {
                                            "practiceTypeId":appPracticeTypesList["flashcardPractice"]}
             practiceCore.quitMode()
         }
-        else
-        {
-            currentWordId++;
-            backend.getNextWord(currentWord.word)
-        }
-    }
-
-    Connections
-    {
-        target: backend
-        function onWordReady(word)
-        {
-            // console.log("word=", word)
-            currentWord =
-                    {
-                word: word[0],
-                translate: word[1],
-                meaning: word[2],
-                example: word[3] ?? ""
-            }
-            // root.showDetails = false
-        }
     }
 
     Component.onCompleted:
     {
         backend.resetPractice()
-        maxWordId = backend.getNextWord("")
+        maxWordId = backend.getNextWord("firstword")
 
         if(maxWordId<=0)//this table doesn't have enough words
             practiceCore.quitMode(false,"this table doesn't have enough words to practice, add some word..")

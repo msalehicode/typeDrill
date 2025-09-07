@@ -35,13 +35,11 @@ Page
                 anchors.left: switchThemeText.right
                 anchors.top: switchThemeText.top
                 setWidth:50
-                setHeight:40
-                setBorderWidth: 4;
+                setHeight:30
                 setBgColorActivated: appColors.c_buttonBgColor
                 switchStatus:appColors.c_theme==="dark" ? true : false;
-                setStatusBorder:false;
-                setSizeSwitchCircle: 2.80;
-                onSwitchSignalClicked:
+                // setStatusBorder:false;
+                onSwitchClicked:
                 {
                     if(switchStatus==true)
                         backend.setThemeMode("dark");
