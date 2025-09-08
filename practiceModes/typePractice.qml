@@ -247,7 +247,6 @@ Page
 
             }break;
         }
-        text_input.openPhoneKeyboard()
     }
 
 

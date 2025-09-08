@@ -104,6 +104,7 @@ Item
                 text:theText
                 color:setFontColor
                 focus: setFocus
+                inputMethodHints:  Qt.ImhMultiLine //Qt.ImhNoTextHandles | Qt.ImhPreferLowercase | Qt.ImhNoPredictiveText
                 font.pixelSize: setFontSize
                 anchors
                 {
@@ -118,10 +119,15 @@ Item
                 {
                     theText = text
                 }
-                onAccepted:
+                Keys.onReturnPressed:
                 {
                     theTextAccepted()
                 }
+
+                // onAccepted:
+                // {
+                //     theTextAccepted()
+                // }
             }
         }
     }
