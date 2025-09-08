@@ -16,35 +16,23 @@ qt_add_executable(appTypeDrill
 # Define QML module
 qt_add_qml_module(appTypeDrill
     URI TypeDrill
-    VERSION 1.0
+    VERSION 1.22.6
 
     SOURCES
         backend.h
-        backend.cpp
+        src/backend.cpp
         database.h
-        database.cpp
+        src/database.cpp
         filemanager.h
-        filemanager.cpp
+        src/filemanager.cpp
         settingsmanager.h
-        settingsmanager.cpp
+        src/settingsmanager.cpp
 
     QML_FILES
         main.qml
         themes.js
 
-        #components
-        PracticeTimeComponent.qml
-        CustomButton.qml
-        CustomComboboxWithIcon.qml
-        CustomButtonWithIcon.qml
-        CustomProccessBar.qml
-        CustomTextInput.qml
-        CustomSwitch.qml
-        CustomCombobox.qml
-        CustomPopupMessage.qml
-        CustomSwitchText.qml
-
-        #pages
+        # pages
         ManageWordTableDatabasePage.qml
         BrowsePage.qml
         ProfilePage.qml
@@ -53,52 +41,49 @@ qt_add_qml_module(appTypeDrill
         HomePage.qml
 
         # forms
-        RemoveDatabaseForm.qml
-        AddNewWordForm.qml
-        AddNewTableForm.qml
-        AddNewDatabaseForm.qml
-        ModifyWordForm.qml
+        forms/RemoveDatabaseForm.qml
+        forms/AddNewWordForm.qml
+        forms/AddNewTableForm.qml
+        forms/AddNewDatabaseForm.qml
+        forms/ModifyWordForm.qml
 
         # practiceModes
         practiceModes/flashcardPractice.qml
         practiceModes/typePractice.qml
 
+        # components
+        CustomComponents/qmldir
+        CustomComponents/CustomButton.qml
+        CustomComponents/CustomComboboxWithIcon.qml
+        CustomComponents/CustomButtonWithIcon.qml
+        CustomComponents/CustomProccessBar.qml
+        CustomComponents/CustomTextInput.qml
+        CustomComponents/CustomSwitch.qml
+        CustomComponents/CustomCombobox.qml
+        CustomComponents/CustomPopupMessage.qml
+        CustomComponents/CustomSwitchText.qml
+        CustomComponents/CustomTimer.qml
+
 
     RESOURCES
-        resourses/darkMode/50x50/browse.png
-        resourses/darkMode/50x50/check.png
-        resourses/darkMode/50x50/close.png
-        resourses/darkMode/50x50/manage.png
-        resourses/darkMode/50x50/menu.png
-        resourses/darkMode/50x50/profile.png
-        resourses/darkMode/50x50/question.png
-        resourses/darkMode/50x50/settings.png
-        resourses/darkMode/50x50/streak.png
-        resourses/darkMode/50x50/back.png
-        resourses/darkMode/50x50/pin.png
-        resourses/lightMode/50x50/browse.png
-        resourses/lightMode/50x50/check.png
-        resourses/lightMode/50x50/close.png
-        resourses/lightMode/50x50/manage.png
-        resourses/lightMode/50x50/menu.png
-        resourses/lightMode/50x50/profile.png
-        resourses/lightMode/50x50/question.png
-        resourses/lightMode/50x50/settings.png
-        resourses/lightMode/50x50/streak.png
-        resourses/lightMode/50x50/back.png
-        resourses/lightMode/50x50/pin.png
-        resourses/darkMode/50x50/download.png
-        resourses/darkMode/50x50/upload.png
-        resourses/lightMode/50x50/download.png
-        resourses/lightMode/50x50/upload.png
-        resourses/lightMode/50x50/search.png
-        resourses/darkMode/50x50/search.png
-        resourses/lightMode/50x50/save.png
-        resourses/darkMode/50x50/save.png
-        resourses/lightMode/50x50/menubar.png
-        resourses/darkMode/50x50/menubar.png
-        resourses/lightMode/50x50/modify.png
-        resourses/darkMode/50x50/modify.png
+        resourses/lightMode/50x50/browse.png resourses/darkMode/50x50/browse.png
+        resourses/lightMode/50x50/check.png resourses/darkMode/50x50/check.png
+        resourses/lightMode/50x50/close.png resourses/darkMode/50x50/close.png
+        resourses/lightMode/50x50/manage.png resourses/darkMode/50x50/manage.png
+        resourses/lightMode/50x50/profile.png resourses/darkMode/50x50/profile.png
+        resourses/lightMode/50x50/question.png resourses/darkMode/50x50/question.png
+        resourses/lightMode/50x50/settings.png resourses/darkMode/50x50/settings.png
+        resourses/lightMode/50x50/streak.png resourses/darkMode/50x50/streak.png
+        resourses/lightMode/50x50/back.png resourses/darkMode/50x50/back.png
+        resourses/lightMode/50x50/pin.png resourses/darkMode/50x50/pin.png
+        resourses/lightMode/50x50/upload.png resourses/darkMode/50x50/upload.png
+        resourses/lightMode/50x50/download.png resourses/darkMode/50x50/download.png
+        resourses/lightMode/50x50/search.png resourses/darkMode/50x50/search.png
+        resourses/lightMode/50x50/save.png resourses/darkMode/50x50/save.png
+        resourses/lightMode/50x50/menu.png resourses/darkMode/50x50/menu.png
+        resourses/lightMode/50x50/menubar.png resourses/darkMode/50x50/menubar.png
+        resourses/lightMode/50x50/modify.png resourses/darkMode/50x50/modify.png
+        resourses/lightMode/50x50/delete.png resourses/darkMode/50x50/delete.png
 )
 
 # Set app properties for macOS/Windows
@@ -113,10 +98,6 @@ set_target_properties(appTypeDrill PROPERTIES
 target_link_libraries(appTypeDrill
     PRIVATE Qt6::Quick Qt6::Sql Qt6::Network
 )
-
-if(ANDROID)
-    # No deployment script needed — Felgo CI handles APK packaging internally
-endif()
 
 # Install rules (for desktop)
 include(GNUInstallDirs)

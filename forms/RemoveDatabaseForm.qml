@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import "../CustomComponents"
 
 
 Page
@@ -32,6 +33,7 @@ Page
                     setFontColor: appColors.c_buttonFontColor
                     setBgColorCurrentItem: appColors.c_comboboxBgColorCurrentItem
                     setfontSize: appFontSizes.f_normal
+                    setIconArrow: appIcons.icon_back_white
                     setRadius: 10
                     setWidth: 180
                     setHeight: 50

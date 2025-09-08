@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import "../CustomComponents"
 
 
 Page
@@ -45,6 +46,7 @@ Page
                     modelData:[ { text: "word"}, { text: "verb"}]
                     setBgColor: appColors.c_comboboxBgColor
                     setFontColor: appColors.c_buttonFontColor
+                    setIconArrow: appIcons.icon_back_white
                     setBgColorCurrentItem: appColors.c_comboboxBgColorCurrentItem
                     onActivated: function(index)
                     {

@@ -26,9 +26,11 @@ Item
     property color setButtonBorderColor: "red";
 
     property bool setVisible: true
-    property string setIconSource: "resources/default.png";
+    property string setIconSource: "";
     property int setIconWidth: 45
     property int setIconHeight: 45
+
+    property bool pathFromComponentDire:true
 
     signal buttonClicked;
 
@@ -57,11 +59,11 @@ Item
                 Image
                 {
                     id:image
-                    source: setIconSource
+                    source: pathFromComponentDire ? "../" + setIconSource : setIconSource
                     width: setIconWidth
                     height: setIconHeight
                     fillMode: Image.PreserveAspectFit
-                    visible: setIconSource==="resources/default.png"||setIconSource==="" ? false:true
+                    visible: setIconSource==="" ? false:true
                     anchors
                     {
                         // top:parent.top

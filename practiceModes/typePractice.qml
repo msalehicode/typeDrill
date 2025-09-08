@@ -1,6 +1,6 @@
 import QtQuick
 import QtQuick.Controls
-import "../"
+import "../CustomComponents"
 
 Page
 {
@@ -77,7 +77,7 @@ Page
         }
 
 
-        PracticeTimeComponent
+        CustomTimer
         {
             id:practiceTimeCom
         }
@@ -301,7 +301,7 @@ Page
         text_input.clear()
         isThisWordModified=true;
         practiceTimeCom.stopTimer()
-        practiceCore.m_stackView.push("../ModifyWordForm.qml",
+        practiceCore.m_stackView.push("../forms/ModifyWordForm.qml",
                                           {"formType":practiceMode,
                                           "wordId":currentIndex,
                                           "formData": practiceData,

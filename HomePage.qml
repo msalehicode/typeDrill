@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import "CustomComponents"
 
 Page
 {
@@ -32,6 +33,7 @@ Page
             setBgColor: appColors.c_comboboxBgColor
             setFontColor: appColors.c_buttonFontColor
             setBgColorCurrentItem: appColors.c_comboboxBgColorCurrentItem
+            setIconArrow: appIcons.icon_back_white
             setfontSize: appFontSizes.f_normal
             setRadius: 10
             setWidth: 180
@@ -329,6 +331,7 @@ Page
                             setBgColor: appColors.c_comboboxBgColor
                             setFontColor: appColors.c_buttonFontColor
                             setfontSize: appFontSizes.f_normal
+                            setIconArrow: appIcons.icon_back_white
                             setWidth: 80
                             height:45
                             modelData:[ { text: "all"}, { text: "word"}, { text: "verb"}]

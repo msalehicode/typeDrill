@@ -1,8 +1,8 @@
 <?php
 header('Content-Type: image/png');
-header('Catch-Control: max-age=1800, s-maxage=1800, must-revalidate'); //every 30 minutes
+header('Catch-Control: max-age=21600, s-maxage=21600, must-revalidate'); //every 6 hours
 
-date_default_timezone_set('UTC');
+date_default_timezone_set('Asia/Tehran');
 
 // --- Configuration ---
 define('FONT_PATH', __DIR__ . '/JosefinSans-Regular.ttf');

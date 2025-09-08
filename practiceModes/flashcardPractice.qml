@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import "../"
+import "../CustomComponents"
 
 
 Page {
@@ -27,7 +27,7 @@ Page {
         "example": "An apple a day keeps the doctor away.",
         "translate": "Elma"
     }
-    PracticeTimeComponent
+    CustomTimer
     {
         id:practiceTimeCom
     }
@@ -368,7 +368,7 @@ Page {
     {
         isThisWordModified=true;
         practiceTimeCom.stopTimer()
-        practiceCore.m_stackView.push("../ModifyWordForm.qml",
+        practiceCore.m_stackView.push("../forms/ModifyWordForm.qml",
                                           {"formType":practiceMode,
                                           "wordId":currentWordId,
                                           "formData": currentWord,

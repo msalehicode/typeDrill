@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import "CustomComponents"
 
 Page
 {
@@ -42,7 +43,7 @@ Page
                         setIconSource:  appIcons.icon_settings
                         onButtonClicked:
                         {
-                            mainStackView.push("AddNewWordForm.qml")
+                            mainStackView.push("./forms/AddNewWordForm.qml")
                         }
                     }
 
@@ -62,7 +63,7 @@ Page
                         setIconSource:  appIcons.icon_browse
                         onButtonClicked:
                         {
-                            mainStackView.push("AddNewTableForm.qml")
+                            mainStackView.push("./forms/AddNewTableForm.qml")
                         }
                     }
 
@@ -81,7 +82,7 @@ Page
                         setIconSource:  appIcons.icon_settings
                         onButtonClicked:
                         {
-                            mainStackView.push("AddNewDatabaseForm.qml")
+                            mainStackView.push("./forms/AddNewDatabaseForm.qml")
                         }
                     }
 
@@ -101,7 +102,7 @@ Page
                         setIconSource:  appIcons.icon_delete
                         onButtonClicked:
                         {
-                            mainStackView.push("RemoveDatabaseForm.qml")
+                            mainStackView.push("./forms/RemoveDatabaseForm.qml")
                         }
                     }
 
@@ -140,6 +141,7 @@ Page
                             setBgColor: appColors.c_comboboxBgColor
                             setFontColor: appColors.c_buttonFontColor
                             setBgColorCurrentItem: appColors.c_comboboxBgColorCurrentItem
+                            setIconArrow: appIcons.icon_back_white
                             setfontSize: appFontSizes.f_normal
                             setRadius: 10
                             setWidth: 180

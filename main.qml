@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import "CustomComponents"
 
 import "./themes.js" as ThemeConfig
 
@@ -124,18 +125,20 @@ Window
     QtObject
     {
         id:appIcons;
+
         property string i_path: "resourses/" + appColors.c_theme+"Mode/50x50/";
+        property string i_path_white: "resourses/darkMode/50x50/";
         
         //main.qml
         property string icon_menubar: appIcons.i_path+ "menu.png";
         property string icon_menubar2: appIcons.i_path + "menubar.png"
         property string icon_back: appIcons.i_path+ "back.png";
-        property string icon_back_white: "resourses/darkMode/50x50/back.png";
+        property string icon_back_white: i_path_white +"back.png"; //only white
         
         
         //homePage
         property string icon_search: appIcons.i_path + "search.png";
-        property string icon_search_white: "resourses/darkMode/50x50/search.png";
+        property string icon_search_white: i_path_white + "search.png"; //only white
         
         
         //practice tableList
@@ -159,7 +162,7 @@ Window
         
         //settings
         property string icon_save: appIcons.i_path + "save.png";
-        property string icon_save_white: "resourses/darkMode/50x50/save.png";
+        property string icon_save_white: i_path_white + "save.png"; //only white
         
 
         property string icon_delete: appIcons.i_path + "delete.png"
