@@ -1,0 +1,11 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" title=" " alt="" coords="5,80,80,105"/>
+<area shape="rect" id="Node000001" href="$classBackend.html" title="This class contains the core backend logic and acts as a bridge between QML and various backend compo..." alt="" coords="155,5,233,31"/>
+<area shape="poly" id="edge1_Node000000_Node000001" title=" " alt="" coords="73,70,127,40,154,28,156,33,129,44,76,75"/>
+<area shape="rect" id="Node000002" href="$classDataBase.html" title=" " alt="" coords="151,55,237,80"/>
+<area shape="poly" id="edge2_Node000000_Node000002" title=" " alt="" coords="94,82,150,72,151,77,94,87"/>
+<area shape="rect" id="Node000003" href="$classFileManager.html" title=" " alt="" coords="143,104,245,129"/>
+<area shape="poly" id="edge3_Node000000_Node000003" title=" " alt="" coords="94,98,143,106,142,111,93,103"/>
+<area shape="rect" id="Node000004" href="$classSettingsManager.html" title=" " alt="" coords="128,153,260,179"/>
+<area shape="poly" id="edge4_Node000000_Node000004" title=" " alt="" coords="77,110,129,138,158,151,156,156,127,143,75,115"/>
+</map>

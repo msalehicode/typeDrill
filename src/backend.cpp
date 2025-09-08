@@ -1,4 +1,4 @@
-#include "backend.h"
+#include "../include/backend.h"
 
 bool Backend::init(QString databaseName)
 {
@@ -43,7 +43,6 @@ bool Backend::init(QString databaseName)
                      FOREIGN KEY(tp_table_id) REFERENCES user_tables(t_id)"
                      );
 
-    qInfo() << "init finish.";
     return true;
 }
 
@@ -55,8 +54,6 @@ Backend::Backend(QObject *parent)
     connect(&m_fileManager, &FileManager::downloadProgress, this, &Backend::onDownloadProgress);
     connect(&m_fileManager, &FileManager::downloadFinished, this, &Backend::onDownloadFinished);
     connect(&m_fileManager, &FileManager::uploadFinished, this, &Backend::onUploadFinished);
-    qInfo() << "constructor finish.";
-
 }
 
 int Backend::getNextWord(const QString &userText, const bool& isModified)

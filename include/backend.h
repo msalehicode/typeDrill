@@ -1,0 +1,255 @@
+#ifndef BACKEND_H
+#define BACKEND_H
+
+#include <QObject>
+#include <QStandardPaths>
+
+#include "database.h"
+#include "settingsmanager.h"
+
+
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
+#include "filemanager.h"
+
+#include <QRandomGenerator>
+
+/*!
+ * \class Backend
+ * \brief This class contains the core backend logic and acts as a bridge between QML and various backend components.
+ *
+ *
+ * It is designed to simplify QML integration by providing a single access point,
+ * reducing the need to reference multiple C++ class names directly in QML.
+ */
+class Backend : public QObject
+{
+    Q_OBJECT
+    DataBase m_db;
+    QString currentTableName;
+    QString currentTableType;
+    QString databaseFullPath;
+
+    int currentStreakCount;
+    QDate lastPracticeDate;
+
+
+    QString m_api_url;
+    QString m_api_key;
+    QString m_dbPath;
+    SettingsManager settings;
+
+
+    QNetworkAccessManager m_networkManager;
+    FileManager m_fileManager;
+
+    int min_id;
+    int max_id;
+    int last_id;
+    QSqlQuery* m_query;
+    QList<QMap<QString, QVariant>> current_word;
+
+
+
+
+
+    int calculateStreakDays(QDate& currentDate);
+    QDate getLastActivityDate();
+    bool removeFile(const QString& filepath);
+public:
+    /*!
+     * \brief init database (used to open/create/switch database), and initial important sql tables and set some variables also calls settings.init()
+     * \param databaseName if not provided, it will read it from default/set value at settings.getValue("currentDatabase")
+     * \return in failure to switch/create/open returns false.
+     */
+    bool init(QString databaseName="");
+
+
+    /*!
+     * \brief init program and connect signals
+     * \param parent Optional QObject parent (default is nullptr).
+     */
+    explicit Backend(QObject *parent = nullptr);
+
+    /*!
+     * \brief to read word from practice in series, it starts from index 0 to maxindex of that table then validate entered text if it matches will return next word to user
+     * \param entered text from user, modify status(in case when inside practice user decided to modify that word turn this on to add another attemp to receive new word from db and check correction of new word with entered one)
+     * \return maxId of that table also emits wordIsIncorrect("incorrect") when word doesn't mactch or wordReady(row of word as list)
+     */
+    Q_INVOKABLE int getNextWord(const QString& userText, const bool& isModified=false);
+
+    /*!
+     * \brief to trace practice by submitting them inside table (trace_practices)
+     * \param mistake count made inside practice, timeSpent in practice (e.g: 00:15:25),  practiceType(e.g: 1->typePractice, 2->flashcardPractice)
+     */
+    Q_INVOKABLE void setPracticeResult(const QString& mistakeCount, const QString& timeSpent, const int& practiceType);
+
+    /*!
+     * \brief to get tables list from sql table (user_tables)
+     * \param searchedTitle(optional to filter table names), tableType (to filter tables type, default:all tables)
+     * \return emit tablesList(tableList)
+     */
+    Q_INVOKABLE void getTables(const QString& searchedTitle, const QString& tableType);
+
+    /*!
+     * \brief to change/switch status a table to pinned at table (user_tables)
+     * \param table id wants to pin
+     * \return result of pin (0) or (pinned)
+     */
+    Q_INVOKABLE QString pinTable(const QString& tableId);
+
+    /*!
+     * \brief to create a sql table and add it into (user_tables)
+     * \param table-name and table-type(e.g: verb,word) wants to create
+     * \return emit tableCreationResult(result), in failure pass "error" else pass message with details
+     */
+    Q_INVOKABLE void createTable(const QString& tableName, const QString& tableType);
+
+    /*!
+     * \brief to switch between tables, will set variables (currentTableName and currentTableType) and call resetPractice() for other functions use later
+     * \param tableName: table wants to switch, tableType: type of table (e.g: verb/word)
+     */
+    Q_INVOKABLE void switchTable(const QString& tableName, const QString& ttype);
+
+    /*!
+     * \brief it will call init() and pass with entered database name to create database file if doesn't exist
+     * \param database name wants to create
+     * \return emit databaseCreationResult with result of creation
+     */
+    Q_INVOKABLE void createDatabase(const QString& databaseName);
+
+    /*!
+     * \brief it will check existant of entered name then if chosen name is currentDatabase switch data to a random one, then remove it, if chosen one was only one database it will abort to delete
+     * \param database name wants to delete
+     * \return emit databaseRemoveResult with result of delete
+     */
+    Q_INVOKABLE void removeDatabase(const QString& databaseName);
+
+
+    /*!
+     * \brief to know what is selected/current table type
+     * \return emit tableTypeIs with variable currentTableType
+     */
+    Q_INVOKABLE void whatIsCurrentTableType();
+
+    /*!
+     * \brief to add a word into a table
+     * \param list of word in speicific order indexes depends on tableType
+     * \return emit addItemtoTableResult with result, in failure will return "error" else will return a message
+     */
+    Q_INVOKABLE void addWordToTable(const QStringList& data);
+
+
+    /*!
+     * \brief to update a word in a table
+     * \param wordId, tableType(e.g: word/verb) and list of word in speicific order indexes depends on tableType
+     * \return emit modifyWordOnTableResult with result, in failure will return "error" else will return a message
+     */
+    Q_INVOKABLE void modifyWordOnTable(const int& targetWordId, const QString& tagetTableType, const QStringList& data);
+
+
+    /*!
+     * \brief to reset variables for next practice round
+     */
+    Q_INVOKABLE void resetPractice();
+
+    /*!
+     * \brief to get value of current database (databaseFullPath)
+     * \return full database path (e.g /home/userName/...)
+     */
+    Q_INVOKABLE QString databasePath();
+
+
+    /*!
+     * \brief to search for exist files inside app databases path and remove format .sqlite from them
+     * \return a list of existed files
+     */
+    Q_INVOKABLE QStringList listOfDatabases();
+
+
+    /*!
+     * \brief to switch between databases by calling init(), and will re-assign qsetting(currentDatabase)
+     * \param that database name want to switch to
+     * \return "successed" or "failed"
+     */
+    Q_INVOKABLE QString switchDatabase(const QString& databaseName);
+
+
+    /*!
+     * \brief to get current database storaged at qsetting
+     * \return current database value from qsetting(currentDatabase)
+     */
+    Q_INVOKABLE QString whatIsCurrentDatabase();
+
+    /*!
+     * \brief getter for m_api_url
+     * \return value of m_api_url
+     */
+    Q_INVOKABLE QString getApiUrl();
+
+    /*!
+     * \brief getter for m_api_key
+     * \return value of m_api_key
+     */
+    Q_INVOKABLE QString getApiKey();
+
+    /*!
+     * \brief setter for m_api_url and save it by qsettings(api_url)
+     * \param new api url
+     */
+    Q_INVOKABLE void setApiUrl(const QString& apiURL);
+
+    /*!
+     * \brief setter for m_api_key and save it by qsettings(api_key)
+     * \param new api key
+     */
+    Q_INVOKABLE void setApiKey(const QString& apiKey);
+
+    /*!
+     * \brief will send apikey to apiurl by using QNetworkAccessManager then connects finished to onUrlListReceived to return list of received json from web api
+     */
+    Q_INVOKABLE void fetchUrlList();
+
+    /*!
+     * \brief to download a file and call signals onDownloadFinished,onDownloadProgress (already we have connected these inside Backend Constructor with private ones to notify user of download status)
+     */
+    Q_INVOKABLE void download(const QString &url, const QString &fileName);
+
+
+    Q_INVOKABLE void uploadFileToApi(const QString& fileName, const QString& publicStatus);
+    Q_INVOKABLE QString getThemeMode();
+    Q_INVOKABLE void setThemeMode(const QString& themeTitle);
+    Q_INVOKABLE QStringList getStreakDays();
+    Q_INVOKABLE int getLastWindowSize(const QString& widthOrHeight);
+    Q_INVOKABLE void setLastWindowSize(const QString& wOrh , const int &value);
+
+signals:
+    void wordReady(const QList<QMap<QString, QVariant>>& word);  // Emit to QML
+    void practiceFinished();
+    void wordIsIncorrect(const QString& correctStatus);
+    void tablesList(const QVariantList& tableList);  // Emit to QML
+    void tableCreationResult(const QString& tableCreationResult);
+    void databaseCreationResult(const QString& databaseCreationResult);
+    void databaseRemoveResult(const bool& result);
+    void tableTypeIs(const QString& currentTableType);
+    void addItemtoTableResult(const QString& result);
+    void modifyWordOnTableResult(const QString& result);
+
+
+    void urlListReady(const QVariantList &list);
+    void urlListFailed(const QString &errorString);
+    void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
+    void downloadFinished(bool success, const QString &filePath);
+    void uploadDone(const QString& result);
+
+private slots:
+    void onUrlListReceived();
+    void onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal);
+    void onDownloadFinished(bool success, const QString &filePath);
+    void onUploadFinished(bool success, const QString& result);
+};
+
+#endif // BACKEND_H

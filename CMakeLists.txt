@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Find required Qt modules
 find_package(Qt6 6.2 COMPONENTS Quick Sql Network REQUIRED)
 
+
 # Define the executable target
 qt_add_executable(appTypeDrill
     main.cpp
@@ -19,13 +20,13 @@ qt_add_qml_module(appTypeDrill
     VERSION 1.22.6
 
     SOURCES
-        backend.h
-        src/backend.cpp
-        database.h
-        src/database.cpp
-        filemanager.h
+        include/backend.h
+        include/database.h
+        include/filemanager.h
+        include/settingsmanager.h
         src/filemanager.cpp
-        settingsmanager.h
+        src/database.cpp
+        src/backend.cpp
         src/settingsmanager.cpp
 
     QML_FILES

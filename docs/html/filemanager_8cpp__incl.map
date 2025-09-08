@@ -1,0 +1,21 @@
+<map id="src/filemanager.cpp" name="src/filemanager.cpp">
+<area shape="rect" id="Node000001" title=" " alt="" coords="476,5,625,31"/>
+<area shape="rect" id="Node000002" href="$filemanager_8h.html" title=" " alt="" coords="463,79,638,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="553,31,553,65,548,65,548,31"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,152,80,177"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="464,104,296,124,94,155,93,149,295,119,463,99"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="104,152,293,177"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="495,107,269,152,268,147,494,101"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="318,152,442,177"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="524,106,421,149,419,144,522,102"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="466,152,521,177"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="543,106,513,143,509,139,539,103"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="545,152,671,177"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="562,103,592,139,588,143,558,106"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="695,152,745,177"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="579,102,683,145,681,150,577,106"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="770,152,889,177"/>
+<area shape="poly" id="edge8_Node000002_Node000009" title=" " alt="" coords="596,101,772,146,770,151,595,107"/>
+<area shape="rect" id="Node000010" title=" " alt="" coords="913,152,999,177"/>
+<area shape="poly" id="edge9_Node000002_Node000010" title=" " alt="" coords="623,101,900,149,899,154,622,107"/>
+</map>
