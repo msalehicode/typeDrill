@@ -474,25 +474,70 @@ Page
                         }
 
                         MouseArea {
+                            id:mAreaItem
                             anchors.fill: parent
                             onClicked:
                             {
                                 backend.switchTable(modelData.t_title, modelData.t_type);
                                 mainStackView.push("PracticePage.qml", { tableType: modelData.t_type, m_stackView: mainStackView});
                             }
-                            onPressAndHold: {
-                                var result = backend.pinTable(modelData.t_id);
-                                if (result === "table status has been updated.") {
-                                    refresh();
-                                } else
-                                    console.log("couldn't update pin status of table");
+                            onPressAndHold:
+                            {
+                                popupMenu.openWhereOnClicked(mAreaItem,tableListView)
+
+                                //add items into menu
+                                var theStr = (modelData.t_status==="pinned") ? "Unpin table " : "Pin table "
+                                popupMenu.addItem(theStr+modelData.t_title,modelData.t_id,"pin",appIcons.icon_pinned);
+
+                                popupMenu.addItem("Delete table "+modelData.t_title,modelData.t_id,"delete", appIcons.icon_delete);
+                                // popupMenu.addItem("Rename table "+modelData.t_title,modelData.t_id,"rename");
+                                // popupMenu.addItem("Archive table "+modelData.t_title,modelData.t_id,"archive");
                             }
                         }
 
                     }
 
                 }
+                CustomPopupMenu
+                {
+                    id:popupMenu
+                    setWidth:parent.width/1.10
+                    setBgColor: appColors.c_background
+                    setFontColor:appColors.c_fontcolor
+                    setBgItemColor: appColors.c_comboboxBgColor
+                    setFontSize: appFontSizes.f_normal
 
+                    onItemClicked: function(tid,iaction)
+                    {
+                        switch(iaction)
+                        {
+                            case "pin":
+                            {
+                                var result = backend.pinTable(tid);
+                                if (result === "table status has been updated.")
+                                    homePage.refresh();
+                                else
+                                    console.log("couldn't update pin status of table");
+                            }break;
+                            case "delete":
+                            {
+
+                            }break;
+                            case "rename":
+                            {
+
+                            }break;
+
+                            case "archive":
+                            {
+
+                            }break;
+                        }
+                        popupMenu.close()
+                    }
+                }
+
+                //end of listview
 
             }
 

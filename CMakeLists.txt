@@ -64,6 +64,7 @@ qt_add_qml_module(appTypeDrill
         CustomComponents/CustomPopupMessage.qml
         CustomComponents/CustomSwitchText.qml
         CustomComponents/CustomTimer.qml
+        CustomComponents/CustomPopupMenu.qml
 
 
     RESOURCES
