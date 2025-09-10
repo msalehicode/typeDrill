@@ -27,12 +27,10 @@ Window
     onWidthChanged:
     {
         backend.setLastWindowSize("w",width);
-        console.log("window width changed:", width)
     }
     onHeightChanged:
     {
         backend.setLastWindowSize("h",height);
-        console.log("window height changed:", height)
     }
     
     onClosing:
@@ -352,7 +350,7 @@ Window
                 appColors.currentTheme = ThemeConfig.themeDark;
                 appColors.c_theme = "dark";
             }
-            console.log("theme="+appColors.c_theme, "icon pack=",JSON.stringify(appColors.currentTheme, null, 2))
+            // console.log("theme="+appColors.c_theme, "icon pack=",JSON.stringify(appColors.currentTheme, null, 2))
         }
     }
     
