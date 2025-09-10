@@ -22,7 +22,7 @@ Item
         popupMenu.open()
     }
 
-    signal itemClicked(int tid,string iaction)
+    signal itemClicked(int tid,string iaction,string ttext)
 
 
 
@@ -46,14 +46,16 @@ Item
         popupMenu.close()
     }
 
-    function addItem(itemText,ttid,actionStr,icon)
+    function addItem(itemMessag,itemText,ttid,actionStr,icon,)
     {
         menuModel.append({
-                        text: itemText, //+ (menuModel.count + 1),
+                        message: itemMessag+" "+itemText, //+ (menuModel.count + 1),
+                        text: itemText,
                         isDynamic:true,
                         tid:ttid,
                         iaction: actionStr,
-                        iicon: icon
+                        iicon: icon,
+
                     });
     }
 
@@ -107,7 +109,7 @@ Item
                     {
                         id:textItem
                         anchors.centerIn: parent
-                        text:model.text
+                        text:model.message
                         color:setFontColor
                         font.pixelSize: setFontSize
                     }
@@ -127,7 +129,7 @@ Item
                         anchors.fill: parent
                         onClicked:
                         {
-                            itemClicked(model.tid,model.iaction)
+                            itemClicked(model.tid,model.iaction,model.text)
                         }
                     }
                 }
