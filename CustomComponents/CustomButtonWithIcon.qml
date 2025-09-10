@@ -35,6 +35,23 @@ Item
     signal buttonClicked;
 
 
+    //to point to another function/lamda from outside for change clicked behaver multiple time
+    property var actionHandler: null
+
+    function setActionHandler(passedFunc)
+    {
+        actionHandler = (typeof passedFunc === "function") ? passedFunc : null;
+    }
+
+    function runActionHandler()
+    {
+        //check for custom function exists then call it
+        if (actionHandler)
+        {
+               actionHandler()
+        }
+    }
+
     Component
     {
         id: buttonComponent
@@ -93,6 +110,7 @@ Item
                     onClicked:
                     {
                         buttonClicked()
+                        runActionHandler()
                     }
                 }
             }
