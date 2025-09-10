@@ -88,18 +88,11 @@ public:
     Q_INVOKABLE void setPracticeResult(const QString& mistakeCount, const QString& timeSpent, const int& practiceType);
 
     /*!
-     * \brief to get tables list from sql table (user_tables)
-     * \param searchedTitle(optional to filter table names), tableType (to filter tables type, default:all tables)
+     * \brief to get tables list from sql table (user_tables) those with t_status pinned are in priority and those with t_status=archived won't add
+     * \param searchedTitle(optional to filter table names), tableType (to filter tables type, default:all tables), types can be (all,verb,word,archives) "archives" actually isn't a type but it's a filed inside user_tables.t_status and used to access/list to archived
      * \return emit tablesList(tableList)
      */
     Q_INVOKABLE void getTables(const QString& searchedTitle, const QString& tableType);
-
-    /*!
-     * \brief to change/switch status a table to pinned at table (user_tables)
-     * \param table id wants to pin
-     * \return result of pin (0) or (pinned)
-     */
-    Q_INVOKABLE QString pinTable(const QString& tableId);
 
     /*!
      * \brief to create a sql table and add it into (user_tables)
@@ -226,6 +219,22 @@ public:
     Q_INVOKABLE int getLastWindowSize(const QString& widthOrHeight);
     Q_INVOKABLE void setLastWindowSize(const QString& wOrh , const int &value);
 
+
+    /*!
+     * \brief to delete a table also delete it from table (user_tables)
+     * \param that table name wants to remove
+     * \return will emit tableRemovalResult(status) and pass a boolean
+     */
+    Q_INVOKABLE void deleteTable(const QString& tableName);
+
+
+    /*!
+     * \brief to change/switch status a table to pinned/archived/... at table (user_tables)
+     * \param table id, status (can be archive/pin/unpin/unarchive)
+     * \return if action failed will be "error" else will be message detailed
+     */
+    Q_INVOKABLE QString changeTableStatus(const int& tableId, const QString& status="0");
+
 signals:
     void wordReady(const QList<QMap<QString, QVariant>>& word);  // Emit to QML
     void practiceFinished();
@@ -245,6 +254,7 @@ signals:
     void downloadFinished(bool success, const QString &filePath);
     void uploadDone(const QString& result);
 
+    void tableRemovalResult(const bool& result);
 private slots:
     void onUrlListReceived();
     void onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal);

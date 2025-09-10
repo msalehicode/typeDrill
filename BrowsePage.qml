@@ -81,6 +81,14 @@ Page
                                 width:45
                                 height:45
                                 anchors.centerIn: parent
+                                onStatusChanged:
+                                {
+                                    if (status === Image.Error)
+                                    {
+                                        console.warn("Image failed to load:", source);
+                                        source=appIcons.icon_question
+                                    }
+                                }
                             }
                         }
 

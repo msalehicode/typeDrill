@@ -165,7 +165,7 @@ void Backend::getTables(const QString& searchedTitle,const QString& tableType)
     }
 
 
-    // Filter based on tableType (e.g., "verb", "noun", etc.)
+    // Filter based on tableType (e.g., "verb", "word", archives, etc.)
     QVariantList filteredTables;
     for (const QVariant &rowVar : allTables)
     {
@@ -175,23 +175,38 @@ void Backend::getTables(const QString& searchedTitle,const QString& tableType)
         if(row["t_status"].toString() == "pinned")
             continue;
 
-        // If tableType is "all" or empty, include everything
-        if (tableType.isEmpty() || tableType == "all")
+
+        //check for if user fileterd/wants only archives
+        if(tableType=="archives")
         {
-            if(searchedTitle.isEmpty()) //searchedTitle didn't provide
+            if(row["t_status"].toString() == "archived")
                 filteredTables.append(row);
-            else if(!searchedTitle.isEmpty() && searchedTitle==row["t_title"].toString())
-                filteredTables.append(row);
+        }
+        else
+        {
+            //avoid list archived tables
+            if(row["t_status"].toString() == "archived")
+                continue;
+
+            // If tableType is "all" or empty, include everything
+            if (tableType.isEmpty() || tableType == "all")
+            {
+                if(searchedTitle.isEmpty()) //searchedTitle didn't provide
+                    filteredTables.append(row);
+                else if(!searchedTitle.isEmpty() && searchedTitle==row["t_title"].toString())
+                    filteredTables.append(row);
+            }
+
+            // Otherwise, filter by t_type (verb,word,etc)
+            else if (row["t_type"].toString() == tableType)
+            {
+                if(searchedTitle.isEmpty()) //searchedTitle didn't provide
+                    filteredTables.append(row);
+                else if(!searchedTitle.isEmpty() && searchedTitle==row["t_title"].toString())
+                    filteredTables.append(row);
+            }
         }
 
-        // Otherwise, filter by t_type (verb,word,etc)
-        else if (row["t_type"].toString() == tableType)
-        {
-            if(searchedTitle.isEmpty()) //searchedTitle didn't provide
-                filteredTables.append(row);
-            else if(!searchedTitle.isEmpty() && searchedTitle==row["t_title"].toString())
-                filteredTables.append(row);
-        }
     }
 
 
@@ -204,21 +219,21 @@ void Backend::getTables(const QString& searchedTitle,const QString& tableType)
     emit tablesList(pinnedTables);
 }
 
-QString Backend::pinTable(const QString &tableId)
-{
-    QString tablePinnedStatus = m_db.searchTable("user_tables","t_id",tableId,"t_status");
-    QString value="";
-    if(tablePinnedStatus=="pinned")
-        value="0";
-    else
-        value="pinned";
+// QString Backend::pinTable(const QString &tableId)
+// {
+//     // QString tablePinnedStatus = m_db.searchTable("user_tables","t_id",tableId,"t_status");
+//     // QString value="";
+//     // if(tablePinnedStatus=="pinned")
+//         // value="0";
+//     // else
+//         // value="pinned";
 
 
-    bool qResult = m_db.updateTableValue("user_tables","t_id",tableId,"t_status",value);
-    if(qResult)
-        return "table status has been updated.";
-    return "error couldn't update pin status of table.";
-}
+//     // bool qResult = m_db.updateTableValue("user_tables","t_id",tableId,"t_status",value);
+//     // if(qResult)
+//         return "table status has been updated.";
+//     return "error couldn't update pin status of table.";
+// }
 
 
 void Backend::createTable(const QString &tableName, const QString &tableType)
@@ -728,6 +743,42 @@ void Backend::setLastWindowSize(const QString& wOrh , const int &value)
     {
          settings.setValue("last_window_height",value);
     }
+}
+
+void Backend::deleteTable(const QString& tableName)
+{
+    //delete table from user_tables
+    bool status = m_db.removeRow("user_tables","t_title",tableName);
+    if(status)
+    {
+        status = m_db.removeTable(tableName);
+    }
+
+    //delete table by sql
+    emit tableRemovalResult(status);
+}
+
+QString Backend::changeTableStatus(const int &tableId, const QString &status)
+{
+    //change field t_status at user_tables to (status)
+    QString qresult="error";
+    QString newStatus;
+
+    if(status=="archive")
+        newStatus="archived";
+    else if(status=="pin")
+        newStatus="pinned";
+    else if(status=="unpin" ||  status=="unarchive")
+        newStatus="0";
+    else
+        qInfo() <<"changeTableStatus: unknown status type";
+
+
+    bool qResult = m_db.updateTableValue("user_tables","t_id",tableId,"t_status",newStatus);
+    if(qResult)
+        qresult = "table status has been updated to" + newStatus;
+
+    return qresult;
 }
 
 

@@ -338,7 +338,7 @@ Page
                             setIconArrow: appIcons.icon_back_white
                             setWidth: 80
                             height:45
-                            modelData:[ { text: "all"}, { text: "word"}, { text: "verb"}]
+                            modelData:[ { text: "all"}, { text: "word"}, { text: "verb"}, { text:"archives" }]
                             setBgColorCurrentItem: appColors.c_comboboxBgColorCurrentItem
                             onActivated: function(index)
                             {
@@ -390,10 +390,18 @@ Page
                             anchors.leftMargin: 15
                             Image
                             {
-                                source: modelData.t_icon ==="" ? appIcons.icon_question :  modelData.t_icon
+                                source: modelData.t_icon ==="" ? appIcons.icon_question:  modelData.t_icon
                                 width:25
                                 height:25
                                 anchors.centerIn: parent
+                                onStatusChanged:
+                                {
+                                    if (status === Image.Error)
+                                    {
+                                        console.warn("Image failed to load:", source);
+                                        source=appIcons.icon_question
+                                    }
+                                }
                             }
                         }
 
@@ -490,11 +498,19 @@ Page
                                 popupMenu.openWhereOnClicked(mAreaItem,tableListView)
 
                                 //add items into menu
-                                var theStr = (modelData.t_status==="pinned") ? "Unpin table" : "Pin table"
-                                popupMenu.addItem(theStr,modelData.t_title,modelData.t_id,"pin",appIcons.icon_pinned);
+                                if(modelData.t_status==="pinned")
+                                    popupMenu.addItem("Unpin table",modelData.t_title,modelData.t_id,"unpin",appIcons.icon_pinned);
+                                else
+                                    popupMenu.addItem("Pin table",modelData.t_title,modelData.t_id,"pin",appIcons.icon_pinned);
 
                                 popupMenu.addItem("Delete table",modelData.t_title,modelData.t_id,"delete", appIcons.icon_delete);
-                                popupMenu.addItem("Archive table",modelData.t_title,modelData.t_id,"archive", appIcons.icon_delete);
+
+                                if(modelData.t_status==="archived")
+                                    popupMenu.addItem("Unarchive table",modelData.t_title,modelData.t_id,"unarchive", appIcons.icon_delete);
+                                else
+                                    popupMenu.addItem("Archive table",modelData.t_title,modelData.t_id,"archive", appIcons.icon_delete);
+
+
                             }
                         }
 
@@ -511,23 +527,32 @@ Page
                     setFontSize: appFontSizes.f_normal
                     onItemClicked: function(tid,iaction,ttext)
                     {
+                        var result;
                         switch(iaction)
                         {
                             case "pin":
                             {
-                                var result = backend.pinTable(tid);
-                                if (result === "table status has been updated.")
+                                result= backend.changeTableStatus(tid,"pin");
+                                if (result !== "error")
                                     homePage.refresh();
                                 else
-                                    console.log("couldn't update pin status of table");
+                                    console.log("couldn't update table status result:", result);
                             }break;
+                            case "unpin":
+                            {
+                                result = backend.changeTableStatus(tid,"unpin");
+                                if (result !== "error")
+                                    homePage.refresh();
+                                else
+                                    console.log("couldn't update table status result:", result);
+                            }break;
+
                             case "delete":
                             {
                                 buttonConfirmPopupMessage.setActionHandler(function()
                                 {
-                                    console.log( ttext+ " Confirmed to delete");
-                                    //backend.deleteTable(tid)
-                                    popupMessage.close()
+                                    backend.deleteTable(ttext); //ttext is same tableName
+                                    popupMessage.close();
                                 });
                                 popupMessage.open("Are you sure to delete table " + ttext + " ?")
                             }break;
@@ -540,11 +565,30 @@ Page
                             {
                                 buttonConfirmPopupMessage.setActionHandler(function()
                                 {
-                                    console.log( ttext+ " Confirmed to archive");
-                                    //backend.archiveTable(tid)
+                                    result = backend.changeTableStatus(tid,"archive");
+                                    if (result !== "error")
+                                        homePage.refresh();
+                                    else
+                                        console.log("couldn't update table status result:", result);
+
                                     popupMessage.close()
                                 });
                                 popupMessage.open("Are you sure to archive table " + ttext + " ?")
+                            }break;
+
+                            case "unarchive":
+                            {
+                                buttonConfirmPopupMessage.setActionHandler(function()
+                                {
+                                    result = backend.changeTableStatus(tid,"unarchive");
+                                    if (result !== "error")
+                                        homePage.refresh();
+                                    else
+                                        console.log("couldn't update table status result:", result);
+
+                                    popupMessage.close()
+                                });
+                                popupMessage.open("Are you sure to unarchive table " + ttext + " ?")
                             }break;
                         }
                         popupMenu.close()
@@ -761,7 +805,6 @@ Page
         //fetch and set day streaks
         var streakDays = backend.getStreakDays();
         dayCountStreak.text = streakDays[0] //holds streak days number
-        console.log("streakdays=",streakDays[0])
         streakDays.shift(); //remove first element
 
         statusesModel.clear();
@@ -801,6 +844,13 @@ Page
         {
             gridModel = tables;
             // console.log("gridModel =", JSON.stringify(gridModel));
+        }
+        function onTableRemovalResult(result)
+        {
+            if(result===1)
+                console.log("table deleted.")
+            else
+                console.log("failed to delete table")
         }
     }
     Connections {
