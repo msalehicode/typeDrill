@@ -58,6 +58,8 @@ public:
 
     int countRows(const QString& tableName);
 
+    bool removeRow(const QString& tableName, const QString& rowKey, const QString& rowValue);
+
     QVariant runQuery(const QString& tableName,
                       const QVariantMap& params = {},
                       const QVariantMap& where = {},

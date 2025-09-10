@@ -281,7 +281,7 @@ QVariantList DataBase::getAllRowsAsVariantList(const QString& tableName)
 int DataBase::countRows(const QString& tableName)
 {
     if (!m_db.isOpen()) {
-        // qWarning() << "Database is not open!";
+        qInfo() << "Database is not open!";
         return -1;  // or 0, or some error code
     }
 
@@ -298,6 +298,23 @@ int DataBase::countRows(const QString& tableName)
     }
 
     return 0;
+}
+
+bool DataBase::removeRow(const QString &tableName, const QString &rowKey, const QString &rowValue)
+{
+    QSqlQuery query(m_db);
+    QString sql = QString("DELETE FROM %1 WHERE %2 = :value").arg(tableName).arg(rowKey);
+
+    query.prepare(sql);
+    query.bindValue(":value", rowValue);
+
+    if (!query.exec())
+    {
+        qWarning() << "Delete query failed:" << query.lastError().text();
+        return false;
+    }
+
+    return true;
 }
 
 QVariant DataBase::runQuery(const QString &tableName, const QVariantMap &params, const QVariantMap &where, const QString &returnColumn)
