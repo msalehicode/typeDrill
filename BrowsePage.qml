@@ -268,19 +268,39 @@ Page
                 {
                     id: popup
                     setDefaultText: "please wait..."
-                    setBtnText: "Ok"
                     setFailColor: appColors.c_bgPopupContentFailed
                     setSuccessColor:appColors.c_bgPopupContentSuccess
                     setBgContent: appColors.c_bgPopupContentDefault
                     setTextFontSize: appFontSizes.f_normal
                     setTextColor:  appColors.c_fontcolor
                     setBgColorPopup: appColors.c_background
-                    setBgButton: appColors.c_buttonBgColor
-                    setBordercolorButton: appColors.c_buttonBorderColor
                     onPopUpClosed:
                     {
                         changeLoaderContent("list")
                     }
+                    CustomButton
+                    {
+                        setButtonText:"Ok got it";
+                        setButtonBorderColor:appColors.c_buttonBorderColor
+                        setButtonBackColor: appColors.c_buttonBgColor
+                        setButtonFontColor: appColors.c_buttonFontColor
+                        setBold: true
+                        setButtonFontsize: appFontSizes.f_buttonFontSize
+                        setButtonsBorderWidth: 0
+                        setRadius: 20
+                        setWidth: 70
+                        setHeight:50
+                        anchors
+                        {
+                            bottom:parent.bottom
+                            horizontalCenter:parent.horizontalCenter
+                        }
+                        onButtonClicked:
+                        {
+                            popup.close()
+                        }
+                    }
+
                 }
             }
 

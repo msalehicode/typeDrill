@@ -7,7 +7,11 @@ Page
     id:homePage
     anchors.fill: parent
 
+
+
+
     property var days: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
     property ListModel statusesModel: ListModel
     {
         ListElement{status:"0"}
@@ -486,12 +490,11 @@ Page
                                 popupMenu.openWhereOnClicked(mAreaItem,tableListView)
 
                                 //add items into menu
-                                var theStr = (modelData.t_status==="pinned") ? "Unpin table " : "Pin table "
-                                popupMenu.addItem(theStr+modelData.t_title,modelData.t_id,"pin",appIcons.icon_pinned);
+                                var theStr = (modelData.t_status==="pinned") ? "Unpin table" : "Pin table"
+                                popupMenu.addItem(theStr,modelData.t_title,modelData.t_id,"pin",appIcons.icon_pinned);
 
-                                popupMenu.addItem("Delete table "+modelData.t_title,modelData.t_id,"delete", appIcons.icon_delete);
-                                // popupMenu.addItem("Rename table "+modelData.t_title,modelData.t_id,"rename");
-                                // popupMenu.addItem("Archive table "+modelData.t_title,modelData.t_id,"archive");
+                                popupMenu.addItem("Delete table",modelData.t_title,modelData.t_id,"delete", appIcons.icon_delete);
+                                popupMenu.addItem("Archive table",modelData.t_title,modelData.t_id,"archive", appIcons.icon_delete);
                             }
                         }
 
@@ -506,8 +509,7 @@ Page
                     setFontColor:appColors.c_fontcolor
                     setBgItemColor: appColors.c_comboboxBgColor
                     setFontSize: appFontSizes.f_normal
-
-                    onItemClicked: function(tid,iaction)
+                    onItemClicked: function(tid,iaction,ttext)
                     {
                         switch(iaction)
                         {
@@ -521,7 +523,13 @@ Page
                             }break;
                             case "delete":
                             {
-
+                                buttonConfirmPopupMessage.setActionHandler(function()
+                                {
+                                    console.log( ttext+ " Confirmed to delete");
+                                    //backend.deleteTable(tid)
+                                    popupMessage.close()
+                                });
+                                popupMessage.open("Are you sure to delete table " + ttext + " ?")
                             }break;
                             case "rename":
                             {
@@ -530,7 +538,13 @@ Page
 
                             case "archive":
                             {
-
+                                buttonConfirmPopupMessage.setActionHandler(function()
+                                {
+                                    console.log( ttext+ " Confirmed to archive");
+                                    //backend.archiveTable(tid)
+                                    popupMessage.close()
+                                });
+                                popupMessage.open("Are you sure to archive table " + ttext + " ?")
                             }break;
                         }
                         popupMenu.close()
@@ -671,6 +685,67 @@ Page
 
 
     }
+
+
+    CustomPopupMessage
+    {
+        id:popupMessage
+        setDefaultText: ""
+        setFailColor: appColors.c_bgPopupContentFailed
+        setSuccessColor:appColors.c_bgPopupContentSuccess
+        setBgContent: appColors.c_bgPopupContentDefault
+        setTextFontSize: appFontSizes.f_normal
+        setTextColor:  appColors.c_fontcolor
+        setBgColorPopup: appColors.c_background
+        onPopUpClosed:
+        {
+            homePage.refresh();
+        }
+        CustomButton
+        {
+            id:buttonConfirmPopupMessage
+            setButtonText:"Confirm";
+            setButtonBorderColor:appColors.c_buttonBorderColor
+            setButtonBackColor: appColors.c_buttonBgColor
+            setButtonFontColor: appColors.c_buttonFontColor
+            setBold: true
+            setButtonFontsize: appFontSizes.f_buttonFontSize
+            setButtonsBorderWidth: 0
+            setRadius: 20
+            setWidth: 70
+            setHeight:50
+            anchors
+            {
+                bottom:parent.bottom
+                right: parent.right
+            }
+            //actions will handle dynamically for each item by passing function to setActionHandler()
+        }
+        CustomButton
+        {
+            id:buttonCancelPopupMessage
+            setButtonText:"Cancel";
+            setButtonBorderColor:appColors.c_buttonBorderColor
+            setButtonBackColor: appColors.c_buttonBgColor
+            setButtonFontColor: appColors.c_buttonFontColor
+            setBold: true
+            setButtonFontsize: appFontSizes.f_buttonFontSize
+            setButtonsBorderWidth: 0
+            setRadius: 20
+            setWidth: 70
+            setHeight:50
+            anchors
+            {
+                bottom:parent.bottom
+                left: parent.left
+            }
+            onButtonClicked:
+            {
+                popupMessage.close()
+            }
+        }
+    }
+
 
     function refresh()
     {

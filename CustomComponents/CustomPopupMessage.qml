@@ -4,9 +4,14 @@ import QtQuick.Controls
 Item {
     anchors.fill: parent
     visible: setOpen
+
+    //to beable add content/other Components inside this component. like buttons,...
+    default property alias content: contentArea.children
+
+
+
     property bool setOpen: false
     property string setDefaultText: "please wait..."
-    property string setBtnText: "Ok"
     property color setFailColor: "red"
     property int setTextFontSize: 15
     property color setTextColor: "white"
@@ -17,24 +22,27 @@ Item {
     property int setRadius: 10
 
 
-    property color setBgButton: "blue"
-    property color setBordercolorButton: "blue"
-
-
-    function open()
+    function open(strText="")
     {
+        if(strText.length>0)
+            setDefaultText=strText
+
         setOpen=true
         popup.open()
     }
 
     function setResult(message,status="0")
     {
-        popupContentText.text=message
-        buttonClosePopup.setVisible=true
+        setDefaultText=message
         if(status==="0")
             popupContent.color=setFailColor
         else
             popupContent.color=setSuccessColor
+    }
+
+    function close()
+    {
+        popup.close()
     }
 
     signal popUpClosed;
@@ -56,7 +64,6 @@ Item {
             //reset color,text
             popupContent.color= setBgContent
             popupContentText.text= setDefaultText
-            buttonClosePopup.setVisible=false
             setOpen=false
             popUpClosed()
         }
@@ -82,30 +89,11 @@ Item {
                 wrapMode: Text.WordWrap
             }
 
-            CustomButton
+            //to beable add content/other Components inside this component. like buttons,...
+            Item
             {
-                id:buttonClosePopup
-                setButtonText:setBtnText;
-                setButtonBorderColor:setBordercolorButton
-                setButtonBackColor: setBgButton
-                setButtonFontColor: setTextFontSize
-                setBold: true
-                setButtonFontsize: setTextFontSize
-                setButtonsBorderWidth: 0
-                setRadius: 20
-                setWidth: parent.width/2
-                setHeight:50
-                anchors
-                {
-                    bottom: parent.bottom
-                    bottomMargin:15
-                    horizontalCenter: parent.horizontalCenter
-                }
-                setVisible: false
-                onButtonClicked:
-                {
-                    popup.close()
-                }
+                id: contentArea
+                anchors.fill: parent
             }
         }
 
