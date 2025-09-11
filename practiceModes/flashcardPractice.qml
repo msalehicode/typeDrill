@@ -42,7 +42,8 @@ Page {
             currentValue:currentWordId-1
             setWidth: parent.width/2
             setHeight: 20
-            setSpacing:1
+            setSpacing:0
+            setProgressRadius:0
             setFontColor: appColors.c_fontcolor
             setBgColor: appColors.c_bg_tableList
             setFontSize: appFontSizes.f_normal

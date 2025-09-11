@@ -15,6 +15,9 @@ Page
     property bool isThisWordModified: false;
 
 
+    //a flag to hide/filter e.g: past,p.p of verb
+    property bool hideAllExceptFirstItem: false;
+
     //private
     property int mistakesCounter : 0;
     property int currentIndex: 0;
@@ -39,7 +42,8 @@ Page
             totalValue: maxIndex
             setWidth: parent.width/2
             setHeight: 20
-            setSpacing:1
+            setSpacing:0
+            setProgressRadius:0
             setFontColor: appColors.c_fontcolor
             setBgColor: appColors.c_bg_tableList
             setFontSize: appFontSizes.f_normal
@@ -76,6 +80,28 @@ Page
             }
         }
 
+        CustomButtonWithIcon
+        {
+            id:hideAllExceptFirstItemButton
+            setWidth:30
+            setHeight:30
+            setButtonText:"";
+            setButtonBorderColor: "transparent";
+            setButtonFontColor:appColors.c_fontcolor;
+            setButtonBackColor:"transparent"
+            setTextMagin: 5
+            setIconHeight: 25
+            setIconWidth: 25
+            anchors.top:modifyWordButton.top
+            anchors.right: modifyWordButton.left
+            anchors.rightMargin: 15
+            setIconSource: hideAllExceptFirstItem ? appIcons.icon_hide : appIcons.icon_eye
+            onButtonClicked:
+            {
+                hideAllExceptFirstItem = !hideAllExceptFirstItem;
+            }
+        }
+
 
         CustomTimer
         {
@@ -88,7 +114,7 @@ Page
             width: parent.width/2
             height: parent.height/2
             anchors.centerIn: parent
-            spacing:50
+            spacing:25
             Label
             {
                 id:w_text
@@ -103,6 +129,7 @@ Page
             {
                 id:w_meaning
                 text:""
+                visible: hideAllExceptFirstItem ? false : true
                 font.pixelSize:appFontSizes.f_title
                 color:appColors.c_fontcolor
                 horizontalAlignment: Text.AlignHCenter
@@ -112,6 +139,7 @@ Page
             {
                 id:w_example
                 text:""
+                visible: hideAllExceptFirstItem ? false : true
                 font.pixelSize:appFontSizes.f_title
                 color:appColors.c_fontcolor
                 horizontalAlignment: Text.AlignHCenter
@@ -122,7 +150,8 @@ Page
             {
                 id:w_translate
                 text:""
-                visible: text.length>0 ? true : false
+                // visible: text.length>0 ? true : false
+                visible: hideAllExceptFirstItem ? false : true
                 font.pixelSize:appFontSizes.f_title
                 color:appColors.c_fontcolor
                 horizontalAlignment: Text.AlignHCenter
