@@ -506,9 +506,9 @@ Page
                                 popupMenu.addItem("Delete table",modelData.t_title,modelData.t_id,"delete", appIcons.icon_delete);
 
                                 if(modelData.t_status==="archived")
-                                    popupMenu.addItem("Unarchive table",modelData.t_title,modelData.t_id,"unarchive", appIcons.icon_delete);
+                                    popupMenu.addItem("Unarchive table",modelData.t_title,modelData.t_id,"unarchive", appIcons.icon_archive);
                                 else
-                                    popupMenu.addItem("Archive table",modelData.t_title,modelData.t_id,"archive", appIcons.icon_delete);
+                                    popupMenu.addItem("Archive table",modelData.t_title,modelData.t_id,"archive", appIcons.icon_archive);
 
 
                             }

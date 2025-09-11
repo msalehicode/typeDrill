@@ -137,8 +137,14 @@ Window
         //homePage
         property string icon_search: appIcons.i_path + "search.png";
         property string icon_search_white: i_path_white + "search.png"; //only white
-        
-        
+
+
+
+        property string icon_archive: appIcons.i_path + "archive.png"
+        property string icon_eye: appIcons.i_path + "eye.png"
+        property string icon_hide: appIcons.i_path + "hide.png"
+
+
         //practice tableList
         property string icon_pinned: appIcons.i_path + "pin.png";
         

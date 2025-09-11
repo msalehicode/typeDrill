@@ -6,7 +6,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Find required Qt modules
-find_package(Qt6 6.2 COMPONENTS Quick Sql Network REQUIRED)
+find_package(Qt6 6.2 COMPONENTS Quick Sql Network Charts Core Gui Qml REQUIRED)
 
 
 # Define the executable target
@@ -86,6 +86,9 @@ qt_add_qml_module(appTypeDrill
         resourses/lightMode/50x50/menubar.png resourses/darkMode/50x50/menubar.png
         resourses/lightMode/50x50/modify.png resourses/darkMode/50x50/modify.png
         resourses/lightMode/50x50/delete.png resourses/darkMode/50x50/delete.png
+        resourses/lightMode/50x50/archive.png resourses/darkMode/50x50/archive.png
+        resourses/lightMode/50x50/hide.png resourses/darkMode/50x50/hide.png
+        resourses/lightMode/50x50/eye.png resourses/darkMode/50x50/eye.png
 )
 
 # Set app properties for macOS/Windows
@@ -97,8 +100,15 @@ set_target_properties(appTypeDrill PROPERTIES
 )
 
 # Link against Qt libraries
-target_link_libraries(appTypeDrill
-    PRIVATE Qt6::Quick Qt6::Sql Qt6::Network
+target_link_libraries(appTypeDrill PRIVATE
+    Qt6::Quick
+    Qt6::Sql
+    Qt6::Network
+
+    Qt6::Charts
+    Qt6::Core
+    Qt6::Gui
+    Qt6::Qml
 )
 
 # Install rules (for desktop)

@@ -116,8 +116,8 @@ Item
                     Image
                     {
                         source: pathFromComponentDire ? "../"+ model.iicon : model.iicon
-                        width:32
-                        height:32
+                        width:20
+                        height:20
                         anchors
                         {
                             right:textItem.left
