@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import "CustomComponents"
-import QtCharts 6.0
+import QtCharts
 
 Page
 {
@@ -11,60 +11,73 @@ Page
     {
         anchors.fill: parent
         color:appColors.c_background
-        //![1]
-        ChartView {
-               anchors.fill: parent
-               antialiasing: true
 
-               // Time Spent axis (on the left)
-               ValueAxis {
-                   id: timeAxis
-                   min: 0
-                   max: 12  // Max value based on time spent data
-                   tickCount: 6
-                   titleText: "Time Spent (hrs)"
-               }
+        Column
+        {
+            width:parent.width
+            height:parent.height
+            spacing:5
+            Rectangle
+            {
+                id:topBar
+                width:parent.width
+                height:70
+                color: appColors.c_background
+                Text
+                {
+                    text:"Profile"
+                    color:appColors.c_fontcolor
+                    font.pixelSize: appFontSizes.f_title
+                    anchors.centerIn: parent
+                }
+            }
 
-               // Mistakes Made axis (on the right)
-               ValueAxis {
-                   id: mistakesAxis
-                   min: 0
-                   max: 200  // Max value based on mistakes data
-                   tickCount: 5
-                   titleText: "Mistakes Made"
-                   position: ValueAxis.Right
-               }
+            Rectangle
+            {
+                width:parent.width/1.10
+                height:300
+                anchors.horizontalCenter: parent.horizontalCenter
+                color:appColors.c_background
+                Text
+                {
+                    text:"login.."
+                    anchors.centerIn: parent
+                    font.pixelSize: appFontSizes.f_title
+                    color:appColors.c_fontcolor
+                }
+            }
 
-               // Horizontal Bar Chart
-               HorizontalBarSeries {
-                   axisX: BarCategoryAxis { categories: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] }
 
-                   // Time Spent BarSet
-                   BarSet {
-                       label: "Time Spent"
-                       values: [10, 2, 1, 4, 0.2, 1, 2]
-                   }
 
-                   // Mistakes Made BarSet
-                   BarSet {
-                       label: "Mistakes Made"
-                       values: [10, 50, 84, 41, 10, 0, 150]
-                   }
+            Text
+            {
+                text:"Stats:"
+                width: parent.width
+                height:35
+                font.pixelSize: appFontSizes.f_title
+                color:appColors.c_fontcolor
+                anchors.left: parent.left
+                anchors.leftMargin: 25
+            }
 
-                   // Link Mistakes Made series to the right axis
-                   axisY: mistakesAxis
-               }
+            Rectangle
+            {
+                width:parent.width/1.10
+                anchors.horizontalCenter: parent.horizontalCenter
+                height:350
+                color:"transparent"
+                clip:true
+                ThisWeekStats
+                {
+                    setWidth:parent.width
+                    setHeight: parent.height
+                }
+            }
 
-               // Link the time spent series to the left axis
-               axisY: timeAxis
-           }
 
-        // Text
-        // {
-        //     text:"soon"
-        //     color:appColors.c_fontcolor
-        //     font.pixelSize: appFontSizes.f_title
-        //     anchors.centerIn: parent
-        // }
+
+        }
+
+
     }
 }

@@ -41,6 +41,8 @@ qt_add_qml_module(appTypeDrill
         PracticePage.qml
         HomePage.qml
 
+        ThisWeekStats.qml
+
         # forms
         forms/RemoveDatabaseForm.qml
         forms/AddNewWordForm.qml

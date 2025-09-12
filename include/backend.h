@@ -58,8 +58,33 @@ class Backend : public QObject
 
     int calculateStreakDays(QDate& currentDate);
     QDate getLastActivityDate();
+
+    /*!
+     * \brief convert h:m:s time string to total minutes
+     * \param string time like hh:mm:ss
+     * \return minutes
+     */
+    float parseSpentTime(const QString &spentTime);
+
+
+    /*!
+     * \brief counts activities of given date
+     * \param a date
+     * \return activity total count
+     */
+    int countActivitiesOfDate(QDate& date);
+
+
     bool removeFile(const QString& filepath);
 public:
+
+    /*!
+     * \brief to calculate activity of week (mistaksCount, timeSpent as hour) from trace_practices
+     * \return emits getWeeklyStatsResult to pass (Total Minutes List , Total Mistakes List)
+     */
+    Q_INVOKABLE void getWeeklyStats();
+
+
     /*!
      * \brief init database (used to open/create/switch database), and initial important sql tables and set some variables also calls settings.init()
      * \param databaseName if not provided, it will read it from default/set value at settings.getValue("currentDatabase")
@@ -255,6 +280,8 @@ signals:
     void uploadDone(const QString& result);
 
     void tableRemovalResult(const bool& result);
+
+    void getWeeklyStatsResult(const QList<float>& totalMinutes, const QList<int>& totalMistakes);
 private slots:
     void onUrlListReceived();
     void onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal);

@@ -65,6 +65,7 @@ public:
                       const QVariantMap& where = {},
                       const QString& returnColumn = QString());
 
+    QVariantList runQueryGetVariantList(const QString &rawQuery, const QVariantMap &params);
 signals:
 };
 #endif // DATABASE_H

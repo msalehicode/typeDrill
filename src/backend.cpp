@@ -699,6 +699,105 @@ QDate Backend::getLastActivityDate()
     return lastDate;
 }
 
+void Backend::getWeeklyStats()
+{
+    QDate today = QDate::currentDate();
+    int daysFromMonday = today.dayOfWeek() - 1;
+    QDate monday = today.addDays(-daysFromMonday);
+    qInfo() << "closest monday:" << monday.toString();
+
+    //just rename monday to something better
+    QDate* theDate = &monday;
+
+
+    QList<float> totalMinutes = {0, 0, 0, 0, 0, 0, 0}; // Total hours per day (Mon-Sun)
+    QList<int> totalMistakes = {0, 0, 0, 0, 0, 0, 0}; // Total mistakes per day (Mon-Sun)
+
+
+    //init vars to avoid init inside loop
+    QVariantList result;
+    QString startOfDay, endOfDay, timeSpent;
+    QVariantMap params, data;
+    for(int i=0; i<7; i++)
+    {
+        qInfo () << theDate->toString() << "'s activity count =" << countActivitiesOfDate(monday);
+
+        //fetch and calculate total hours and total mistakes from week days
+        startOfDay = theDate->toString("yyyy-MM-dd") + " 00:00:00";
+        endOfDay = theDate->toString("yyyy-MM-dd") + " 23:59:59";
+        params["start"] = startOfDay;
+        params["end"] = endOfDay;
+
+        result = m_db.runQueryGetVariantList(
+            "SELECT tp_timeSpent, tp_mistakesCount FROM trace_practices WHERE tp_date BETWEEN :start AND :end",
+            params
+            );
+
+        if (!result.isEmpty())
+        {
+            for (const QVariant &rowVar : result)
+            {
+                QVariantMap row = rowVar.toMap();
+
+                totalMistakes[i] += row["tp_mistakesCount"].toInt();  // Mistakes count as an integer
+
+                timeSpent = row["tp_timeSpent"].toString();  // Time spent as a string (e.g., "01:30:00")
+                totalMinutes[i] += parseSpentTime(timeSpent);  // Assuming parseSpentTime is defined
+                qInfo() << "totalMinutes= " << totalMinutes[i] << "totalMistakes=" << totalMistakes[i];
+            }
+        }
+        else
+        {
+            qInfo() << "Query did return an empty list!";
+        }
+
+        //go for next day
+        *theDate = theDate->addDays(1);
+    }
+    emit getWeeklyStatsResult(totalMinutes,totalMistakes);
+}
+
+float Backend::parseSpentTime(const QString &spentTime)
+{
+    QStringList timeParts = spentTime.split(":");
+    if (timeParts.size() == 3)
+    {
+        int hours = timeParts[0].toInt();
+        int minutes = timeParts[1].toInt();
+        int seconds = timeParts[2].toInt();
+
+        // Calculate the total time in minutes (including fractional part for seconds)
+        return (hours * 60) + minutes + (seconds / 60.0);  // Return minutes as a float
+    }
+    return 0;
+}
+
+
+int Backend::countActivitiesOfDate(QDate &date)
+{
+    // We'll check days going backwards starting from today
+    QString startOfDay = date.toString("yyyy-MM-dd") + " 00:00:00";
+    QString endOfDay = date.toString("yyyy-MM-dd") + " 23:59:59";
+
+    QVariantMap params;
+    params["start"] = startOfDay;
+    params["end"] = endOfDay;
+
+    QVariant result = m_db.runQuery(
+        "SELECT COUNT(*) FROM trace_practices WHERE tp_date BETWEEN :start AND :end",
+        params
+        );
+
+    if (result.isValid())
+    {
+        int count = result.toInt();
+        if (count > 0)
+            return count;
+    }
+
+    return 0;
+}
+
 bool Backend::removeFile(const QString &filepath)
 {
     qDebug() << "filepath to remove: " << filepath;

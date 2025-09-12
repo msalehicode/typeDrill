@@ -345,4 +345,40 @@ QVariant DataBase::runQuery(const QString &tableName, const QVariantMap &params,
     }
 }
 
+QVariantList DataBase::runQueryGetVariantList(const QString &rawQuery, const QVariantMap &params)
+{
+    QSqlQuery query(m_db);
+
+    // Prepare the query
+    if (!query.prepare(rawQuery)) {
+        qWarning() << "Failed to prepare custom query:" << query.lastError().text();
+        return QVariantList();  // Return an empty list if preparation fails
+    }
+
+    // Bind the parameters
+    for (auto it = params.begin(); it != params.end(); ++it) {
+        query.bindValue(":" + it.key(), it.value());
+    }
+
+    // Execute the query
+    if (!query.exec()) {
+        qWarning() << "Failed to execute custom query:" << query.lastError().text();
+        return QVariantList();  // Return an empty list if execution fails
+    }
+
+    QVariantList results;  // List to store the results
+
+    // Iterate through the result set
+    while (query.next()) {
+        QVariantMap row;  // Map to store each row of data
+        for (int i = 0; i < query.record().count(); ++i) {
+            row[query.record().fieldName(i)] = query.value(i);  // Add each column to the map
+        }
+        results.append(row);  // Add the row map to the results list
+    }
+
+    return results;  // Return the populated QVariantList
+}
+
+
 
