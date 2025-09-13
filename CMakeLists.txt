@@ -41,7 +41,7 @@ qt_add_qml_module(appTypeDrill
         PracticePage.qml
         HomePage.qml
 
-        ThisWeekStats.qml
+        ActivityStats.qml
 
         # forms
         forms/RemoveDatabaseForm.qml

@@ -749,6 +749,60 @@ void Backend::getWeeklyStats()
     emit getWeeklyStatsResult(totalMinutes,totalMistakes);
 }
 
+void Backend::getMonthStats()
+{
+    QDate today = QDate::currentDate();
+    QDate startOfMonth = QDate(today.year(), today.month(), 1);  // Get the first day of the current month
+    int lastDayOfMonth = startOfMonth.daysInMonth();  // Get the last day of the current month
+    qInfo() << "Start of the month: " << startOfMonth.toString();
+    qInfo() << "Last day of the month: " << lastDayOfMonth;
+
+    // Initialize variables
+    QList<float> totalMinutes(lastDayOfMonth, 0); // Total minutes for each day (1 to 31)
+    QList<int> totalMistakes(lastDayOfMonth, 0);  // Total mistakes for each day (1 to 31)
+
+    // Variables for the query
+    QVariantList result;
+    QString startOfDay, endOfDay, timeSpent;
+    QVariantMap params, data;
+
+    QDate* currentDay = &startOfMonth;  // Start from the first day of the month
+
+    for (int i = 0; i < lastDayOfMonth; i++) {
+        qInfo() << currentDay->toString() << "'s activity count =" << countActivitiesOfDate(*currentDay);
+
+        // Fetch and calculate total hours and total mistakes for the current day
+        startOfDay = currentDay->toString("yyyy-MM-dd") + " 00:00:00";
+        endOfDay = currentDay->toString("yyyy-MM-dd") + " 23:59:59";
+        params["start"] = startOfDay;
+        params["end"] = endOfDay;
+
+        result = m_db.runQueryGetVariantList(
+            "SELECT tp_timeSpent, tp_mistakesCount FROM trace_practices WHERE tp_date BETWEEN :start AND :end",
+            params
+            );
+
+        if (!result.isEmpty()) {
+            for (const QVariant &rowVar : result) {
+                QVariantMap row = rowVar.toMap();
+                totalMistakes[i] += row["tp_mistakesCount"].toInt();  // Mistakes count as an integer
+
+                timeSpent = row["tp_timeSpent"].toString();  // Time spent as a string (e.g., "01:30:00")
+                totalMinutes[i] += parseSpentTime(timeSpent);  // Assuming parseSpentTime is defined
+                qInfo() << "totalMinutes= " << totalMinutes[i] << " totalMistakes=" << totalMistakes[i];
+            }
+        } else {
+            qInfo() << "Query did not return any results!";
+        }
+
+        // Move to the next day
+        *currentDay = currentDay->addDays(1);
+    }
+
+    // Emit results for all days in the current month
+    emit getMonthStatsResult(totalMinutes, totalMistakes);
+}
+
 float Backend::parseSpentTime(const QString &spentTime)
 {
     QStringList timeParts = spentTime.split(":");

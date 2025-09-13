@@ -67,7 +67,7 @@ Page
                 height:350
                 color:"transparent"
                 clip:true
-                ThisWeekStats
+                ActivityStats
                 {
                     setWidth:parent.width
                     setHeight: parent.height

@@ -68,6 +68,52 @@ Item {
             }
         }
 
+
+        Item {
+            id: thirdPage
+            ChartView
+            {
+                title: "Month Stats (Total Mistakes and Activities)"
+                anchors.fill: parent
+                legend.alignment: Qt.AlignBottom
+                antialiasing: true
+
+                BarSeries
+                {
+                    id:activityAndMistakesBarSeries
+                    axisX: BarCategoryAxis { categories: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31] }
+                    axisY: ValueAxis {
+                        id: monthYAxis
+                        min: 0
+                        max: 300  // Initial max value, will be updated dynamically
+                    }
+                    BarSet
+                    {
+                        id:monthTotalMistakes
+                        label: "Mistakes";
+                        color:"red"
+                    }
+                    BarSet
+                    {
+                        id:monthTotalMinutes
+                        label: "Minutes";
+                        color:"blue"
+                    }
+                }
+            }
+        }
+
+
+
+        onCurrentIndexChanged:
+        {
+            if(currentIndex===2)
+            {
+                console.log("month")
+                backend.getMonthStats()
+            }
+        }
+
     }
 
     PageIndicator {
@@ -79,6 +125,19 @@ Item {
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 15
         anchors.horizontalCenter: parent.horizontalCenter
+    }
+
+
+    function getMinMax(list1, list2)
+    {
+        // Merge both lists into one
+        const mergedList = [...list1, ...list2];
+
+        // Find the minimum and maximum values in the merged list
+        const min = Math.min(...mergedList);
+        const max = Math.max(...mergedList);
+
+        return { min, max };
     }
 
     Connections
@@ -102,6 +161,21 @@ Item {
             mistakesYAxis.min = Math.min(...totalMistakesList);
             mistakesYAxis.max = Math.max(...totalMistakesList);
         }
+
+        function onGetMonthStatsResult(totalMinutesList,totalMistakesList)
+        {
+            // Update the values
+            monthTotalMinutes.values = totalMinutesList
+            monthTotalMistakes.values = totalMistakesList
+            // Set the min and max for the activity chart for (Total Minutes, mistakes)
+
+            const result = getMinMax(totalMinutesList, totalMistakesList);
+
+            monthYAxis.min = result.min
+            monthYAxis.max = result.max
+        }
+
+
     }
     Component.onCompleted:
     {

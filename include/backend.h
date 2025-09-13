@@ -85,6 +85,14 @@ public:
     Q_INVOKABLE void getWeeklyStats();
 
 
+
+    /*!
+     * \brief to calculate activity of month (mistaksCount, timeSpent as hour) from trace_practices
+     * \return emits getMonthStatsResult to pass (Total Minutes List , Total Mistakes List)
+     */
+    Q_INVOKABLE void getMonthStats();
+
+
     /*!
      * \brief init database (used to open/create/switch database), and initial important sql tables and set some variables also calls settings.init()
      * \param databaseName if not provided, it will read it from default/set value at settings.getValue("currentDatabase")
@@ -295,6 +303,8 @@ signals:
     void tableRemovalResult(const bool& result);
 
     void getWeeklyStatsResult(const QList<float>& totalMinutes, const QList<int>& totalMistakes);
+    void getMonthStatsResult(const QList<float>& totalMinutes, const QList<int>& totalMistakes);
+
 private slots:
     void onUrlListReceived();
     void onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal);
