@@ -586,40 +586,39 @@ QStringList Backend::getStreakDays()
     if (m_db.isOpen()) //because its on launch application, need to check db has loaded
     {
 
+
+        //calculate streat days and add at index[0]
         QDate theDate = QDate::currentDate();
         int streakCounter = calculateStreakDays(theDate);
         if(streakCounter==0)
         {
+            //streak not found, so let's go check previous day
             theDate = theDate.addDays(-1);
             streakCounter = calculateStreakDays(theDate);
         }
-
         streak << QString::number(streakCounter);
 
 
+
+
+        //calculate acitivy of week for weekreport
         QDate today = QDate::currentDate();
         int daysFromMonday = today.dayOfWeek() - 1;
         QDate monday = today.addDays(-daysFromMonday);
-        QDate yesterday = QDate::currentDate().addDays(-1);
 
-        for (int i = 0; i < 7; ++i) {
+        int res=0;
+        for (int i = 0; i < 7; ++i)
+        {
             QDate currentDay = monday.addDays(i);
-            QString startOfDay = currentDay.toString("yyyy-MM-dd") + " 00:00:00";
-            QString endOfDay = currentDay.toString("yyyy-MM-dd") + " 23:59:59";
-
-            QVariantMap params;
-            params["start"] = startOfDay;
-            params["end"] = endOfDay;
-
-            QVariant result = m_db.runQuery("SELECT COUNT(*) FROM trace_practices WHERE tp_date BETWEEN :start AND :end",
-                                            params);
-
-            if (result.isValid()) {
-                int count = result.toInt();
-                streak.append(count > 0 ? "1" : (currentDay<today) ? "0" : "?");
-            } else {
+            res = countActivitiesOfDate(currentDay);
+            if(res>0)
+                streak.append("1");
+            else if(currentDay<today)
+                streak.append("0");
+            else
                 streak.append("?");
-            }
+
+
         }
 
         qInfo() << "streak days result = " << streak;
@@ -637,36 +636,19 @@ QStringList Backend::getStreakDays()
 int Backend::calculateStreakDays(QDate& currentDate)
 {
     int streakCount = 0;
-    // QDate currentDate = QDate::currentDate();
 
     // We'll check days going backwards starting from today
-    while (true) {
-        QString startOfDay = currentDate.toString("yyyy-MM-dd") + " 00:00:00";
-        QString endOfDay = currentDate.toString("yyyy-MM-dd") + " 23:59:59";
-
-        QVariantMap params;
-        params["start"] = startOfDay;
-        params["end"] = endOfDay;
-
-        QVariant result = m_db.runQuery(
-            "SELECT COUNT(*) FROM trace_practices WHERE tp_date BETWEEN :start AND :end",
-            params
-            );
-
-        if (!result.isValid()) {
-            // In case of error, stop counting streak
-            qInfo() << "In case of error, stop counting streak";
-            break;
-        }
-
-        int count = result.toInt();
-        if (count > 0)
+    while (true)
+    {
+        if (countActivitiesOfDate(currentDate) > 0)
         {
             // Practiced this day, increment streak and check previous day
             streakCount++;
             currentDate = currentDate.addDays(-1);
-        } else {
-            // No practice on this day, streak broken
+        }
+        else
+        {
+            // No practice on this day, streak has broken
             qInfo() << "No practice on this day, streak broken";
             break;
         }
@@ -775,7 +757,6 @@ float Backend::parseSpentTime(const QString &spentTime)
 
 int Backend::countActivitiesOfDate(QDate &date)
 {
-    // We'll check days going backwards starting from today
     QString startOfDay = date.toString("yyyy-MM-dd") + " 00:00:00";
     QString endOfDay = date.toString("yyyy-MM-dd") + " 23:59:59";
 
