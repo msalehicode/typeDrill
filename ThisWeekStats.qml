@@ -8,7 +8,6 @@ Item {
     property int setWidth: 100
     property int setHeight: 100
 
-    property var weekListTitle: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
     SwipeView {
         id: view
 
@@ -26,7 +25,7 @@ Item {
                 BarSeries {
                     id:activityBarSeries
 
-                    axisX: BarCategoryAxis { categories: weekListTitle }
+                    axisX: BarCategoryAxis { categories: appGlobalValues.weekDays }
                     axisY: ValueAxis {
                         id: activityYAxis
                         min: 0
@@ -53,7 +52,7 @@ Item {
 
                 BarSeries {
                     id:mistakesBarSeries
-                    axisX: BarCategoryAxis { categories: weekListTitle }
+                    axisX: BarCategoryAxis { categories: appGlobalValues.weekDays }
                     axisY: ValueAxis {
                         id: mistakesYAxis
                         min: 0

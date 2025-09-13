@@ -8,10 +8,6 @@ Page
     anchors.fill: parent
 
 
-
-
-    property var days: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-
     property ListModel statusesModel: ListModel
     {
         ListElement{status:"0"}
@@ -194,7 +190,7 @@ Page
 
 
                                     Text {
-                                        text: days[index]
+                                        text: appGlobalValues.weekDays[index]
                                         color: model.status === "1" ? appColors.c_dayStreakCompleted : (model.status==="0") ? appColors.c_dayStreakMissed : appColors.c_dayStreakUnkown
                                         font.pixelSize: appFontSizes.f_normal
                                         font.bold: true

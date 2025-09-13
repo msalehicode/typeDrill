@@ -49,6 +49,14 @@ Window
                                                          flashcardPractice: 2
                                                      })
 
+
+    //store some variables to avoid multiple defines
+    QtObject
+    {
+        id:appGlobalValues
+        property var weekDays: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    }
+
     //theme colors
     QtObject
     {
