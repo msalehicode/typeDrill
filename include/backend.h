@@ -107,6 +107,13 @@ public:
     Q_INVOKABLE int getNextWord(const QString& userText, const bool& isModified=false);
 
     /*!
+     * \brief to get next word without checking user input is correct/incorrect.
+     * \return emits wordReady with QList of next word
+     */
+    Q_INVOKABLE void getNextWord();
+
+
+    /*!
      * \brief to trace practice by submitting them inside table (trace_practices)
      * \param mistake count made inside practice, timeSpent in practice (e.g: 00:15:25),  practiceType(e.g: 1->typePractice, 2->flashcardPractice)
      */
@@ -240,9 +247,15 @@ public:
     Q_INVOKABLE void uploadFileToApi(const QString& fileName, const QString& publicStatus);
     Q_INVOKABLE QString getThemeMode();
     Q_INVOKABLE void setThemeMode(const QString& themeTitle);
-    Q_INVOKABLE QStringList getStreakDays();
     Q_INVOKABLE int getLastWindowSize(const QString& widthOrHeight);
     Q_INVOKABLE void setLastWindowSize(const QString& wOrh , const int &value);
+
+
+    /*!
+     * \brief to get a list of total streak days and seven value to display status of streak to user.
+     * \return a list which has first item as (total streak days) and rest of them are week status filled with three value: active:1, inactive:0, upcoming:?
+     */
+    Q_INVOKABLE QStringList getStreakDays();
 
 
     /*!

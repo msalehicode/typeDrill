@@ -121,6 +121,18 @@ int Backend::getNextWord(const QString &userText, const bool& isModified)
     return -1;
 }
 
+void Backend::getNextWord()
+{
+    if(last_id>=max_id)
+        emit practiceFinished();
+    else
+    {
+        last_id++;
+        current_word = m_db.searchTable(currentTableName, "id", QString::number(last_id));
+        emit wordReady(current_word);
+    }
+}
+
 void Backend::setPracticeResult(const QString &mistakeCount, const QString &timeSpent, const int& practiceType)
 {
     QDateTime currentDate = QDateTime::currentDateTime();
@@ -617,8 +629,6 @@ QStringList Backend::getStreakDays()
                 streak.append("0");
             else
                 streak.append("?");
-
-
         }
 
         qInfo() << "streak days result = " << streak;
