@@ -38,6 +38,8 @@ Item {
             popupContent.color=setFailColor
         else
             popupContent.color=setSuccessColor
+
+        popUpStatusChanged()
     }
 
     function close()
@@ -45,6 +47,7 @@ Item {
         popup.close()
     }
 
+    signal popUpStatusChanged;
     signal popUpClosed;
 
 
@@ -62,10 +65,10 @@ Item {
         onClosed:
         {
             //reset color,text
+            popUpClosed()
             popupContent.color= setBgContent
             popupContentText.text= setDefaultText
             setOpen=false
-            popUpClosed()
         }
 
         Rectangle

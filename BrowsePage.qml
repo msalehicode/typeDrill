@@ -284,15 +284,27 @@ Page
                     setBgColorPopup: appColors.c_background
                     onPopUpClosed:
                     {
+                        //reset text after close and hide button
+                        setDefaultText= "please wait..."
+                        buttonOkPopup.setVisible=false
+
                         changeLoaderContent("list")
                     }
+                    onPopUpStatusChanged:
+                    {
+                        //show button
+                        buttonOkPopup.setVisible=true
+                    }
+
                     CustomButton
                     {
+                        id:buttonOkPopup
                         setButtonText:"Ok got it";
                         setButtonBorderColor:appColors.c_buttonBorderColor
                         setButtonBackColor: appColors.c_buttonBgColor
                         setButtonFontColor: appColors.c_buttonFontColor
                         setBold: true
+                        setVisible: false
                         setButtonFontsize: appFontSizes.f_buttonFontSize
                         setButtonsBorderWidth: 0
                         setRadius: 20

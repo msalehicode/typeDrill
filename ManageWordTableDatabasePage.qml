@@ -200,12 +200,26 @@ Page
         setTextFontSize: appFontSizes.f_normal
         setTextColor:  appColors.c_fontcolor
         setBgColorPopup: appColors.c_background
+        onPopUpClosed:
+        {
+            //reset value and status upload and hide button
+            setDefaultText= "uploading... wait..."
+            buttonClosePopup.setVisible=false
+        }
+        onPopUpStatusChanged:
+        {
+            //show button
+            buttonClosePopup.setVisible=true
+        }
+
         CustomButton
         {
+            id:buttonClosePopup
             setButtonText:"Ok got it";
             setButtonBorderColor:appColors.c_buttonBorderColor
             setButtonBackColor: appColors.c_buttonBgColor
             setButtonFontColor: appColors.c_buttonFontColor
+            setVisible: false
             setBold: true
             setButtonFontsize: appFontSizes.f_buttonFontSize
             setButtonsBorderWidth: 0
