@@ -329,7 +329,7 @@ Page
     {
         text_input.clear()
         isThisWordModified=true;
-        practiceTimeCom.stopTimer()
+        practiceTimeCom.pauseTimer()
         practiceCore.m_stackView.push("../forms/ModifyWordForm.qml",
                                           {"formType":practiceMode,
                                           "wordId":currentIndex,
@@ -355,7 +355,7 @@ Page
         }*/
 
         updateTextValues()
-        practiceTimeCom.startTimer()
+        practiceTimeCom.resumeTimer()
     }
 
     function getValueByKey(dataList, firstKey, secondKey)
