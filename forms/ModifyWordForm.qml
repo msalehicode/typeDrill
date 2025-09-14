@@ -115,7 +115,8 @@ Page
             console.log("formType unkown, formType=",formType)
 
 
-        // for(var x=0; x< formData.length; x++) console.log("formdata[i]=",formData[x])
+        for(var x=0; x< formData.length; x++)
+            console.log("formdata[i]=",formData[x])
 
 
 
@@ -164,17 +165,37 @@ Page
     }
 
 
-    function getValueByKey(dataList, firstKey, secondKey)
-    {
+    function getValueByKey(dataList, firstKey, secondKey) {
         if (!dataList || dataList.length === 0)
             return "";
-        var row = dataList[0]; // first QMap in the list
-        if (firstKey in row)
-            return row[firstKey];
-        else if (secondKey in row)
-            return row[secondKey];
+
+        // Check if dataList is an array of objects
+        if (Array.isArray(dataList)) {
+            var mergedData = {};
+            for (var i = 0; i < dataList.length; i++) {
+                var item = dataList[i];
+                for (var key in item) {
+                    mergedData[key] = item[key];  // Merge all objects into one
+                }
+            }
+            // Now mergedData is a single object with all keys
+            if (firstKey in mergedData)
+                return mergedData[firstKey];
+            else if (secondKey in mergedData)
+                return mergedData[secondKey];
+        }
+        else {
+            // Assuming dataList is a single object
+            var row = dataList[0]; // First object in the list
+            if (firstKey in row)
+                return row[firstKey];
+            else if (secondKey in row)
+                return row[secondKey];
+        }
+
         return "";
     }
+
 
 
     function updateTextValues()
@@ -205,8 +226,19 @@ Page
     }
     Component.onCompleted:
     {
-        //fill form
         // console.log("received data: wrodId:", wordId, "formtype:",formType, "formData:")
+        // console.log("modifyWord received, formData=")
+        // for (var i = 0; i < formData.length; ++i)
+        // {
+        //     var row = formData[i]
+        //     for (var key in row)
+        //     {
+        //         console.log("formData:  " + key + ": " + row[key])
+        //     }
+        //     console.log("---")
+        // }
+
+        //fill form
         updateTextValues()
         refreshFormInputs()
     }
