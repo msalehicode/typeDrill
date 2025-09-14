@@ -154,11 +154,11 @@ Item {
 
 
             // Set the min and max for the activity chart (Total Minutes)
-            activityYAxis.min = Math.min(...totalMinutesList);
+            activityYAxis.min = 0 //Math.min(...totalMinutesList);
             activityYAxis.max = Math.max(...totalMinutesList);
 
             // Set the min and max for the mistakes chart (Total Mistakes)
-            mistakesYAxis.min = Math.min(...totalMistakesList);
+            mistakesYAxis.min = 0 //Math.min(...totalMistakesList);
             mistakesYAxis.max = Math.max(...totalMistakesList);
         }
 
@@ -171,7 +171,7 @@ Item {
 
             const result = getMinMax(totalMinutesList, totalMistakesList);
 
-            monthYAxis.min = result.min
+            monthYAxis.min = 0 //result.min
             monthYAxis.max = result.max
         }
 
