@@ -190,7 +190,8 @@ Page
 
 
                                     Text {
-                                        text: appGlobalValues.weekDays[index]
+                                        // text: appGlobalValues.weekDays[index]
+                                        text: typeof appGlobalValues.weekDays[index] !== "undefined" ? appGlobalValues.weekDays[index] : ""
                                         color: model.status === "1" ? appColors.c_dayStreakCompleted : (model.status==="0") ? appColors.c_dayStreakMissed : appColors.c_dayStreakUnkown
                                         font.pixelSize: appFontSizes.f_normal
                                         font.bold: true
