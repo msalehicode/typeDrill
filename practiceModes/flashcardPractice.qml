@@ -111,6 +111,8 @@ Page {
                     id:lblText
                     anchors.centerIn: parent
                     text: ""
+                    width: parent.width/2
+                    height:parent.height/2
                     font.pixelSize: appFontSizes.f_title
                     font.bold: true
                     color: appColors.c_fontcolor
@@ -120,14 +122,14 @@ Page {
             Item
             {
                 id: backFace
-                width:parent.width/2
-                height:parent.height/2
-                anchors.centerIn: parent
+                width:parent.width
+                height:parent.height
+                // anchors.centerIn: parent
                 visible: showInfo && !flipAnimation.running
                 Column
                 {
                     anchors.fill: parent
-                    spacing: 10
+                    spacing: 5
                     Label
                     {
                         id:lblTranslate

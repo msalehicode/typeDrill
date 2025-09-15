@@ -119,9 +119,11 @@ Page
             {
                 id:w_text
                 text:""
+                width: parent.width
+                height:parent.height/10
                 font.pixelSize:appFontSizes.f_title
                 color:appColors.c_fontcolor
-                horizontalAlignment: Text.AlignHCenter
+                // horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.WordWrap
             }
 
@@ -129,10 +131,12 @@ Page
             {
                 id:w_meaning
                 text:""
+                width: parent.width
+                height:parent.height/10
                 visible: hideAllExceptFirstItem ? false : true
                 font.pixelSize:appFontSizes.f_title
                 color:appColors.c_fontcolor
-                horizontalAlignment: Text.AlignHCenter
+                // horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.WordWrap
             }
             Label
@@ -140,9 +144,11 @@ Page
                 id:w_example
                 text:""
                 visible: hideAllExceptFirstItem ? false : true
+                width: parent.width
+                height:parent.height/10
                 font.pixelSize:appFontSizes.f_title
                 color:appColors.c_fontcolor
-                horizontalAlignment: Text.AlignHCenter
+                // horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.WordWrap
             }
 
@@ -152,9 +158,11 @@ Page
                 text:""
                 // visible: text.length>0 ? true : false
                 visible: hideAllExceptFirstItem ? false : true
+                width: parent.width
+                height:parent.height/10
                 font.pixelSize:appFontSizes.f_title
                 color:appColors.c_fontcolor
-                horizontalAlignment: Text.AlignHCenter
+                // horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.WordWrap
             }
 
