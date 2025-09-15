@@ -91,6 +91,7 @@ qt_add_qml_module(appTypeDrill
         resourses/lightMode/50x50/archive.png resourses/darkMode/50x50/archive.png
         resourses/lightMode/50x50/hide.png resourses/darkMode/50x50/hide.png
         resourses/lightMode/50x50/eye.png resourses/darkMode/50x50/eye.png
+        QML_FILES practiceModes/crosswordPractice.qml
 )
 
 # Set app properties for macOS/Windows

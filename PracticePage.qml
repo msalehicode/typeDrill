@@ -84,6 +84,26 @@ Page
                     joinMode("practiceModes/flashcardPractice.qml", {practiceMode: tableType});
                 }
             }
+
+            CustomButton
+            {
+                setButtonText:"crossword practice"
+                setButtonBorderColor:appColors.c_buttonBorderColor
+                setButtonBackColor: appColors.c_buttonBgColor
+                setButtonFontColor: appColors.c_buttonFontColor
+                setBold: true
+                setButtonFontsize: appFontSizes.f_buttonFontSize
+                setButtonsBorderWidth: 0
+                setRadius: 20
+                setWidth: parent.width
+                setVisible: tableType==="word"
+                setHeight:50
+                anchors.horizontalCenter: parent.horizontalCenter
+                onButtonClicked:
+                {
+                    joinMode("practiceModes/crosswordPractice.qml");
+                }
+            }
         }
 
 
