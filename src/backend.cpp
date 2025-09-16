@@ -201,8 +201,11 @@ void Backend::getTables(const QString& searchedTitle,const QString& tableType)
                 continue;
 
             // If tableType is "all" or empty, include everything
-            if (tableType.isEmpty() || tableType == "all")
+            if ((tableType.isEmpty() || tableType == "all" ) && tableType!="learn")
             {
+                //avoid learns
+                if(tableType=="learn")
+                    continue;
                 if(searchedTitle.isEmpty()) //searchedTitle didn't provide
                     filteredTables.append(row);
                 else if(!searchedTitle.isEmpty() && searchedTitle==row["t_title"].toString())
@@ -217,6 +220,8 @@ void Backend::getTables(const QString& searchedTitle,const QString& tableType)
                 else if(!searchedTitle.isEmpty() && searchedTitle==row["t_title"].toString())
                     filteredTables.append(row);
             }
+            else
+                qInfo()<<"could not proccess table type." << tableType;
         }
 
     }
@@ -227,6 +232,12 @@ void Backend::getTables(const QString& searchedTitle,const QString& tableType)
     {
         pinnedTables.append(item);
     }
+
+    // qInfo() << "tableList content:";
+    //  for (const QVariant& item : pinnedTables)
+    // {
+    //     qInfo()<<item;
+    //  }
 
     emit tablesList(pinnedTables);
 }
@@ -292,6 +303,34 @@ void Backend::createTable(const QString &tableName, const QString &tableType)
         if(qresult)
         {
             result="verb table successfully created.";
+
+            QMap<QString, QVariant> rowData;
+            rowData["t_title"] = tableName;
+            rowData["t_type"] = tableType;
+            rowData["t_icon"] = "";
+            rowData["t_status"] = "0";
+
+            qresult = m_db.insertIntoTable("user_tables", rowData);
+            if(qresult)
+                result+= " and added to user_tables.";
+            else
+                result= "error";// but could not add to user_tables this will occure problem.
+        }
+        else
+            result="error";//: table verb failed to create.
+    }
+    else if(tableType=="learn")
+    {
+        bool qresult = m_db.createTable(tableName, "id INTEGER PRIMARY KEY AUTOINCREMENT,\
+                                        title TEXT,\
+                                        detailsTEXT,\
+                                        text TEXT,\
+                                        level INTEGER,\
+                                        status TEXT"
+                                        );
+        if(qresult)
+        {
+            result="learn table successfully created.";
 
             QMap<QString, QVariant> rowData;
             rowData["t_title"] = tableName;

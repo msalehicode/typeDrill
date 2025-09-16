@@ -43,7 +43,7 @@ Page
                 CustomCombobox
                 {
                     id: comboType
-                    modelData:[ { text: "word"}, { text: "verb"}]
+                    modelData:[ { text: "word"}, { text: "verb"}, {text:"learn"} ]
                     setBgColor: appColors.c_comboboxBgColor
                     setFontColor: appColors.c_buttonFontColor
                     setIconArrow: appIcons.icon_back_white

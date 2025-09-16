@@ -225,6 +225,7 @@ Page
                 }
                 CustomSwitchText
                 {
+                    id:switchLearnPractice
                     setWidth:parent.width
                     setHeight:parent.height
                     setRadius: parent.radius
@@ -242,34 +243,23 @@ Page
                         console.log("switchClicked");
                         if(switchStatus)
                         {
-                            tableList.visible=false
-                            learnList.visible=true
+                            console.log("switch to learn")
+                            //fetch tables/decks
+                            backend.getTables(searchTableTextInput.theText,
+                                              searchTableTypeCombobox.currentItemText);
                         }
                         else
                         {
-                            tableList.visible=true
-                            learnList.visible=false
+                            console.log("switch to practice")
+                            //fetch tables/decks
+                            backend.getTables(searchTableTextInput.theText,
+                                              searchTableTypeCombobox.currentItemText);
                         }
 
                     }
 
                 }
 
-            }
-            Rectangle
-            {
-                id:learnList
-                width:parent.width/1.35
-                height:parent.height/1.75
-                color: appColors.c_bg_tableList
-                radius:30
-                clip:true
-                anchors
-                {
-                    top: selectPracticeOrEtc.bottom
-                    topMargin: 15
-                    horizontalCenter: parent.horizontalCenter
-                }
             }
 
             Rectangle {
@@ -335,7 +325,16 @@ Page
                             setIconArrow: appIcons.icon_back_white
                             setWidth: 80
                             height:45
-                            modelData:[ { text: "all"}, { text: "word"}, { text: "verb"}, { text:"archives" }]
+                            modelData: !switchLearnPractice.switchStatus ?
+                                           [
+                                              {text:"all"},{ text:"word"},
+                                              {text:"verb"},{ text:"archives"}
+                                           ]
+                                         :
+                                           [
+                                               {text:"learn"}
+                                               // ,{text:"archives"}
+                                           ]
                             setBgColorCurrentItem: appColors.c_comboboxBgColorCurrentItem
                             onActivated: function(index)
                             {
@@ -431,32 +430,6 @@ Page
                                     // horizontalCenter:parent.horizontalCenter
                                 }
                             }
-                            // Text
-                            // {
-                            //     text:"table-type"//modelData.t_type
-                            //     font.pixelSize: appFontSizes.f_small
-                            //     color:appColors.c_fontcolor
-
-                            //     anchors
-                            //     {
-                            //         top:baseTableTitles.bottom
-                            //         left:baseTableTitles.left
-                            //         // horizontalCenter:parent.horizontalCenter
-                            //     }
-                            // }
-                            // Image
-                            // {
-                            //     source:appIcons.icon_pinned
-                            //     width:30
-                            //     height:30
-                            //     visible: modelData.t_status === "pinned" ? true : false
-                            //     anchors
-                            //     {
-                            //         top:tableTitleText.top
-                            //         left:tableTitleText.right
-                            //         leftMargin:5
-                            //     }
-                            // }
                         }
 
 
@@ -488,7 +461,16 @@ Page
                             onClicked:
                             {
                                 backend.switchTable(modelData.t_title, modelData.t_type);
-                                mainStackView.push("PracticePage.qml", { tableType: modelData.t_type, m_stackView: mainStackView});
+
+                                if(!switchLearnPractice.switchStatus )
+                                {
+                                    mainStackView.push("PracticePage.qml", { tableType: modelData.t_type, m_stackView: mainStackView});
+                                }
+                                else
+                                {
+                                    mainStackView.push("LearnPage.qml");
+                                }
+
                             }
                             onPressAndHold:
                             {
@@ -514,6 +496,7 @@ Page
                     }
 
                 }
+
                 CustomPopupMenu
                 {
                     id:popupMenu
