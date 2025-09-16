@@ -134,6 +134,8 @@ public:
      */
     Q_INVOKABLE void getTables(const QString& searchedTitle, const QString& tableType);
 
+    Q_INVOKABLE void getLessonsList();
+
     /*!
      * \brief to create a sql table and add it into (user_tables)
      * \param table-name and table-type(e.g: verb,word) wants to create
@@ -286,6 +288,8 @@ signals:
     void practiceFinished();
     void wordIsIncorrect(const QString& correctStatus);
     void tablesList(const QVariantList& tableList);  // Emit to QML
+    void lessonList(const QVariantList& tableList);
+
     void tableCreationResult(const QString& tableCreationResult);
     void databaseCreationResult(const QString& databaseCreationResult);
     void databaseRemoveResult(const bool& result);

@@ -242,21 +242,16 @@ void Backend::getTables(const QString& searchedTitle,const QString& tableType)
     emit tablesList(pinnedTables);
 }
 
-// QString Backend::pinTable(const QString &tableId)
-// {
-//     // QString tablePinnedStatus = m_db.searchTable("user_tables","t_id",tableId,"t_status");
-//     // QString value="";
-//     // if(tablePinnedStatus=="pinned")
-//         // value="0";
-//     // else
-//         // value="pinned";
-
-
-//     // bool qResult = m_db.updateTableValue("user_tables","t_id",tableId,"t_status",value);
-//     // if(qResult)
-//         return "table status has been updated.";
-//     return "error couldn't update pin status of table.";
-// }
+void Backend::getLessonsList()
+{
+    QVariantList allLessons = m_db.getAllRowsAsVariantList(currentTableName);
+    qInfo() << "allLessons content:";
+    for (const QVariant& item : allLessons)
+    {
+        qInfo()<<item;
+    }
+    emit lessonList(allLessons);
+}
 
 
 void Backend::createTable(const QString &tableName, const QString &tableType)
@@ -323,7 +318,7 @@ void Backend::createTable(const QString &tableName, const QString &tableType)
     {
         bool qresult = m_db.createTable(tableName, "id INTEGER PRIMARY KEY AUTOINCREMENT,\
                                         title TEXT,\
-                                        detailsTEXT,\
+                                        details TEXT,\
                                         text TEXT,\
                                         level INTEGER,\
                                         status TEXT"
