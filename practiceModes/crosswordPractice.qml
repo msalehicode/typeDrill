@@ -6,9 +6,6 @@ Page {
     width: parent ? parent.width : 400
     height: parent ? parent.height : 400
 
-    anchors.top: parent.top
-    anchors.topMargin: 60
-
     property var crossword: [
         ["", "C", "A", "T", "","","","",""],
         ["", "", "R", "", "","","","",""],

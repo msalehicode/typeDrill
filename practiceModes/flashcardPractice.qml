@@ -27,6 +27,8 @@ Page {
         "example": "An apple a day keeps the doctor away.",
         "translate": "Elma"
     }
+
+
     CustomTimer
     {
         id:practiceTimeCom
@@ -36,294 +38,319 @@ Page {
     {
         anchors.fill: parent
         color:appColors.c_background
-        CustomProccessBar
+
+        Column
         {
-            id:proccessBar
-            currentValue:currentWordId-1
-            setWidth: parent.width/2
-            setHeight: 20
-            setSpacing:0
-            setProgressRadius:0
-            setFontColor: appColors.c_fontcolor
-            setBgColor: appColors.c_bg_tableList
-            setFontSize: appFontSizes.f_normal
-            setProgressColor: appColors.c_buttonBgColor
-            setCotinainerRadius: parent.width
+            width:parent.width
+            height:parent.height
+            spacing:40
             anchors
             {
-                horizontalCenter: parent.horizontalCenter
                 top:parent.top
-                // topMargin: appKeyboardVisible ? appKeyboardHeight : 15
-                topMargin:55
-            }
-        }
-        CustomButtonWithIcon
-        {
-            id:modifyWordButton
-            setWidth:30
-            setHeight:30
-            setButtonText:"";
-            setButtonBorderColor: "transparent";
-            setButtonFontColor:appColors.c_fontcolor;
-            setButtonBackColor:"transparent"
-            setTextMagin: 5
-            setIconHeight: 25
-            setIconWidth: 25
-            anchors.top:proccessBar.top
-            anchors.right: parent.right
-            anchors.rightMargin: 15
-            setIconSource:  appIcons.icon_modify
-            onButtonClicked:
-            {
-                routeToModifyPage()
-            }
-        }
-
-        Rectangle
-        {
-            id: card
-            width: parent.width * 0.8
-            height: parent.height * 0.5
-            anchors.centerIn: parent
-            color: appColors.c_bg_weekReport
-            radius: 12
-            transformOrigin: Item.Center
-            clip:true
-
-            Rotation
-            {
-                id: rotationTransform
-                origin.x: card.width / 2
-                origin.y: card.height / 2
-                axis { x: 0; y: 1; z: 0 }
-                angle: 0
+                topMargin:5
             }
 
-            transform: [rotationTransform]
-
-            Item
+            Row
             {
-                id: frontFace
-                anchors.fill: parent
-                visible: !showInfo  && !flipAnimation.running
-                Label
+                width: parent.width
+                height: 70
+                spacing: 10
+                CustomProccessBar
                 {
-                    id:lblText
-                    anchors.centerIn: parent
-                    text: ""
-                    width: parent.width/2
-                    height:parent.height/2
-                    font.pixelSize: appFontSizes.f_title
-                    font.bold: true
-                    color: appColors.c_fontcolor
+                    id:proccessBar
+                    currentValue:currentWordId-1
+                    setWidth: parent.width/2
+                    setHeight: 20
+                    setSpacing:0
+                    setProgressRadius:0
+                    setFontColor: appColors.c_fontcolor
+                    setBgColor: appColors.c_bg_tableList
+                    setFontSize: appFontSizes.f_normal
+                    setProgressColor: appColors.c_buttonBgColor
+                    setCotinainerRadius: parent.width
+                    anchors
+                    {
+                        horizontalCenter: parent.horizontalCenter
+                        top:parent.top
+                        // topMargin: appKeyboardVisible ? appKeyboardHeight : 15
+                        topMargin:55
+                    }
                 }
+                CustomButtonWithIcon
+                {
+                    id:modifyWordButton
+                    setWidth:30
+                    setHeight:30
+                    setButtonText:"";
+                    setButtonBorderColor: "transparent";
+                    setButtonFontColor:appColors.c_fontcolor;
+                    setButtonBackColor:"transparent"
+                    setTextMagin: 5
+                    setIconHeight: 25
+                    setIconWidth: 25
+                    anchors.top:proccessBar.top
+                    anchors.right: parent.right
+                    anchors.rightMargin: 15
+                    setIconSource:  appIcons.icon_modify
+                    onButtonClicked:
+                    {
+                        routeToModifyPage()
+                    }
+                }
+
             }
 
-            Item
+
+            Rectangle
             {
-                id: backFace
-                width:parent.width
-                height:parent.height
+                id: card
+                width: parent.width * 0.8
+                height: 400//parent.height * 0.5
+                anchors.horizontalCenter: parent.horizontalCenter
                 // anchors.centerIn: parent
-                visible: showInfo && !flipAnimation.running
-                Column
+                color: appColors.c_bg_weekReport
+                radius: 12
+                transformOrigin: Item.Center
+                clip:true
+
+                Rotation
                 {
+                    id: rotationTransform
+                    origin.x: card.width / 2
+                    origin.y: card.height / 2
+                    axis { x: 0; y: 1; z: 0 }
+                    angle: 0
+                }
+
+                transform: [rotationTransform]
+
+                Item
+                {
+                    id: frontFace
                     anchors.fill: parent
-                    spacing: 5
+                    visible: !showInfo  && !flipAnimation.running
                     Label
                     {
-                        id:lblTranslate
-                        width: parent.width
-                        height: parent.height/3
-                        text:""
-                        font.pixelSize: appFontSizes.f_large
+                        id:lblText
+                        anchors.centerIn: parent
+                        text: ""
+                        width: parent.width/2
+                        height:parent.height/2
+                        font.pixelSize: appFontSizes.f_title
+                        font.bold: true
                         color: appColors.c_fontcolor
-                        wrapMode: Text.WordWrap
-                    }
-                    Label
-                    {
-                        id:lblMeaning
-                        width: parent.width
-                        height: parent.height/3
-                        text:""
-                        font.pixelSize: appFontSizes.f_large
-                        color: appColors.c_fontcolor
-                        wrapMode: Text.WordWrap
-                    }
-                    Label
-                    {
-                        id:lblExample
-                        width: parent.width
-                        height: parent.height/3
-                        text:""
-                        font.pixelSize: appFontSizes.f_large
-                        color: appColors.c_fontcolor
-                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
                     }
                 }
-            }
 
-            SequentialAnimation
-            {
-                id: flipAnimation
-                running: false
-
-                PropertyAnimation
+                Item
                 {
+                    id: backFace
+                    width:parent.width
+                    height:parent.height
+                    // anchors.centerIn: parent
+                    visible: showInfo && !flipAnimation.running
+                    Column
+                    {
+                        anchors.fill: parent
+                        spacing: 5
+                        Label
+                        {
+                            id:lblTranslate
+                            width: parent.width
+                            visible: text.length>0 ? true : false
+                            height: 120
+                            text:""
+                            font.pixelSize: appFontSizes.f_large
+                            color: appColors.c_fontcolor
+                            wrapMode: Text.WordWrap
+                            horizontalAlignment: Text.AlignHCenter
+                        }
+                        Label
+                        {
+                            id:lblMeaning
+                            width: parent.width
+                            height: 120
+                            visible: text.length>0 ? true : false
+                            text:""
+                            font.pixelSize: appFontSizes.f_large
+                            color: appColors.c_fontcolor
+                            wrapMode: Text.WordWrap
+                            horizontalAlignment: Text.AlignHCenter
+                        }
+                        Label
+                        {
+                            id:lblExample
+                            width: parent.width
+                            height: 120
+                            visible: text.length>0 ? true : false
+                            text:""
+                            font.pixelSize: appFontSizes.f_large
+                            color: appColors.c_fontcolor
+                            wrapMode: Text.WordWrap
+                            horizontalAlignment: Text.AlignHCenter
+                        }
+                    }
+                }
+
+                SequentialAnimation
+                {
+                    id: flipAnimation
+                    running: false
+
+                    PropertyAnimation
+                    {
+                        target: rotationTransform
+                        property: "angle"
+                        from: 0
+                        to: 90
+                        duration: 200
+                    }
+
+                    PropertyAnimation
+                    {
+                        target: rotationTransform
+                        property: "angle"
+                        from: 90
+                        to: 180
+                        duration: 200
+                    }
+
+                    onRunningChanged:
+                    {
+                        if (!running)
+                            rotationTransform.angle = 0 // Reset after flip
+                    }
+                }
+
+
+                // New animation for sliding card left or right
+                PropertyAnimation {
+                    id: tiltAnimation
                     target: rotationTransform
                     property: "angle"
+                    duration: 300
+                    easing.type: Easing.InOutQuad
                     from: 0
-                    to: 90
-                    duration: 200
+                    to: 20  // or -20 for left tilt
+                    running: false
+                    onStopped: {
+                        rotationTransform.angle = 0  // reset rotation after tilt
+                    }
                 }
 
-                PropertyAnimation
-                {
-                    target: rotationTransform
-                    property: "angle"
-                    from: 90
-                    to: 180
-                    duration: 200
-                }
 
-                onRunningChanged:
-                {
-                    if (!running)
-                        rotationTransform.angle = 0 // Reset after flip
-                }
-            }
+                MouseArea {
+                    anchors.fill: parent
+                    drag.axis: Drag.XAxis
 
+                    property real startX: 0
+                    property bool dragging: false
 
-            // New animation for sliding card left or right
-            PropertyAnimation {
-                id: tiltAnimation
-                target: rotationTransform
-                property: "angle"
-                duration: 300
-                easing.type: Easing.InOutQuad
-                from: 0
-                to: 20  // or -20 for left tilt
-                running: false
-                onStopped: {
-                    rotationTransform.angle = 0  // reset rotation after tilt
-                }
-            }
-
-
-            MouseArea {
-                anchors.fill: parent
-                drag.axis: Drag.XAxis
-
-                property real startX: 0
-                property bool dragging: false
-
-                // onClicked:
-                // {
-                //     showDetails()
-                // }
-                onPressAndHold:
-                {
-                    showDetails()
-                }
-
-                onPressed: function(mouse)
-                {
-                    startX = mouse.x
-                    dragging = true
-                }
-
-                onReleased: function(mouse)
-                {
-                    dragging = false
-                    var deltaX = mouse.x - startX
-
-                    if (Math.abs(deltaX) > 100)
+                    // onClicked:
+                    // {
+                    //     showDetails()
+                    // }
+                    onPressAndHold:
                     {
-                        if (deltaX > 0)
+                        showDetails()
+                    }
+
+                    onPressed: function(mouse)
+                    {
+                        startX = mouse.x
+                        dragging = true
+                    }
+
+                    onReleased: function(mouse)
+                    {
+                        dragging = false
+                        var deltaX = mouse.x - startX
+
+                        if (Math.abs(deltaX) > 100)
                         {
-                            // console.log("swiped right")
-                            getNextWord()
-                        }
-                        else
-                        {
-                            // console.log("swiped left")
-                            mistakeMade()
+                            if (deltaX > 0)
+                            {
+                                // console.log("swiped right")
+                                getNextWord()
+                            }
+                            else
+                            {
+                                // console.log("swiped left")
+                                mistakeMade()
+                            }
                         }
                     }
                 }
             }
+
+
+            Row
+            {
+                width: parent.width/2
+                height: 50
+                spacing: 10
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                CustomButtonWithIcon
+                {
+                    setButtonText:"";
+                    setButtonBorderColor:appColors.c_buttonBorderColor
+                    setButtonBackColor: appColors.c_buttonBgColor
+                    setButtonFontColor: appColors.c_buttonFontColor
+                    setIconSource: appIcons.icon_skip
+                    setIconFlipHorizontal: true
+                    setIconWidth: 35
+                    setIconHeight: 35
+                    setButtonsBorderWidth: 0
+                    setRadius: 50
+                    setWidth: 50
+                    setHeight:50
+                    onButtonClicked:
+                    {
+                        mistakeMade()
+                    }
+                }
+
+                CustomButtonWithIcon
+                {
+                    setButtonText:""
+                    setButtonBorderColor:appColors.c_buttonBorderColor
+                    setButtonBackColor: appColors.c_buttonBgColor
+                    setButtonFontColor: appColors.c_buttonFontColor
+                    setIconSource: appIcons.icon_turn
+                    setIconWidth: 35
+                    setIconHeight: 35
+                    setButtonsBorderWidth: 0
+                    setRadius: 50
+                    setWidth: 50
+                    setHeight:50
+                    onButtonClicked:
+                    {
+                        showDetails()
+                    }
+                }
+
+                CustomButtonWithIcon
+                {
+                    setButtonText:"";
+                    setButtonBorderColor:appColors.c_buttonBorderColor
+                    setButtonBackColor: appColors.c_buttonBgColor
+                    setButtonFontColor: appColors.c_buttonFontColor
+                    setButtonsBorderWidth: 0
+                    setIconSource: appIcons.icon_skip
+                    setIconWidth: 35
+                    setIconHeight: 35
+                    setRadius: 50
+                    setWidth: 50
+                    setHeight:50
+                    onButtonClicked:
+                    {
+                        getNextWord()
+                    }
+                }
+            }
         }
-
-        Rectangle
-        {
-            id:cardControlButtons
-            width: card.width
-            height:70
-            color:"transparent"
-            anchors.top:card.bottom
-            anchors.left: card.left
-
-            CustomButton
-            {
-                setButtonText:"i don't know it";
-                setButtonBorderColor:appColors.c_buttonBorderColor
-                setButtonBackColor: appColors.c_buttonBgColor
-                setButtonFontColor: appColors.c_buttonFontColor
-                setBold: true
-                setButtonFontsize: appFontSizes.f_buttonFontSize
-                setButtonsBorderWidth: 0
-                setRadius: 20
-                setWidth: 100
-                setHeight:50
-                anchors.left:parent.left
-                anchors.verticalCenter: parent.verticalCenter
-                onButtonClicked:
-                {
-                    mistakeMade()
-                }
-            }
-
-            CustomButton
-            {
-                setButtonText: !showInfo ? "Show Details" : "Show Word"
-                setButtonBorderColor:appColors.c_buttonBorderColor
-                setButtonBackColor: appColors.c_buttonBgColor
-                setButtonFontColor: appColors.c_buttonFontColor
-                setBold: true
-                setButtonFontsize: appFontSizes.f_buttonFontSize
-                setButtonsBorderWidth: 0
-                setRadius: 20
-                setWidth: 100
-                setHeight:50
-                anchors.centerIn: parent
-                onButtonClicked:
-                {
-                    showDetails()
-                }
-            }
-
-            CustomButton
-            {
-                setButtonText:"i know it";
-                setButtonBorderColor:appColors.c_buttonBorderColor
-                setButtonBackColor: appColors.c_buttonBgColor
-                setButtonFontColor: appColors.c_buttonFontColor
-                setBold: true
-                setButtonFontsize: appFontSizes.f_buttonFontSize
-                setButtonsBorderWidth: 0
-                setRadius: 20
-                setWidth: 100
-                setHeight:50
-                anchors.right:parent.right
-                anchors.verticalCenter: parent.verticalCenter
-                onButtonClicked:
-                {
-                    getNextWord()
-                }
-            }
-
-        }
-
     }
 
 
@@ -418,8 +445,8 @@ Page {
         if(practiceMode==="word")
         {
             lblText.text=""+getValueByKey(currentWord,"text","text")
-            lblMeaning.text="Meaning: \n"+getValueByKey(currentWord,"meaning","meaning")
-            lblExample.text="\nExample: \n"+getValueByKey(currentWord,"example","example")
+            lblMeaning.text="Meaning:\n"+getValueByKey(currentWord,"meaning","meaning")
+            lblExample.text="Example:\n"+getValueByKey(currentWord,"example","example")
         }
         else if(practiceMode==="verb")
         {
@@ -428,7 +455,7 @@ Page {
             lblText.text+="\n\n"+getValueByKey(currentWord,"past_perfect","past_perfect")
         }
 
-        lblTranslate.text="\nTranslate: \n"+getValueByKey(currentWord,"translate","translate")
+        lblTranslate.text="\nTranslate:\n"+getValueByKey(currentWord,"translate","translate")
         currentWordId=getValueByKey(currentWord,"id","id")
     }
 

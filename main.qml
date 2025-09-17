@@ -67,6 +67,7 @@ Window
         
         //main colors
         property color c_background : currentTheme["background"];
+        property color c_headerBg : currentTheme["headerBg"];
         property color c_fontcolor : currentTheme["fontColor"];
         
         
@@ -179,6 +180,10 @@ Window
 
         property string icon_delete: appIcons.i_path + "delete.png"
         property string icon_modify: appIcons.i_path+ "modify.png"
+
+
+        property string icon_turn : appIcons.i_path + "turn.png"
+        property string icon_skip : appIcons.i_path + "skip.png"
     }
     
     
@@ -196,13 +201,18 @@ Window
         }
         onDepthChanged:
         {
+            console.log("deep changed")
+
             if(mainStackView.depth>1)
-                buttonBackOrDrawer.setIconSource = appIcons.icon_back
+            {
+                buttonBackOrDrawer.modifyIcon(appIcons.icon_back, 20,20)
+            }
             else
             {
-                buttonBackOrDrawer.setIconSource = appIcons.icon_menubar2
+                buttonBackOrDrawer.modifyIcon(appIcons.icon_menubar2, 50,50)
                 refreshHomePageRequested();
             }
+            console.log("$#^%&(*U%$*^(%$*^()%$*^(%$*(^$))))")
         }
         
     }
@@ -337,7 +347,7 @@ Window
             if(buttonBackOrDrawer.setIconSource === appIcons.icon_menubar2)
                 drawer.open()
             else
-                mainStackView.pop()
+                popStack()
         }
     }
     

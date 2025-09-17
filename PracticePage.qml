@@ -20,8 +20,75 @@ Page
 
     //fill in order by targetPractice(e.g: by typePractice.qml):
     //practiceTypeId codes: (typePractice:1, flashcardPractice:2)
-    property var practiceResult: {"mistakeCount":"15", "timeSpent":"10:00:20", "practiceTypeId":1}
+    property var practiceResult: {"mistakeCount":"15", "timeSpent":"10:00:20", "practiceTypeId":1} 
 
+    header: Rectangle //this will appear on all practice pages
+    {
+        width: parent.width
+        height: 60
+        color: appColors.c_headerBg
+        Label
+        {
+            id:headerText
+            text:"Choose Practice"
+            horizontalAlignment: Text.AlignHCenter
+            color: appColors.c_fontcolor
+            font.pixelSize: appFontSizes.f_normal
+            font.bold:true
+            anchors
+            {
+                verticalCenter:parent.verticalCenter
+                left:parent.left
+                leftMargin: 50
+            }
+        }
+
+
+        CustomButtonWithIcon
+        {
+            id:backToPracticePage
+            setButtonText:"";
+            setIconSource: appIcons.icon_back
+            setButtonBorderColor: "transparent"
+            setButtonBackColor: "transparent"
+            setButtonFontColor: "transparent"
+            setIconWidth: 20
+            setIconHeight: 20
+            setButtonsBorderWidth: 0
+            setRadius: 50
+            setWidth: 50
+            setHeight:50
+            anchors
+            {
+                left: parent.left
+                leftMargin:5
+                top:parent.top
+                topMargin:5
+            }
+            onButtonClicked:
+            {
+                //if user is on result stage: hide result stage then go to select stage.
+                if(resultBase.visible)
+                {
+                    resultBase.visible=false
+                    quitMode(false)
+                }
+                //so we are not in stage result or practiceMode, can quit practicePage
+                else if(practiceLoader.source.toString()==="")
+                {
+                    m_stackView.pop()
+                }
+                else //go to select stage.
+                {
+                    headerText.text = "Choose Practice"
+                    quitMode(false)
+                }
+
+            }
+        }
+
+
+    }
 
     Loader
     {
@@ -61,7 +128,7 @@ Page
                 {
                     // joinMode("practiceModes/typePractice.qml","practiceMode",tableType)
                     joinMode("practiceModes/typePractice.qml", {practiceMode: tableType});
-
+                    headerText.text = "Type Practice"
                 }
             }
 
@@ -82,6 +149,7 @@ Page
                 onButtonClicked:
                 {
                     joinMode("practiceModes/flashcardPractice.qml", {practiceMode: tableType});
+                    headerText.text = "Flashcard Practice"
                 }
             }
 
@@ -102,6 +170,7 @@ Page
                 onButtonClicked:
                 {
                     joinMode("practiceModes/crosswordPractice.qml");
+                    headerText.text = "Crossword Practice"
                 }
             }
         }
@@ -162,45 +231,6 @@ Page
 
 
 
-
-    CustomButtonWithIcon
-    {
-        id:backToPracticePage
-        setButtonText:"";
-        setIconSource: appIcons.icon_back
-        setButtonBorderColor: "transparent"
-        setButtonBackColor: "transparent"
-        setButtonFontColor: "transparent"
-        setIconWidth: 40
-        setIconHeight: 40
-        setButtonsBorderWidth: 0
-        setRadius: 50
-        setWidth: 50
-        setHeight:50
-        anchors
-        {
-            left: parent.left
-            leftMargin:5
-            top:parent.top
-            topMargin:5
-        }
-        onButtonClicked:
-        {
-            //if user is on result stage: hide result stage then go to select stage.
-            if(resultBase.visible)
-            {
-                resultBase.visible=false
-                quitMode(false)
-            }
-            //so we are not in stage result or practiceMode, can quit practicePage
-            else if(practiceLoader.source.toString()==="")
-            {
-                m_stackView.pop()
-            }
-            else //go to select stage.
-                quitMode(false)
-        }
-    }
 
 
 

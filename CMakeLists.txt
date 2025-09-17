@@ -40,7 +40,9 @@ qt_add_qml_module(appTypeDrill
         SettingsPage.qml
         PracticePage.qml
         HomePage.qml
+        LearnPage.qml
 
+        #page comp
         ActivityStats.qml
 
         # forms
@@ -53,6 +55,7 @@ qt_add_qml_module(appTypeDrill
         # practiceModes
         practiceModes/flashcardPractice.qml
         practiceModes/typePractice.qml
+        practiceModes/crosswordPractice.qml
 
         # components
         CustomComponents/qmldir
@@ -67,7 +70,6 @@ qt_add_qml_module(appTypeDrill
         CustomComponents/CustomSwitchText.qml
         CustomComponents/CustomTimer.qml
         CustomComponents/CustomPopupMenu.qml
-
 
     RESOURCES
         resourses/lightMode/50x50/browse.png resourses/darkMode/50x50/browse.png
@@ -91,8 +93,8 @@ qt_add_qml_module(appTypeDrill
         resourses/lightMode/50x50/archive.png resourses/darkMode/50x50/archive.png
         resourses/lightMode/50x50/hide.png resourses/darkMode/50x50/hide.png
         resourses/lightMode/50x50/eye.png resourses/darkMode/50x50/eye.png
-        QML_FILES practiceModes/crosswordPractice.qml
-        QML_FILES LearnPage.qml
+        resourses/lightMode/50x50/skip.png resourses/darkMode/50x50/skip.png
+        resourses/lightMode/50x50/turn.png resourses/darkMode/50x50/turn.png
 )
 
 # Set app properties for macOS/Windows

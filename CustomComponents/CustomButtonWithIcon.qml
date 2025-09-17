@@ -29,6 +29,9 @@ Item
     property string setIconSource: "";
     property int setIconWidth: 45
     property int setIconHeight: 45
+    property int setIconRotation: 0
+    property bool setIconFlipHorizontal: false
+    property bool setIconFlipVertical: false
 
     property bool pathFromComponentDire:true
 
@@ -52,6 +55,13 @@ Item
         }
     }
 
+    function modifyIcon(source, w = -1, h = -1)
+    {
+          setIconSource = source;
+
+          if (w !== -1) setIconWidth = w;
+          if (h !== -1) setIconHeight = h;
+      }
     Component
     {
         id: buttonComponent
@@ -62,6 +72,7 @@ Item
             height:local_root.height;
             color:"transparent";
             visible: setVisible
+            rotation: setIconRotation
             Rectangle
             {
                 id:button;
@@ -79,14 +90,18 @@ Item
                     source: pathFromComponentDire ? "../" + setIconSource : setIconSource
                     width: setIconWidth
                     height: setIconHeight
-                    fillMode: Image.PreserveAspectFit
+                    // fillMode: Image.PreserveAspectFit
                     visible: setIconSource==="" ? false:true
+                    mirrorVertically: setIconFlipVertical
+                    mirror: setIconFlipHorizontal
                     anchors
                     {
                         // top:parent.top
                         // horizontalCenter:parent.horizontalCenter
                         centerIn:parent
                     }
+
+
                 }
                 Text
                 {
@@ -122,6 +137,7 @@ Item
 
     Loader
     {
+        id:loader
         sourceComponent: buttonComponent;
     }
 }

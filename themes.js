@@ -1,6 +1,7 @@
 const themeDark =
 {
     "background":"#2D2E33",
+    "headerBg" : "#1b1c1f",
     "fontColor": "white",
     "borderColorTextInput" : "white",
 
@@ -46,6 +47,7 @@ const themeDark =
 const themeLight =
 {
     "background":"#D2D0FD",
+    "headerBg" : "#bebbfc",
     "fontColor": "black",
     "borderColorTextInput" : "black",
 

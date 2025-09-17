@@ -42,7 +42,7 @@ Item
         //change border color and add error text
         errorStatus = true
 
-        titleText.text += setErrorPrefix+errorText+setErrorPosfix
+        titleText.text = setErrorPrefix+errorText+setErrorPosfix
         titleText.color = setErrorColor
         baseCustomTextInput.border.color = setErrorColor
     }
