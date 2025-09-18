@@ -6,9 +6,6 @@ import "../CustomComponents"
 
 Page {
     id: flashcardPracticeCore
-    width: 400
-    height: 600
-
     property bool showInfo:false
 
     property int mistakesCounter:0
@@ -47,19 +44,26 @@ Page {
             anchors
             {
                 top:parent.top
-                topMargin:5
+                topMargin:15
             }
 
             Row
             {
                 width: parent.width
-                height: 70
+                height: 50
                 spacing: 10
+                Rectangle
+                {
+                    //spacer
+                    color:"transparent"
+                    width:parent.width/3.50
+                    height:parent.height
+                }
                 CustomProccessBar
                 {
                     id:proccessBar
                     currentValue:currentWordId-1
-                    setWidth: parent.width/2
+                    setWidth: parent.width/3
                     setHeight: 20
                     setSpacing:0
                     setProgressRadius:0
@@ -68,13 +72,13 @@ Page {
                     setFontSize: appFontSizes.f_normal
                     setProgressColor: appColors.c_buttonBgColor
                     setCotinainerRadius: parent.width
-                    anchors
-                    {
-                        horizontalCenter: parent.horizontalCenter
-                        top:parent.top
-                        // topMargin: appKeyboardVisible ? appKeyboardHeight : 15
-                        topMargin:55
-                    }
+                    // anchors
+                    // {
+                    //     horizontalCenter: parent.horizontalCenter
+                    //     top:parent.top
+                    //     // topMargin: appKeyboardVisible ? appKeyboardHeight : 15
+                    //     topMargin:55
+                    // }
                 }
                 CustomButtonWithIcon
                 {
@@ -88,9 +92,9 @@ Page {
                     setTextMagin: 5
                     setIconHeight: 25
                     setIconWidth: 25
-                    anchors.top:proccessBar.top
-                    anchors.right: parent.right
-                    anchors.rightMargin: 15
+                    // anchors.top:proccessBar.top
+                    // anchors.right: parent.right
+                    // anchors.rightMargin: 15
                     setIconSource:  appIcons.icon_modify
                     onButtonClicked:
                     {
@@ -405,10 +409,15 @@ Page {
                                           "parentName": flashcardPracticeCore})
     }
 
-    function routeBackFromModifyPage(modifiedData)
+    function routeBackFromModifyPage(modifiedData=-1)
     {
         practiceCore.m_stackView.pop()
-        currentWord = modifiedData
+
+        if(modifiedData!==-1)//means modify canceled by user
+        {
+            updateTextValues()
+            currentWord = modifiedData
+        }
 
         /*
         console.log("routeBackFromModifyPage, data=")
@@ -421,7 +430,6 @@ Page {
             }
             console.log("---")
         }*/
-        updateTextValues()
         practiceTimeCom.resumeTimer()
     }
     function getValueByKey(dataList, firstKey, secondKey)

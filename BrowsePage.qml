@@ -4,8 +4,6 @@ import "CustomComponents"
 
 Page
 {
-    anchors.fill: parent
-
     header: Rectangle
     {
         width: parent.width

@@ -5,10 +5,6 @@ import "../CustomComponents"
 Page
 {
     id:addNewWordForm
-    width:parent.width
-    height: parent.height
-
-
     property string formType: "none"
 
     //data order passed by QML to backend
@@ -29,6 +25,29 @@ Page
     {
         refreshFormInputs()
     }
+
+    header: Rectangle
+    {
+        width: parent.width
+        height: 60
+        color: appColors.c_headerBg
+        Label
+        {
+            id:headerText
+            text:"Choose Table To Add Content"
+            horizontalAlignment: Text.AlignHCenter
+            color: appColors.c_fontcolor
+            font.pixelSize: appFontSizes.f_normal
+            font.bold:true
+            anchors
+            {
+                verticalCenter:parent.verticalCenter
+                left:parent.left
+                leftMargin: 50
+            }
+        }
+    }
+
 
     Rectangle
     {
@@ -82,6 +101,7 @@ Page
                         backend.whatIsCurrentTableType();
                         baseForm.visible=true
                         baseSelectTable.visible=false
+                        headerText.text="Add Content To Table ("+selectedItem.text+")"
                     }
                 }
             }
@@ -94,8 +114,14 @@ Page
             visible: false
             color:"transparent"
             width:parent.width/2
-            height:parent.height/2
-            anchors.centerIn: parent
+            height:parent.height
+
+            anchors
+            {
+                top:parent.top
+                topMargin:45
+                horizontalCenter: parent.horizontalCenter
+            }
             Column
             {
                 width: parent.width

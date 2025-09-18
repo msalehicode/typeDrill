@@ -23,6 +23,8 @@ const themeDark =
     "buttons_borderColor": "white",
     "buttons_bgColor":"#6f47d9",
     "buttons_fontColor": "white",
+    "button_cancelBgColor" : "red",
+    "button_cancelFontColor" : "white",
 
     //combobox
     "combobox_bgColor":"#16141c",
@@ -70,6 +72,8 @@ const themeLight =
     "buttons_borderColor": "white",
     "buttons_bgColor":"#6f47d9",
     "buttons_fontColor": "white",
+    "button_cancelBgColor" : "red",
+    "button_cancelFontColor" : "white",
 
     //combobox
     "combobox_bgColor":"#8d71d9",

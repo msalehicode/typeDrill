@@ -90,7 +90,9 @@ Window
         property color c_buttonBorderColor : currentTheme["buttons_borderColor"];
         property color c_buttonBgColor : currentTheme["buttons_bgColor"];
         property color c_buttonFontColor : currentTheme["buttons_fontColor"];
-        
+        property color c_buttonCancelBgColor : currentTheme["button_cancelBgColor"];
+        property color c_buttonCancelFontColor : currentTheme["button_cancelFontColor"];
+
         //combobox
         property color c_comboboxBgColor : currentTheme["combobox_bgColor"];
         property color c_comboboxBgColorCurrentItem : currentTheme["combobox_bgColorCurrentItem"];
@@ -190,33 +192,61 @@ Window
     
     signal refreshHomePageRequested()
     
-    StackView
-    {
-        id:mainStackView;
-        initialItem: "./HomePage.qml";
-        anchors.fill:parent;
-        onPopExitChanged:
-        {
-            currentPageIndex=1;
-        }
-        onDepthChanged:
-        {
-            console.log("deep changed")
 
-            if(mainStackView.depth>1)
-            {
-                buttonBackOrDrawer.modifyIcon(appIcons.icon_back, 20,20)
+    StackView {
+        id: mainStackView
+        anchors.fill: parent
+        initialItem: "HomePage.qml" // Replace this with the actual page
+
+        // Handle when depth changes (when navigating between pages)
+        onDepthChanged: {
+            if (mainStackView.depth > 1) {
+                buttonBackOrDrawer.modifyIcon(appIcons.icon_back, 20, 20)
+            } else {
+                buttonBackOrDrawer.modifyIcon(appIcons.icon_menubar2, 50, 50)
+                refreshHomePageRequested()
             }
-            else
-            {
-                buttonBackOrDrawer.modifyIcon(appIcons.icon_menubar2, 50,50)
-                refreshHomePageRequested();
-            }
-            console.log("$#^%&(*U%$*^(%$*^()%$*^(%$*(^$))))")
         }
-        
+
+        // Custom transition for push and pop actions
+        transitions: Transition {
+            from: "*"
+            to: "*"
+            reversible: true
+
+            // Push transition: Fade and slide from right to left
+            ParallelAnimation {
+                NumberAnimation {
+                    target: stackViewItem // Transition applied to the items within the stack
+                    properties: "opacity"
+                    to: 1
+                    duration: 500
+                }
+                NumberAnimation {
+                    target: stackViewItem
+                    properties: "x"
+                    to: 0
+                    duration: 500
+                }
+            }
+
+            // Pop transition: Fade and slide out to the right
+            ParallelAnimation {
+                NumberAnimation {
+                    target: stackViewItem
+                    properties: "opacity"
+                    to: 0
+                    duration: 500
+                }
+                NumberAnimation {
+                    target: stackViewItem
+                    properties: "x"
+                    to: 400
+                    duration: 500
+                }
+            }
+        }
     }
-    
     Drawer
     {
         id: drawer;
@@ -375,6 +405,8 @@ Window
                 appColors.c_theme = "dark";
             }
             // console.log("theme="+appColors.c_theme, "icon pack=",JSON.stringify(appColors.currentTheme, null, 2))
+
+
         }
     }
     
@@ -386,6 +418,6 @@ Window
 
         //manually reload icon
         //often it's color is default theme since loading, doesn't change with theme at start
-        buttonBackOrDrawer.setIconSource = appIcons.icon_menubar2
+        buttonBackOrDrawer.modifyIcon(appIcons.icon_menubar2)
     }
 }

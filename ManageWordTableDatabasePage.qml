@@ -4,10 +4,6 @@ import "CustomComponents"
 
 Page
 {
-    width:parent.width
-    height: parent.height
-
-
     header: Rectangle
     {
         width: parent.width

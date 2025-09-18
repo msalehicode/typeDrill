@@ -5,8 +5,6 @@ import QtCharts
 
 Page
 {
-    width:parent.width
-    height: parent.height
     header: Rectangle
     {
         width: parent.width
@@ -40,20 +38,6 @@ Page
             width:parent.width
             height:parent.height
             spacing:5
-            Rectangle
-            {
-                id:topBar
-                width:parent.width
-                height:70
-                color: appColors.c_background
-                Text
-                {
-                    text:"Profile"
-                    color:appColors.c_fontcolor
-                    font.pixelSize: appFontSizes.f_title
-                    anchors.centerIn: parent
-                }
-            }
 
             Rectangle
             {
@@ -63,7 +47,7 @@ Page
                 color:appColors.c_background
                 Text
                 {
-                    text:"login.."
+                    text:"login stuff..."
                     anchors.centerIn: parent
                     font.pixelSize: appFontSizes.f_title
                     color:appColors.c_fontcolor

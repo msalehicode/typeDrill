@@ -5,10 +5,6 @@ import "CustomComponents"
 Page
 {
     id:practiceCore
-    width:parent.width
-    height: parent.height
-
-
     //to pass mainStackView from parent
     property var m_stackView: mainStackView
 

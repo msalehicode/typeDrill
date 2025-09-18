@@ -6,7 +6,29 @@ import "../CustomComponents"
 Page
 {
     id:removeDatabaseFrom
-    anchors.fill: parent
+    header: Rectangle
+    {
+        width: parent.width
+        height: 60
+        color: appColors.c_headerBg
+        Label
+        {
+            id:headerText
+            text:"Remove Database"
+            horizontalAlignment: Text.AlignHCenter
+            color: appColors.c_fontcolor
+            font.pixelSize: appFontSizes.f_normal
+            font.bold:true
+            anchors
+            {
+                verticalCenter:parent.verticalCenter
+                left:parent.left
+                leftMargin: 50
+            }
+        }
+    }
+
+
     Rectangle
     {
         anchors.fill: parent

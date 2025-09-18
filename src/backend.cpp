@@ -746,7 +746,7 @@ void Backend::getWeeklyStats()
     QVariantMap params, data;
     for(int i=0; i<7; i++)
     {
-        qInfo () << theDate->toString() << "'s activity count =" << countActivitiesOfDate(monday);
+        // qInfo () << theDate->toString() << "'s activity count =" << countActivitiesOfDate(monday);
 
         //fetch and calculate total hours and total mistakes from week days
         startOfDay = theDate->toString("yyyy-MM-dd") + " 00:00:00";
@@ -769,7 +769,7 @@ void Backend::getWeeklyStats()
 
                 timeSpent = row["tp_timeSpent"].toString();  // Time spent as a string (e.g., "01:30:00")
                 totalMinutes[i] += parseSpentTime(timeSpent);  // Assuming parseSpentTime is defined
-                qInfo() << "totalMinutes= " << totalMinutes[i] << "totalMistakes=" << totalMistakes[i];
+                // qInfo() << "totalMinutes= " << totalMinutes[i] << "totalMistakes=" << totalMistakes[i];
             }
         }
         else

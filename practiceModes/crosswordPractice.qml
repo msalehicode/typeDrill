@@ -3,9 +3,6 @@ import QtQuick.Controls
 import "../CustomComponents"
 
 Page {
-    width: parent ? parent.width : 400
-    height: parent ? parent.height : 400
-
     property var crossword: [
         ["", "C", "A", "T", "","","","",""],
         ["", "", "R", "", "","","","",""],

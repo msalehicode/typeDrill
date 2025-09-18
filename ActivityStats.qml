@@ -102,18 +102,6 @@ Item {
                 }
             }
         }
-
-
-
-        onCurrentIndexChanged:
-        {
-            if(currentIndex===2)
-            {
-                console.log("month")
-                backend.getMonthStats()
-            }
-        }
-
     }
 
     PageIndicator {
@@ -180,5 +168,6 @@ Item {
     Component.onCompleted:
     {
         backend.getWeeklyStats()
+        backend.getMonthStats()
     }
 }

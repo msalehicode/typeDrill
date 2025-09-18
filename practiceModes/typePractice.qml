@@ -5,10 +5,6 @@ import "../CustomComponents"
 Page
 {
     id:typePracticeCore
-    width: parent ? parent.width : 400
-    height: parent ? parent.height : 400
-
-
     //this will set from parent before start.
     property string practiceMode: "none" //word or verb
 
@@ -374,10 +370,15 @@ Page
                                           "parentName": typePracticeCore})
     }
 
-    function routeBackFromModifyPage(modifiedData)
+    function routeBackFromModifyPage(modifiedData=-1)
     {
         practiceCore.m_stackView.pop()
-        practiceData = modifiedData
+
+        if(modifiedData!==-1) //means modify canceled by user
+        {
+            updateTextValues()
+            practiceData = modifiedData
+        }
 
         /*
         console.log("routeBackFromModifyPage, data=")
@@ -391,7 +392,6 @@ Page
             console.log("---")
         }*/
 
-        updateTextValues()
         practiceTimeCom.resumeTimer()
     }
 

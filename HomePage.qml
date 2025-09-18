@@ -5,9 +5,6 @@ import "CustomComponents"
 Page
 {
     id:homePage
-    anchors.fill: parent
-
-
     property ListModel statusesModel: ListModel
     {
         ListElement{status:"0"}

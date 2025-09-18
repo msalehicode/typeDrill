@@ -4,7 +4,6 @@ import "CustomComponents"
 
 Page
 {
-    anchors.fill: parent
     header: Rectangle
     {
         width: parent.width
@@ -37,40 +36,40 @@ Page
             width:parent.width/2
             height:50
             color:"transparent"
-            anchors
-            {
-                top:parent.top
-                right:parent.right
-                rightMargin:15
-            }
+            radius:100
+            anchors.horizontalCenter: parent.horizontalCenter
 
-            Text
+            CustomSwitchText
             {
-                id:switchThemeText
-                text:"Dark Theme: "
-                color:appColors.c_fontcolor
-                font.pixelSize: appFontSizes.f_normal
+                setWidth:parent.width
+                setHeight:parent.height
+                setRadius: parent.radius
+                setBgColor: appColors.c_bg_tableList
+                setSwitchColor: appColors.c_buttonBgColor
+                setSwitchOpacity: 0.5
+                setFontColor:appColors.c_fontcolor
+                setFontSize: appFontSizes.f_normal
+                setRighttText:"Dark"
+                setLeftText: "Light"
+                switchStatus: appColors.c_theme==="dark" ? true : false;
                 anchors.centerIn: parent
-            }
-
-            CustomSwitch
-            {
-                anchors.left: switchThemeText.right
-                anchors.top: switchThemeText.top
-                setWidth:50
-                setHeight:30
-                setBgColorActivated: appColors.c_buttonBgColor
-                switchStatus:appColors.c_theme==="dark" ? true : false;
-                // setStatusBorder:false;
                 onSwitchClicked:
                 {
-                    if(switchStatus==true)
+                    if(switchStatus)
+                    {
+                        console.log("switched to dark theme")
                         backend.setThemeMode("dark");
+                    }
                     else
+                    {
+                        console.log("switched to light theme")
                         backend.setThemeMode("light");
-
-
+                    }
                     rootWindow.reloadTheme();
+
+                    //manually reload icon
+                    //often it's color is default theme since loading, doesn't change with theme while switching theme for dark to light
+                    buttonBackOrDrawer.modifyIcon(appIcons.icon_back)
                 }
             }
         }

@@ -5,10 +5,6 @@ import "../CustomComponents"
 Page
 {
     id:addNewWordForm
-    width:parent.width
-    height: parent.height
-
-
     property var parentName: someObject
 
     //data order passed by QML to backend
@@ -22,6 +18,30 @@ Page
     property string formType: "none"
     property int wordId: -1
     property var formData : ["data1","data2","data3","data4","data5","data6"]
+
+
+    header: Rectangle
+    {
+        width: parent.width
+        height: 60
+        color: appColors.c_headerBg
+        Label
+        {
+            id:headerText
+            text:"Modify Word"
+            horizontalAlignment: Text.AlignHCenter
+            color: appColors.c_fontcolor
+            font.pixelSize: appFontSizes.f_normal
+            font.bold:true
+            anchors
+            {
+                verticalCenter:parent.verticalCenter
+                left:parent.left
+                leftMargin: 50
+            }
+        }
+    }
+
 
     ListModel
     {
@@ -67,34 +87,62 @@ Page
                     }
                 }
 
-                CustomButton
+                Row
                 {
-                    id:savebutton
-                    setButtonText:"save";
-                    setButtonBorderColor:appColors.c_buttonBorderColor
-                    setButtonBackColor: appColors.c_buttonBgColor
-                    setButtonFontColor: appColors.c_buttonFontColor
-                    setBold: true
-                    setButtonFontsize: appFontSizes.f_buttonFontSize
-                    setButtonsBorderWidth: 0
-                    setRadius: 20
-                    setWidth: 100
-                    setHeight: 50
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    onButtonClicked:
+                    width:parent.width
+                    height:50
+                    spacing: 15
+
+                    CustomButton
                     {
-                        if(wordId==-1 || formType==="none")
-                            console.log("invalid wordId/formType to modify word.")
-                        else
+                        id:cancelButton
+                        setButtonText:"cancel";
+                        setButtonBorderColor:appColors.c_buttonBorderColor
+                        setButtonBackColor: appColors.c_buttonCancelBgColor
+                        setButtonFontColor: appColors.c_buttonCancelFontColor
+                        setBold: true
+                        setButtonFontsize: appFontSizes.f_buttonFontSize
+                        setButtonsBorderWidth: 0
+                        setRadius: 20
+                        setWidth: 100
+                        setHeight: 50
+                        onButtonClicked:
                         {
-                            var data = readDataFromRepeater(false,true)
-                            //check empty items
-                            // if(data[1]==="" || data[1]===" ")
-                                // console.log("you must fill first item atleast")
-                            // else
-                                backend.modifyWordOnTable(wordId, formType, data);
+                            parentName.routeBackFromModifyPage()
                         }
                     }
+
+                    CustomButton
+                    {
+                        id:savebutton
+                        setButtonText:"save";
+                        setButtonBorderColor:appColors.c_buttonBorderColor
+                        setButtonBackColor: appColors.c_buttonBgColor
+                        setButtonFontColor: appColors.c_buttonFontColor
+                        setBold: true
+                        setButtonFontsize: appFontSizes.f_buttonFontSize
+                        setButtonsBorderWidth: 0
+                        setRadius: 20
+                        setWidth: 100
+                        setHeight: 50
+                        onButtonClicked:
+                        {
+                            if(wordId==-1 || formType==="none")
+                                console.log("invalid wordId/formType to modify word.")
+                            else
+                            {
+                                var data = readDataFromRepeater(false,true)
+                                //check empty items
+                                // if(data[1]==="" || data[1]===" ")
+                                    // console.log("you must fill first item atleast")
+                                // else
+                                    backend.modifyWordOnTable(wordId, formType, data);
+                            }
+                        }
+                    }
+
+
+
                 }
 
             }
