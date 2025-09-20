@@ -25,8 +25,11 @@ void SettingsManager::initSettings()
     if(!settings.contains("api_url"))
         settings.setValue("api_url","http://typedrill.ir/typedrill/api/api.php");
 
-    if(!settings.contains("api_key"))
-        settings.setValue("api_key","YOUR_SECRET_API_KEY");
+    if(!settings.contains("username"))
+        settings.setValue("username","");
+
+    if(!settings.contains("session_key"))
+        settings.setValue("session_key","");
 
     if (!settings.contains("theme"))
         settings.setValue("theme", "dark");

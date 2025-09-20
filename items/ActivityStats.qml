@@ -3,8 +3,7 @@ import QtCharts
 import QtQuick.Controls
 
 Item {
-    width: setWidth
-    height: setHeight
+    anchors.fill: parent
     property int setWidth: 100
     property int setHeight: 100
 

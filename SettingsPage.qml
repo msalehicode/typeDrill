@@ -134,58 +134,6 @@ Page
                     }
                 }
 
-
-                Rectangle
-                {
-                    color:"transparent"
-                    width:parent.width
-                    height:80
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    CustomTextInput
-                    {
-                        id:apiKeyText
-                        setWidth: parent.width-100
-                        setHeight: 50
-                        setBgColor: appColors.c_bgColor_textinput
-                        setBordercolor: appColors.c_borderColor_textinput
-                        setBorderWidth:2
-                        setFontSize:appFontSizes.f_textInput
-                        setFontColor: appColors.c_fontColor_textinput
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        setRadius:10
-                        theText:"api key..."
-                        setTitleText:"Api Key:"
-                    }
-
-                    CustomButtonWithIcon
-                    {
-                        id:buttonUpdateApiKey
-                        setButtonText:"";
-                        setIconSource: appIcons.icon_save_white
-                        setButtonBorderColor:appColors.c_buttonBorderColor
-                        setButtonBackColor: appColors.c_buttonBgColor
-                        setButtonFontColor: appColors.c_buttonFontColor
-                        setIconWidth: 30
-                        setIconHeight: 30
-                        setButtonsBorderWidth: 0
-                        setRadius: 50
-                        setWidth: 50
-                        setHeight:50
-                        anchors
-                        {
-                            top:apiKeyText.top
-                            left:apiKeyText.right
-                            leftMargin:1
-                        }
-                        onButtonClicked:
-                        {
-                            backend.setApiKey(apiKeyText.theText)
-                        }
-                    }
-                }
-
-
-
             }
         }
     }
@@ -193,6 +141,5 @@ Page
     Component.onCompleted:
     {
         apiUrlText.theText = backend.getApiUrl()
-        apiKeyText.theText = backend.getApiKey()
     }
 }

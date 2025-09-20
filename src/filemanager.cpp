@@ -68,14 +68,17 @@ void FileManager::uploadFile(const QString &uploadUrl, const QString &filePath,
 
 
     //status public or private for that file
-    QHttpPart statusPart;
-    statusPart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"status\""));
-    statusPart.setBody(publicStatus.toUtf8());
-    multiPart->append(statusPart);
+    // QHttpPart statusPart;
+    // statusPart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"status\""));
+    // statusPart.setBody(publicStatus.toUtf8());
+    // multiPart->append(statusPart);
 
 
     QNetworkRequest request(uploadUrl);
-    request.setRawHeader("X-API-KEY", apiKey.toUtf8());
+    request.setRawHeader("sessionKey", apiKey.toUtf8());
+
+    QString requestType="upload-db";
+    request.setRawHeader("request", requestType.toUtf8());
 
     QNetworkReply *reply = m_manager.post(request, multiPart);
     multiPart->setParent(reply); // delete with reply

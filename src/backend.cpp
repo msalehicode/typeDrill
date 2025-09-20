@@ -9,7 +9,7 @@ bool Backend::init(QString databaseName)
         databaseName = settings.getValue("currentDatabase").toString();
 
     min_id=0;
-    m_api_key = settings.getValue("api_key").toString();
+    m_session_key = settings.getValue("session_key").toString();
     m_api_url = settings.getValue("api_url").toString();
 
     databaseFullPath = QDir(m_dbPath).filePath(databaseName);
@@ -570,9 +570,9 @@ QString Backend::getApiUrl()
     return m_api_url;
 }
 
-QString Backend::getApiKey()
+QString Backend::getSessionKey()
 {
-    return m_api_key;
+    return m_session_key;
 }
 
 void Backend::setApiUrl(const QString &apiURL)
@@ -581,10 +581,10 @@ void Backend::setApiUrl(const QString &apiURL)
     settings.setValue("api_url",m_api_url);
 }
 
-void Backend::setApiKey(const QString &apiKey)
+void Backend::setSessionKey(const QString &sessionKey)
 {
-    m_api_key = apiKey;
-    settings.setValue("api_key",m_api_key);
+    m_session_key = sessionKey;
+    settings.setValue("session_key",m_session_key);
 }
 
 void Backend::fetchUrlList()
@@ -592,7 +592,11 @@ void Backend::fetchUrlList()
     QUrl url(m_api_url);
     QNetworkRequest request(url);
 
-    request.setRawHeader("X-API-KEY", m_api_key.toUtf8());
+    request.setRawHeader("sessionKey", m_session_key.toUtf8());
+
+    QString requestType= "get-db-list";
+    request.setRawHeader("request", requestType.toUtf8());
+
 
     QNetworkReply *reply = m_networkManager.get(request);
 
@@ -607,7 +611,7 @@ void Backend::download(const QString &url, const QString &fileName)
 void Backend::uploadFileToApi(const QString &fileName, const QString& publicStatus)
 {
     QString filePath = m_dbPath +"/"+ fileName;
-    m_fileManager.uploadFile(m_api_url, filePath, m_api_key, publicStatus);
+    m_fileManager.uploadFile(m_api_url, filePath, m_session_key, publicStatus);
 }
 
 QString Backend::getThemeMode()
@@ -923,6 +927,34 @@ void Backend::setLastWindowSize(const QString& wOrh , const int &value)
     }
 }
 
+void Backend::signAccount(const QString &requestType, const QString &username, const QString &password, const QString &email)
+{
+    QUrl url(m_api_url);
+    // Append query parameters to the URL
+    QUrlQuery query;
+
+    query.addQueryItem("request", requestType);
+
+    if (!m_session_key.isEmpty())
+        query.addQueryItem("sessionKey", m_session_key);
+    if (!username.isEmpty())
+        query.addQueryItem("username", username);
+    if (!password.isEmpty())
+        query.addQueryItem("password", password);
+    if (!email.isEmpty())
+        query.addQueryItem("email", email);
+
+    url.setQuery(query);
+
+    QNetworkRequest request(url);
+
+    // Send the GET request
+    QNetworkReply *reply = m_networkManager.get(request);
+    connect(reply, &QNetworkReply::finished, this, &Backend::onSignResult);
+}
+
+
+
 void Backend::deleteTable(const QString& tableName)
 {
     //delete table from user_tables
@@ -1015,4 +1047,74 @@ void Backend::onUploadFinished(bool success, const QString &result)
 {
     emit uploadDone(result);
 }
+
+void Backend::onSignResult()
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    if (!reply) {
+        qInfo() << "Error: Sender is not a valid QNetworkReply!";
+        return;
+    }
+
+    QString resultMessage;
+    QString resultError;
+    QString resultKey;
+
+    // Check for network error first
+    if (reply->error() != QNetworkReply::NoError) {
+        qInfo() << "Network error: " << reply->errorString();
+        reply->deleteLater();
+        emit signResult("Network error: " + reply->errorString());
+        return;
+    }
+
+    // Check the HTTP status code
+    int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    qInfo() << "HTTP Status Code: " << statusCode;
+
+    // Read and print the response body
+    QByteArray response = reply->readAll();
+    qInfo() << "Response: " << response;
+
+    // Parse the response as a JSON document
+    QJsonDocument doc = QJsonDocument::fromJson(response);
+
+    // Check if the document is an array or an object
+    if (doc.isArray()) {
+        // Handle JSON array
+        QJsonArray arr = doc.array();
+        for (const auto &item : arr) {
+            if (item.isObject()) {
+                QJsonObject obj = item.toObject();
+                resultError = obj["error"].toString();
+                resultMessage = obj["message"].toString();
+                resultKey = obj["sessionKey"].toString();
+                qInfo() << "onSignResult, resultError=" << resultError << "message=" << resultMessage << "key=" << resultKey;
+            } else {
+                qInfo() << "Array item is not a valid object";
+            }
+        }
+    } else if (doc.isObject()) {
+        // Handle JSON object
+        QJsonObject obj = doc.object();
+        resultError = obj["error"].toString();
+        resultMessage = obj["message"].toString();
+        resultKey = obj["sessionKey"].toString();
+        qInfo() << "onSignResult, resultError=" << resultError << "message=" << resultMessage << "key=" << resultKey;
+    } else {
+        // Handle unexpected JSON format
+        qInfo() << "Unexpected response format: Neither an object nor an array.";
+        resultError = "Unexpected response format";
+    }
+
+    // Emit result or error
+    reply->deleteLater();
+    if (!resultError.isEmpty()) {
+        emit signResult(resultError);  // Pass the error message if present
+    } else {
+        emit signResult(resultMessage.isEmpty() ? resultKey : resultMessage);  // Pass the message or sessionKey
+    }
+}
+
+
 

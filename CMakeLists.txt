@@ -42,8 +42,10 @@ qt_add_qml_module(appTypeDrill
         HomePage.qml
         LearnPage.qml
 
-        #page comp
-        ActivityStats.qml
+        # items
+        items/Signup.qml
+        items/Signin.qml
+        items/ActivityStats.qml
 
         # forms
         forms/RemoveDatabaseForm.qml

@@ -16,6 +16,7 @@
 #include "filemanager.h"
 
 #include <QRandomGenerator>
+#include <QUrlQuery>
 
 /*!
  * \class Backend
@@ -38,7 +39,8 @@ class Backend : public QObject
 
 
     QString m_api_url;
-    QString m_api_key;
+    QString m_username;
+    QString m_session_key;
     QString m_dbPath;
     SettingsManager settings;
 
@@ -226,10 +228,10 @@ public:
     Q_INVOKABLE QString getApiUrl();
 
     /*!
-     * \brief getter for m_api_key
-     * \return value of m_api_key
+     * \brief getter for m_session_key
+     * \return value of m_session_key
      */
-    Q_INVOKABLE QString getApiKey();
+    Q_INVOKABLE QString getSessionKey();
 
     /*!
      * \brief setter for m_api_url and save it by qsettings(api_url)
@@ -238,13 +240,13 @@ public:
     Q_INVOKABLE void setApiUrl(const QString& apiURL);
 
     /*!
-     * \brief setter for m_api_key and save it by qsettings(api_key)
+     * \brief setter for m_session_key and save it by qsettings(api_key)
      * \param new api key
      */
-    Q_INVOKABLE void setApiKey(const QString& apiKey);
+    Q_INVOKABLE void setSessionKey(const QString& sessionKey);
 
     /*!
-     * \brief will send apikey to apiurl by using QNetworkAccessManager then connects finished to onUrlListReceived to return list of received json from web api
+     * \brief will send sessionKey to apiurl by using QNetworkAccessManager then connects finished to onUrlListReceived to return list of received json from web api
      */
     Q_INVOKABLE void fetchUrlList();
 
@@ -259,6 +261,11 @@ public:
     Q_INVOKABLE void setThemeMode(const QString& themeTitle);
     Q_INVOKABLE int getLastWindowSize(const QString& widthOrHeight);
     Q_INVOKABLE void setLastWindowSize(const QString& wOrh , const int &value);
+
+    /*!
+     * \return emits signResult( responded message or sessionkey)
+     */
+    Q_INVOKABLE void signAccount(const QString& requestType, const QString& username="", const QString& password="", const QString& email="");
 
 
     /*!
@@ -309,11 +316,14 @@ signals:
     void getWeeklyStatsResult(const QList<float>& totalMinutes, const QList<int>& totalMistakes);
     void getMonthStatsResult(const QList<float>& totalMinutes, const QList<int>& totalMistakes);
 
+    void signResult(const QString& sessionKeyOrMessage);
+
 private slots:
     void onUrlListReceived();
     void onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal);
     void onDownloadFinished(bool success, const QString &filePath);
     void onUploadFinished(bool success, const QString& result);
+    void onSignResult();
 };
 
 #endif // BACKEND_H
