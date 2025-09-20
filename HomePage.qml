@@ -131,7 +131,7 @@ Page
                 Text
                 {
                     id:todayDateLable
-                    text:"Thu, 6 February"
+                    text: getFormattedDate()
                     font.pixelSize: appFontSizes.f_large
                     font.bold: true
                     color: appColors.c_fontcolor
@@ -792,6 +792,28 @@ Page
         //fetch tables/decks
         backend.getTables(searchTableTextInput.theText,
                           searchTableTypeCombobox.currentItemText);
+    }
+
+
+    function getFormattedDate() {
+        const now = new Date(); // Create a new Date object representing the current date and time
+
+        // Get the day of the week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
+        const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        const dayOfWeek = daysOfWeek[now.getDay()];
+
+        // Get the day of the month (1 to 31)
+        const dayOfMonth = now.getDate();
+
+        // Get the month (0 = January, 1 = February, ..., 11 = December)
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const month = months[now.getMonth()];
+
+        // Get the year
+        // const year = now.getFullYear();
+
+        // Format the result as you need
+        return `${dayOfWeek}, ${dayOfMonth} ${month}`;
     }
 
     function sqliteListToModel(sqliteList,currentDatabaseName="")
