@@ -113,6 +113,12 @@ Item {
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 15
         anchors.horizontalCenter: parent.horizontalCenter
+
+        onCurrentIndexChanged:
+        {
+            if(currentIndex===2)
+                backend.getMonthStats()
+        }
     }
 
 
@@ -168,6 +174,5 @@ Item {
     Component.onCompleted:
     {
         backend.getWeeklyStats()
-        backend.getMonthStats()
     }
 }
