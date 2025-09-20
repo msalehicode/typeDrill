@@ -376,12 +376,12 @@ Page
 
         if(modifiedData!==-1) //means modify canceled by user
         {
-            updateTextValues()
             practiceData = modifiedData
+            updateTextValues()
         }
 
-        /*
-        console.log("routeBackFromModifyPage, data=")
+
+        console.log("typepractice routeBackFromModifyPage, data=")
         for (var i = 0; i < practiceData.length; ++i)
         {
             var row = practiceData[i]
@@ -390,7 +390,7 @@ Page
                 console.log("  " + key + ": " + row[key])
             }
             console.log("---")
-        }*/
+        }
 
         practiceTimeCom.resumeTimer()
     }

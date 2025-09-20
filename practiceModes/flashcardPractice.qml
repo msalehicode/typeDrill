@@ -415,8 +415,8 @@ Page {
 
         if(modifiedData!==-1)//means modify canceled by user
         {
-            updateTextValues()
             currentWord = modifiedData
+            updateTextValues()
         }
 
         /*
