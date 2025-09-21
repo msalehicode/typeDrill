@@ -22,6 +22,10 @@ Item {
     property int setRadius: 10
 
 
+    property int setWidth: 0
+    property int setHeight: 0
+
+
     function open(strText="")
     {
         if(strText.length>0)
@@ -67,15 +71,15 @@ Item {
             //reset color,text
             popUpClosed()
             popupContent.color= setBgContent
-            popupContentText.text= setDefaultText
+            // popupContentText.text= setDefaultText
             setOpen=false
         }
 
         Rectangle
         {
             id:popupContent
-            width: parent.width/2
-            height: parent.height/2
+            width: setWidth == 0 ? parent.width/2 : setWidth
+            height: setHeight == 0 ? parent.height/2 : setHeight
             anchors.centerIn: parent
             color: setBgContent
             radius:setRadius
