@@ -575,6 +575,11 @@ QString Backend::getSessionKey()
     return m_session_key;
 }
 
+QString Backend::getUsername()
+{
+    return settings.getValue("username").toString();
+}
+
 void Backend::setApiUrl(const QString &apiURL)
 {
     m_api_url = apiURL;
@@ -590,16 +595,18 @@ void Backend::setSessionKey(const QString &sessionKey)
 void Backend::fetchUrlList()
 {
     QUrl url(m_api_url);
+    // Append query parameters to the URL
+    QUrlQuery query;
+
+    query.addQueryItem("request", "get-db-list");
+    query.addQueryItem("sessionKey", m_session_key);
+
+    url.setQuery(query);
+
     QNetworkRequest request(url);
 
-    request.setRawHeader("sessionKey", m_session_key.toUtf8());
-
-    QString requestType= "get-db-list";
-    request.setRawHeader("request", requestType.toUtf8());
-
-
+    // Send the GET request
     QNetworkReply *reply = m_networkManager.get(request);
-
     connect(reply, &QNetworkReply::finished, this, &Backend::onUrlListReceived);
 }
 
@@ -938,11 +945,36 @@ void Backend::signAccount(const QString &requestType, const QString &username, c
     if (!m_session_key.isEmpty())
         query.addQueryItem("sessionKey", m_session_key);
     if (!username.isEmpty())
+    {
+        settings.setValue("username",username); //save username on local settings
         query.addQueryItem("username", username);
+    }
     if (!password.isEmpty())
         query.addQueryItem("password", password);
     if (!email.isEmpty())
         query.addQueryItem("email", email);
+
+    url.setQuery(query);
+
+    QNetworkRequest request(url);
+
+    // Send the GET request
+    QNetworkReply *reply = m_networkManager.get(request);
+    connect(reply, &QNetworkReply::finished, this, &Backend::onSignResult);
+}
+
+void Backend::isSessionValid()
+{
+    QUrl url(m_api_url);
+    // Append query parameters to the URL
+    QUrlQuery query;
+
+    query.addQueryItem("request", "pingSession");
+
+    if (!m_session_key.isEmpty())
+        query.addQueryItem("sessionKey", m_session_key);
+    else
+        emit signResult("sessionKey not found");
 
     url.setQuery(query);
 
@@ -996,39 +1028,110 @@ void Backend::onUrlListReceived()
 {
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
     if (!reply)
-        return;
-
-    if (reply->error() == QNetworkReply::NoError)
     {
-        QVariantList urlList;
-        QByteArray data = reply->readAll();
-        QJsonDocument doc = QJsonDocument::fromJson(data);
-        if (doc.isArray())
+        qInfo() << "Error: Sender is not a valid QNetworkReply!";
+        emit urlListFailed("Error: Sender is not a valid QNetworkReply!");
+        return;
+    }
+
+    QString resultMessage;
+    QString resultError;
+    QVariantList urlList;
+
+    // Check for network error first
+    if (reply->error() != QNetworkReply::NoError)
+    {
+        qInfo() << "Network error: " << reply->errorString();
+        reply->deleteLater();
+        emit urlListFailed("Network error: " + reply->errorString());
+        return;
+    }
+
+    // To Check the HTTP status code and response manually
+    int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    qInfo() << "HTTP Status Code: " << statusCode;
+    QByteArray response = reply->readAll();
+    qInfo() << "Response: " << response;
+
+    // Parse the response as a JSON document
+    QJsonDocument doc = QJsonDocument::fromJson(response);
+
+    // Check if the document is an array or an object
+    if (doc.isArray())
+    {
+        // Handle JSON array
+        qInfo() << "Handle JSON array";
+        QJsonArray arr = doc.array();
+        for (const auto &item : arr)
         {
-            QJsonArray arr = doc.array();
-            for (const auto &item : arr)
+            if (item.isObject())
             {
-                if (item.isObject())
-                {
-                    QJsonObject obj = item.toObject();
-                    QVariantMap map;
-                    map["d_name"] = obj["d_name"].toString();
-                    map["d_url"] = obj["d_url"].toString();
-                    map["d_icon"] = obj["d_icon"].toString();
-                    urlList.append(map);
-                }
+                QJsonObject obj = item.toObject();
+                resultError = obj["error"].toString();
+                resultMessage = obj["message"].toString();
+                qInfo() << "onSignResult, resultError=" << resultError << "message=" << resultMessage;
+
+                QVariantMap map;
+                map["d_name"] = obj["d_name"].toString();
+                map["d_url"] = obj["d_url"].toString();
+                map["d_icon"] = obj["d_icon"].toString();
+                urlList.append(map);
             }
-            reply->deleteLater();
+            else
+            {
+                qInfo() << "Array item is not a valid object";
+                resultError = "Array item is not a valid object";
+            }
+        }
+        // Emit the URL list
+        emit urlListReady(urlList);
+        return;
+    }
+    else if (doc.isObject())
+    {
+        // Handle JSON object
+        qInfo() << "Handle JSON object";
+        QJsonObject obj = doc.object();
+
+        // Ensure the JSON object contains the expected data
+        if (obj.contains("d_name") && obj.contains("d_url") && obj.contains("d_icon"))
+        {
+            QVariantMap map;
+            map["d_name"] = obj["d_name"].toString();
+            map["d_url"] = obj["d_url"].toString();
+            map["d_icon"] = obj["d_icon"].toString();
+            urlList.append(map);
+
+            // Emit the URL list
             emit urlListReady(urlList);
             return;
         }
+        else if(obj.contains("error") || obj.contains("message"))
+        {
+            resultError = obj["error"].toString();
+            resultMessage = obj["message"].toString();
+            // Emit the URL list
+            emit urlListFailed(resultMessage.isEmpty() ? resultError : resultMessage);
+            return;
+        }
+        else
+        {
+            qInfo() << "Missing expected keys in the response object.";
+            resultError = "Missing expected keys in the response object.";
+        }
+    }
+    else
+    {
+        // Handle unexpected JSON format
+        qInfo() << "Unexpected response format: Neither an object nor an array.";
+        resultError = "Unexpected response format";
     }
 
-    // On failure
-    QString error = reply->errorString();
+    // Emit error
     reply->deleteLater();
-    emit urlListFailed(error);
+    emit urlListFailed(resultError);
 }
+
 
 
 void Backend::onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal)
@@ -1080,7 +1183,8 @@ void Backend::onSignResult()
     QJsonDocument doc = QJsonDocument::fromJson(response);
 
     // Check if the document is an array or an object
-    if (doc.isArray()) {
+    if (doc.isArray())
+    {
         // Handle JSON array
         QJsonArray arr = doc.array();
         for (const auto &item : arr) {
@@ -1094,7 +1198,9 @@ void Backend::onSignResult()
                 qInfo() << "Array item is not a valid object";
             }
         }
-    } else if (doc.isObject()) {
+    }
+    else if (doc.isObject())
+    {
         // Handle JSON object
         QJsonObject obj = doc.object();
         resultError = obj["error"].toString();

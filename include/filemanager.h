@@ -9,6 +9,11 @@
 #include <QStandardPaths>
 #include <QDir>
 
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
+
+
 //upload
 #include <QHttpMultiPart>
 #include <QHttpPart>

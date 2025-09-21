@@ -6,5 +6,7 @@ CREATE TABLE users (
     sessionKey VARCHAR(255) NULL,                    -- Session key (nullable)
     sessionExpireDate DATETIME NULL,                 -- Session expiration date (nullable)
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,    -- Date when the user was created
-    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP -- Timestamp of last update
+    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- Timestamp of last update
+    verification_code VARCHAR(32) NOT NULL,
+    is_verified BOOLEAN DEFAULT 0
 );

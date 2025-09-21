@@ -54,49 +54,108 @@ void FileManager::uploadFile(const QString &uploadUrl, const QString &filePath,
     if (!file->open(QIODevice::ReadOnly)) {
         emit uploadFinished(false, "Failed to open file for upload");
         delete file;
+        return;
     }
 
     QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 
+    // File part
     QHttpPart filePart;
     filePart.setHeader(QNetworkRequest::ContentDispositionHeader,
                        QVariant("form-data; name=\"file\"; filename=\"" + QFileInfo(filePath).fileName() + "\""));
     filePart.setBodyDevice(file);
     file->setParent(multiPart); // so it will be deleted with multiPart
-
     multiPart->append(filePart);
 
+    // Status part (if you need it)
+    if (!publicStatus.isEmpty())
+    {
+        QHttpPart statusPart;
+        statusPart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"status\""));
+        statusPart.setBody(publicStatus.toUtf8());
+        multiPart->append(statusPart);
+    }
 
-    //status public or private for that file
-    // QHttpPart statusPart;
-    // statusPart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"status\""));
-    // statusPart.setBody(publicStatus.toUtf8());
-    // multiPart->append(statusPart);
+    // Request type (as form data)
+    QHttpPart requestPart;
+    requestPart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"request\""));
+    requestPart.setBody("upload-db"); // This is the value you were setting in the header
+    multiPart->append(requestPart);
 
+    // Session key (as form data)
+    QHttpPart sessionKeyPart;
+    sessionKeyPart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"sessionKey\""));
+    sessionKeyPart.setBody(apiKey.toUtf8()); // Send the session key in form data
+    multiPart->append(sessionKeyPart);
 
+    // Create the network request (no need to set sessionKey in headers anymore)
     QNetworkRequest request(uploadUrl);
-    request.setRawHeader("sessionKey", apiKey.toUtf8());
 
-    QString requestType="upload-db";
-    request.setRawHeader("request", requestType.toUtf8());
+    // Set raw headers (this is where sessionKey and requestType should go)
+    request.setRawHeader("sessionKey", apiKey.toUtf8()); // Send sessionKey as a header
+    request.setRawHeader("request", "upload-db"); // Send request as a header
+    request.setRawHeader("status", publicStatus.toUtf8()); // Send request as a header
 
+    // Send the request
     QNetworkReply *reply = m_manager.post(request, multiPart);
     multiPart->setParent(reply); // delete with reply
 
+    // Handle the reply
     connect(reply, &QNetworkReply::finished, this, [this, reply]()
-    {
-        if (reply->error() == QNetworkReply::NoError)
-        {
-            QByteArray response = reply->readAll();
-            // emit uploadFinished(true, QString("Upload succeeded: %1").arg(QString(response)));
-            emit uploadFinished(true, "Upload succeeded.");
-        }
-        else
-        {
-            emit uploadFinished(false, QString("Upload failed: %1").arg(reply->errorString()));
-        }
-        reply->deleteLater();
-    });
+            {
+                if (reply->error() == QNetworkReply::NoError)
+                {
+                    QByteArray response = reply->readAll();
+
+                    //message/error parse
+                    QString resultMessage;
+                    QString resultError;
+                    QJsonDocument doc = QJsonDocument::fromJson(response);
+                    // Check if the document is an array or an object
+                    if (doc.isArray())
+                    {
+                        // Handle JSON array
+                        QJsonArray arr = doc.array();
+                        for (const auto &item : arr)
+                        {
+                            if (item.isObject())
+                            {
+                                QJsonObject obj = item.toObject();
+                                resultError = obj["error"].toString();
+                                resultMessage = obj["message"].toString();
+                                qInfo() << "array= resultError=" << resultError << "resultMessage"  << resultMessage;
+                            }
+                            else
+                            {
+                                qInfo() << "Array item is not a valid object";
+                                resultError = "Array item is not a valid object";
+                            }
+                        }
+                    }
+                    else if (doc.isObject())
+                    {
+                        // Handle JSON object
+                        QJsonObject obj = doc.object();
+                        resultError = obj["error"].toString();
+                        resultMessage = obj["message"].toString();
+                        qInfo() << "obj= resultError=" << resultError << "resultMessage"  << resultMessage;
+                    }
+                    else
+                    {
+                        // Handle unexpected JSON format
+                        qInfo() << "Unexpected response format: Neither an object nor an array.";
+                        resultError = "Unexpected response format";
+                    }
+
+                    emit uploadFinished(true, resultError.isEmpty() ? resultMessage : resultError);
+                }
+                else
+                {
+                    emit uploadFinished(false, QString("Upload failed: %1").arg(reply->errorString()));
+                }
+
+                reply->deleteLater();
+            });
 }
 
 void FileManager::onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal) {

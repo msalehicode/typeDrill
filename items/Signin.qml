@@ -7,7 +7,6 @@ Item
     anchors.fill: parent
     property var parentPopup
 
-    property string sessionKey:""
     Column
     {
         spacing:20
@@ -89,7 +88,9 @@ Item
 
     Component.onCompleted:
     {
-        //check for session key if exists to visible signout button
-        sessionKey = backend.getSessionKey()
+        //fill previous username
+        var username = backend.getUsername();
+        if(username.length>0)
+            usernameInput.theText=username;
     }
 }

@@ -1,9 +1,6 @@
 <?php
-define('DB_SERVERNAME', 'localhost');
-define('DB_USERNAME', 'username');
-define('DB_PASSWORD', 'password');
-define('DB_NAME', 'databaseName');
-define('SESSION_EXPIRE_TIME', '+100 days');
+// Enable error reporting
+require('dbStuff.php'); //holding database $dbAddress , $dbUsername , $dbPassword , $dbName
 
 header('Content-Type: application/json');
 
@@ -28,7 +25,8 @@ function sendResponse($data, $statusCode = 200)
 
 function connect_db()
 {
-      $conn = new mysqli(DB_SERVERNAME, DB_USERNAME, DB_PASSWORD, DB_NAME);
+      global $dbAddress, $dbUsername, $dbPassword, $dbName;
+      $conn = new mysqli($dbAddress, $dbUsername, $dbPassword, $dbName);
       if ($conn->connect_error)
       {
         // sendResponse(['error' => 'internal error: database connection failed'], 401);
@@ -43,41 +41,45 @@ function checkSessionKey($sessionKey,$requestType)
     if($requestType=="signup" || $requestType=="signin")
       return true;
 
-    // Connect to the database to validate the session key
-    $conn = connect_db();
-
-    // Query the database for the session key and expiration date
-    $stmt = $conn->prepare("SELECT sessionExpireDate FROM users WHERE sessionKey = ?");
-    $stmt->bind_param("s", $sessionKey);
-    $stmt->execute();
-    $stmt->store_result();
-
-    // Check if the session key exists in the database
-    if ($stmt->num_rows > 0)
-    {
-        $stmt->bind_result($sessionExpireDate);
-        $stmt->fetch();
-
-        // Check if the session key is expired
-        if (strtotime($sessionExpireDate) > time())
-        {
-            return true; // Session key is valid
-        }
-        else
-        {
-            // Session expired
-            sendResponse(['error' => 'Session key has expired'], 401);
-        }
-    }
-    else
-    {
-        // Session key doesn't exist in the database
-        sendResponse(['error' => 'Invalid session key'], 401);
-    }
-
-    return false; // Return false if anything goes wrong
+    return isSessionValid($sessionKey);
 }
 
+function isSessionValid($sessionKey)
+{
+  // Connect to the database to validate the session key
+  $conn = connect_db();
+
+  // Query the database for the session key and expiration date
+  $stmt = $conn->prepare("SELECT sessionExpireDate FROM users WHERE sessionKey = ?");
+  $stmt->bind_param("s", $sessionKey);
+  $stmt->execute();
+  $stmt->store_result();
+
+  // Check if the session key exists in the database
+  if ($stmt->num_rows > 0)
+  {
+      $stmt->bind_result($sessionExpireDate);
+      $stmt->fetch();
+
+      // Check if the session key is expired
+      if (strtotime($sessionExpireDate) > time())
+      {
+          return true; // Session key is valid
+      }
+      else
+      {
+          // Session expired
+          sendResponse(['error' => 'Session has expired, Please sign-in'], 200);
+      }
+  }
+  else
+  {
+      // Session key doesn't exist in the database
+      sendResponse(['error' => 'Invalid session, You must sign-in'], 200);
+  }
+
+  return false;
+}
 
 function signIn($username, $password)
 {
@@ -102,19 +104,18 @@ function signIn($username, $password)
                 // Generate a new session key
                 $generatedSessionKey = generateSessionKey($username);
 
-                // Set session expiry date (e.g., x days from current date)
-                $sessionExpireDate = date('Y-m-d H:i:s', strtotime(SESSION_EXPIRE_TIME));
+
 
                 // Update the user's session key and session expiry date in the database
                 $stmt = $conn->prepare("UPDATE users SET sessionKey = ?, sessionExpireDate = ? WHERE id = ?");
-                $stmt->bind_param("ssi", $generatedSessionKey, $sessionExpireDate, $userId);
+                $stmt->bind_param("ssi", $generatedSessionKey, getSessionExpireTime(), $userId);
 
                 if ($stmt->execute())
                 {
                     // Return the session key and expiry date in the response
                     sendResponse([
-                        'sessionKey' => $generatedSessionKey,
-                        'sessionExpireDate' => $sessionExpireDate
+                        'sessionKey' => $generatedSessionKey
+                        // 'sessionExpireDate' => getSessionExpireTime()
                     ], 200);
                 }
                 else
@@ -180,20 +181,33 @@ function signUp($username, $password, $email)
         // Generate a session key
         $generatedSessionKey = generateSessionKey($username);
 
-        // Set session expiry date (x days from current date)
-        $sessionExpireDate = date('Y-m-d H:i:s', strtotime(SESSION_EXPIRE_TIME));
+
+        // Generate a unique verification code
+        if (function_exists('openssl_random_pseudo_bytes'))
+        {
+          $verificationCode = bin2hex(openssl_random_pseudo_bytes(16)); // 32 characters
+        }
+        else
+        {
+            // Fallback for older versions, use mt_rand() (less secure)
+          $verificationCode = bin2hex(random_bytes_fallback(16)); // 32 characters
+        }
+
+
 
         // Insert the new user into the database
-        $stmt = $conn->prepare("INSERT INTO users (username, password, email, sessionKey, sessionExpireDate) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("sssss", $username, $hashedPassword, $email, $generatedSessionKey, $sessionExpireDate);
+        $stmt = $conn->prepare("INSERT INTO users (username, password, email, sessionKey, sessionExpireDate, verification_code, is_verified) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("sssssss", $username, $hashedPassword, $email, $generatedSessionKey, getSessionExpireTime(), $verificationCode, $is_verified = 0);
+
 
         if ($stmt->execute())
         {
+            sendVerificationEmail($email, $verificationCode);
             sendResponse(['sessionKey' => $generatedSessionKey], 200);
         }
         else
         {
-            sendResponse(['error' => 'Failed to create user'], 500);
+            sendResponse(['error' => 'Failed to create user'], 200);
         }
     }
     else
@@ -202,6 +216,37 @@ function signUp($username, $password, $email)
     }
 }
 
+
+function random_bytes_fallback($length)
+{
+    $bytes = '';
+    for ($i = 0; $i < $length; $i++)
+    {
+        $bytes .= chr(mt_rand(0, 255));
+    }
+    return $bytes;
+}
+
+function getSessionExpireTime()
+{
+  // Set session expiry date (e.g., x days from current date)
+  $sessionExpireTime = "+100 days";
+  $timestamp = strtotime($sessionExpireTime);
+  return date('Y-m-d H:i:s', $timestamp);
+}
+
+function sendVerificationEmail($email, $verificationCode)
+{
+    $subject = "Email Verification";
+    $body = "Please verify your email by clicking the following link: \n";
+    $body .= "http://typedrill.ir/typedrill/api2/verifyEmail.php?code=" . $verificationCode;
+
+    $headers = "From: TypeDrill (No Reply) <no-reply@typedrill.ir>\r\n";
+    $headers .= "Reply-To: support@typedrill.ir\r\n";
+    $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
+
+    mail($email, $subject, $body, $headers);
+}
 
 function signOut()
 {
@@ -240,7 +285,8 @@ function getDbList()
     $baseUrl = 'http://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . '/uploads';
     $urls = [];
 
-    foreach ($files as $file) {
+    foreach ($files as $file)
+    {
         $urls[] = [
             'd_name' => $file,
             'd_url' => $baseUrl . '/' . rawurlencode($file),
@@ -265,6 +311,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET')
     {
       switch ($requestType)
       {
+        case 'pingSession':
+        {
+          sendResponse(["message" => "is valid"]);
+        }break;
+
         case 'get-db-list': getDbList();
           break;
 
@@ -275,6 +326,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET')
           break;
 
         case 'signout': signOut();
+          break;
+
+        default:
+          sendResponse("invalid request");
           break;
       }
     }
@@ -288,12 +343,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET')
 // Handle POST requests
 if ($_SERVER['REQUEST_METHOD'] === 'POST')
 {
-  // For POST, check form data or JSON body
-  $requestData = json_decode(file_get_contents('php://input'), true);
-  $requestType = isset($requestData['request']) ? $requestData['request'] : (isset($_POST['request']) ? $_POST['request'] : null);
-  $sessionKey = isset($requestData['sessionKey']) ? $requestData['sessionKey'] : (isset($_POST['sessionKey']) ? $_POST['sessionKey'] : null);
-  $status = isset($requestData['status']) ? $requestData['status'] : (isset($_POST['status']) ? $_POST['status'] : null);
-
+  $headers = getallheaders();
+  $requestType = $headers['request'];
+  $sessionKey = $headers['sessionKey'];
+  $status = isset($headers['status']) ? $headers['status'] : "true";
+  // $debugTXT = "stuff, reqtype=" . $requestType . "sesionKey=" .  $sessionKey . "status=" . $status;
+    // sendResponse($debugTXT);
 
   if(isset($requestType))
   {
@@ -305,7 +360,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
                 {
                     if (!isset($_FILES['file']))
                     {
-                        sendResponse(['error' => 'No file uploaded'], 400);
+                        sendResponse(['error' => 'No file uploaded']);
                     }
 
 
@@ -313,7 +368,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
 
                     if ($file['error'] !== UPLOAD_ERR_OK)
                     {
-                        sendResponse(['error' => 'File upload error code: ' . $file['error']], 400);
+                        sendResponse(['error' => 'File upload error code: ' . $file['error']]);
                     }
 
                     // Sanitize filename to prevent directory traversal etc.
@@ -336,23 +391,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
                     }
                     else
                     {
-                        sendResponse(['error' => 'Failed to move uploaded file'], 500);
+                        sendResponse(['error' => 'Failed to move uploaded file']);
                     }
                   }break;
 
                   default:
                   {
-                    sendResponse(['error' => 'invalid request mode'], 401);
+                    sendResponse(['error' => 'invalid request mode']);
                   }break;
-
+          default:
+            sendResponse("invalid request");
+            break;
       }
     }
   }
   else
   {
-      sendResponse(['error' => 'you must set request'], 401);
+      sendResponse(['error' => 'you must set request']);
   }
 }
 
+
 // If method not allowed
-sendResponse(['error' => 'Method not allowed'], 405);
+sendResponse(['error' => 'Method not allowed']);

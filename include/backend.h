@@ -233,6 +233,9 @@ public:
      */
     Q_INVOKABLE QString getSessionKey();
 
+
+    Q_INVOKABLE QString getUsername();
+
     /*!
      * \brief setter for m_api_url and save it by qsettings(api_url)
      * \param new api url
@@ -266,7 +269,7 @@ public:
      * \return emits signResult( responded message or sessionkey)
      */
     Q_INVOKABLE void signAccount(const QString& requestType, const QString& username="", const QString& password="", const QString& email="");
-
+    Q_INVOKABLE void isSessionValid();
 
     /*!
      * \brief to get a list of total streak days and seven value to display status of streak to user.

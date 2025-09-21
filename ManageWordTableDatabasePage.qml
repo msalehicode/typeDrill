@@ -190,7 +190,7 @@ Page
                             onButtonClicked:
                             {
                                 appBlockBackButton=true
-                                popup.open()
+                                popup.open("uploading... please waitttt")
                                 var isItPublic = isitPublicCheckBox.checked ? "true" : "false"
                                 var selectedDbName = comboboxDatabases.modelData[comboboxDatabases.currentIndex].text;
                                 backend.uploadFileToApi(selectedDbName,isItPublic);
@@ -224,7 +224,7 @@ Page
         onPopUpClosed:
         {
             //reset value and status upload and hide button
-            setDefaultText= "uploading... wait..."
+            // setDefaultText= "uploading... wait..."
             buttonClosePopup.setVisible=false
         }
         onPopUpStatusChanged:
@@ -289,7 +289,7 @@ Page
         target:backend
         function onUploadDone(result)
         {
-            if(result==="Upload succeeded.")
+            if(result==="File uploaded")
             {
                 popup.setResult(result,"1")
             }

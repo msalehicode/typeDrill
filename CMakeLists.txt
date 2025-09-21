@@ -97,6 +97,7 @@ qt_add_qml_module(appTypeDrill
         resourses/lightMode/50x50/eye.png resourses/darkMode/50x50/eye.png
         resourses/lightMode/50x50/skip.png resourses/darkMode/50x50/skip.png
         resourses/lightMode/50x50/turn.png resourses/darkMode/50x50/turn.png
+        resourses/lightMode/50x50/signout.png resourses/darkMode/50x50/signout.png
 )
 
 # Set app properties for macOS/Windows

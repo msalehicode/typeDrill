@@ -40,26 +40,6 @@ Page
             height:parent.height
             spacing:5
 
-            CustomButton
-            {
-                id:signoutButton
-                setVisible: isLoggedin
-                setButtonText:"Sign out";
-                setButtonBorderColor:appColors.c_buttonBorderColor
-                setButtonBackColor: appColors.c_buttonCancelBgColor
-                setButtonFontColor: appColors.c_buttonCancelFontColor
-                setBold: true
-                setButtonFontsize: appFontSizes.f_buttonFontSize
-                setButtonsBorderWidth: 0
-                setRadius: 20
-                setWidth: isLoggedin ? 100 : 0
-                setHeight: isLoggedin ? 50 : 0
-                onButtonClicked:
-                {
-                    backend.signAccount("signout")
-                    popup.open()
-                }
-            }
             Rectangle
             {
                 width:parent.width/1.10
@@ -67,6 +47,59 @@ Page
                 anchors.horizontalCenter: parent.horizontalCenter
                 color:appColors.c_background
                 clip:true
+                Column
+                {
+                    id:rowSingout
+                    width:parent.width
+                    height:parent.height
+                    visible:isLoggedin
+                    spacing:5
+                    Rectangle
+                    {
+                        id:accountInfo
+                        width:parent.width
+                        height:50
+                        color:"transparent"
+                        Label
+                        {
+                            id:signedInUsername
+                            text:"Username"
+                            color:appColors.c_fontcolor
+                            font.pixelSize: appFontSizes.f_title
+                            font.bold: true
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+
+                        CustomButtonWithIcon
+                        {
+                            id:buttonSignout
+                            setButtonText:"";
+                            setIconSource: appIcons.icon_signout
+                            setButtonBorderColor: "transparent"
+                            setButtonBackColor: appColors.c_bgPopupContentFailed
+                            setButtonFontColor: "transparent"
+                            setIconWidth: 30
+                            setIconHeight: 30
+                            setButtonsBorderWidth: 0
+                            setRadius: 50
+                            setWidth: 50
+                            setHeight:50
+                            onButtonClicked:
+                            {
+                                backend.signAccount("signout")
+                                popup.open()
+                            }
+                            anchors
+                            {
+                                right:parent.right
+                                verticalCenter: parent.verticalCenter
+                            }
+                        }
+
+                    }
+
+                }
+
                 Column
                 {
                     id:columnAccountSignInUp
@@ -169,6 +202,8 @@ Page
         setTextFontSize: appFontSizes.f_normal
         setTextColor:  appColors.c_fontcolor
         setBgColorPopup: appColors.c_background
+        setWidth: parent.width/1.50
+        setHeight: 250
         onPopUpClosed:
         {
             //reset text after close and hide button
@@ -214,23 +249,46 @@ Page
         target:backend
         function onSignResult(result)
         {
+            console.log("result sign=",result)
             if(result.length===32)//md5 hash length
             {
-                popup.setResult(result,"1")
-                console.log("signed in / signed up fine and result=", result)
+                popup.setResult("signed in successfully","1")
                 backend.setSessionKey(result);
+                signedInUsername.text = "welcome " + backend.getUsername();
                 isLoggedin=true
             }
+            else if(result==="sessionKey not found") //this is from backend not API response!
+            {
+                //do nothing
+            }
+
             else if(result==="Successfully logged out")
             {
-                popup.setResult(result,"1")
+                popup.setResult("Successfully signed out","1");
                 backend.setSessionKey("");
-                isLoggedin=false
+                isLoggedin=false;
+            }
+
+            else if(result==="Invalid session, You must sign-in" || //when session is expired or user made new session by other login
+                    result==="Session has expired, Please sign-in") //when session is expired or user made new session by other login
+            {
+                popup.setResult("Session has expired or another device signed in","0");
+                backend.setSessionKey("");
+                isLoggedin=false;
+            }
+            else if(result === "is valid")
+            {
+                popup.close();
+                isLoggedin=true;
+            }
+            else if(result.includes("Network error:"))
+            {
+                //do nothing
+                popup.setResult("You're offline, check your network or try again later","0");
             }
 
             else
             {
-                console.log("failed to signin / signup / signout failed, " + result)
                 popup.setResult(result,"0")
             }
         }
@@ -238,6 +296,15 @@ Page
 
     Component.onCompleted:
     {
-        isLoggedin = backend.getSessionKey().length>0 ? true : false
+        //just ask server session is ok or not, for those times user sesionKey is changed by other device or sing-in
+        if(backend.getSessionKey().length>0)
+        {
+            isLoggedin=true //to avoid showing sign in/up form
+            backend.isSessionValid();
+            popup.open("checking session..");
+            signedInUsername.text = "welcome " + backend.getUsername();
+        }
+        else
+            isLoggedin=false;
     }
 }

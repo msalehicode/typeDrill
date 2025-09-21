@@ -186,6 +186,7 @@ Window
 
         property string icon_turn : appIcons.i_path + "turn.png"
         property string icon_skip : appIcons.i_path + "skip.png"
+        property string icon_signout : appIcons.i_path + "signout.png"
     }
     
     
