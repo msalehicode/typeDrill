@@ -190,7 +190,7 @@ Page
                             onButtonClicked:
                             {
                                 appBlockBackButton=true
-                                popup.open("uploading... please waitttt")
+                                popup.open("uploading.. please wait..")
                                 var isItPublic = isitPublicCheckBox.checked ? "true" : "false"
                                 var selectedDbName = comboboxDatabases.modelData[comboboxDatabases.currentIndex].text;
                                 backend.uploadFileToApi(selectedDbName,isItPublic);

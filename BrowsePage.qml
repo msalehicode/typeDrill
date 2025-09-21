@@ -304,7 +304,7 @@ Page
                     onPopUpClosed:
                     {
                         //reset text after close and hide button
-                        setDefaultText= "please wait..."
+                        // setDefaultText= "please wait..."
                         buttonOkPopup.setVisible=false
 
                         changeLoaderContent("list")
@@ -424,7 +424,7 @@ Page
             console.log("Downloaded to:", filePath)
             if (theLoader.item && theLoader.item.popup)
             {
-                theLoader.item.popup.open()
+                theLoader.item.popup.open("please wait...")
                 theLoader.item.popup.setResult("download successed","1")
                 appBlockBackButton=false
             }
@@ -438,7 +438,7 @@ Page
             console.log("Download failed")
             if (theLoader.item && theLoader.item.popup)
             {
-                theLoader.item.popup.open()
+                theLoader.item.popup.open("please wait...")
                 theLoader.item.popup.setResult("download failed","0")
             }
             else
