@@ -24,10 +24,12 @@ qt_add_qml_module(appTypeDrill
         include/database.h
         include/filemanager.h
         include/settingsmanager.h
+        include/localfilemanager.h
         src/filemanager.cpp
         src/database.cpp
         src/backend.cpp
         src/settingsmanager.cpp
+        src/localfilemanager.cpp
 
     QML_FILES
         main.qml
@@ -53,6 +55,7 @@ qt_add_qml_module(appTypeDrill
         forms/AddNewTableForm.qml
         forms/AddNewDatabaseForm.qml
         forms/ModifyWordForm.qml
+        forms/AddNewLesson.qml
 
         # practiceModes
         practiceModes/flashcardPractice.qml

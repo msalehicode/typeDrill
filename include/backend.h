@@ -18,6 +18,8 @@
 #include <QRandomGenerator>
 #include <QUrlQuery>
 
+#include "localfilemanager.h"
+
 /*!
  * \class Backend
  * \brief This class contains the core backend logic and acts as a bridge between QML and various backend components.
@@ -37,6 +39,7 @@ class Backend : public QObject
     int currentStreakCount;
     QDate lastPracticeDate;
 
+    QString m_contentPath;
 
     QString m_api_url;
     QString m_username;
@@ -55,6 +58,7 @@ class Backend : public QObject
     QList<QMap<QString, QVariant>> current_word;
 
 
+    LocalFileManager localFileManager;
 
 
 
@@ -185,7 +189,7 @@ public:
      * \param wordId, tableType(e.g: word/verb) and list of word in speicific order indexes depends on tableType
      * \return emit modifyWordOnTableResult with result, in failure will return "error" else will return a message
      */
-    Q_INVOKABLE void modifyWordOnTable(const int& targetWordId, const QString& tagetTableType, const QStringList& data);
+    Q_INVOKABLE void modifyWordOnTable(const int& targetWordId, const QString& tagetTableType, const QStringList& data, const QString &picture, const QString &oldPicture);
 
 
     /*!
@@ -292,6 +296,9 @@ public:
      * \return if action failed will be "error" else will be message detailed
      */
     Q_INVOKABLE QString changeTableStatus(const int& tableId, const QString& status="0");
+
+
+    Q_INVOKABLE QString getContentPath() const;
 
 signals:
     void wordReady(const QList<QMap<QString, QVariant>>& word);  // Emit to QML

@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Controls
 import "../CustomComponents"
-import QtQuick.Dialogs
 
 Page
 {
@@ -35,7 +34,7 @@ Page
         Label
         {
             id:headerText
-            text:"Choose Table To Add Content"
+            text:"Choose Table To Add Lesson"
             horizontalAlignment: Text.AlignHCenter
             color: appColors.c_fontcolor
             font.pixelSize: appFontSizes.f_normal
@@ -49,19 +48,6 @@ Page
         }
     }
 
-    FileDialog
-    {
-        id: fileDialog
-        title: "Select a File"
-        onAccepted:
-        {
-            console.log("File selected: " + fileDialog.selectedFile)
-        }
-        onRejected:
-        {
-            console.log("File selection canceled.")
-        }
-    }
 
     Rectangle
     {
@@ -142,25 +128,6 @@ Page
                 height: parent.height
                 spacing:25
 
-                CustomButton
-                {
-                    setButtonText:"choose picture";
-                    setButtonBorderColor:appColors.c_buttonBorderColor
-                    setButtonBackColor: appColors.c_buttonBgColor
-                    setButtonFontColor: appColors.c_buttonFontColor
-                    setBold: true
-                    setButtonFontsize: appFontSizes.f_buttonFontSize
-                    setButtonsBorderWidth: 0
-                    setRadius: 20
-                    setWidth: 100
-                    setHeight: 50
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    onButtonClicked:
-                    {
-                        //open picture dialog
-                        fileDialog.open()
-                    }
-                }
                 Repeater
                 {
                     id: repeater
@@ -204,9 +171,6 @@ Page
                             if (item)
                                 data.push(item.theText);
                         }
-
-                        //add picture to data:
-                        data.push(fileDialog.selectedFile);
 
 
                         //check empty items

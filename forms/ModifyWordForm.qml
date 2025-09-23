@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import "../CustomComponents"
+import QtQuick.Dialogs
 
 Page
 {
@@ -13,12 +14,16 @@ Page
     property var wordTitles: ["text", "meaning", "example", "translate", "status", "source"]
     property var verbTitles: ["verb","past", "past_perfect", "translate","status"]
 
+    property string contentPath;
 
     //fill from outside
     property string formType: "none"
     property int wordId: -1
     property var formData : ["data1","data2","data3","data4","data5","data6"]
 
+
+    property bool pictureChanged : false;
+    property bool removePicture: false;
 
     header: Rectangle
     {
@@ -33,12 +38,8 @@ Page
             color: appColors.c_fontcolor
             font.pixelSize: appFontSizes.f_normal
             font.bold:true
-            anchors
-            {
-                verticalCenter:parent.verticalCenter
-                left:parent.left
-                leftMargin: 50
-            }
+            anchors.verticalCenter:parent.verticalCenter
+
         }
     }
 
@@ -46,6 +47,17 @@ Page
     ListModel
     {
         id: titleModel
+    }
+
+    FileDialog
+    {
+        id: fileDialog
+        title: "Select a File"
+        onAccepted:
+        {
+            pictureChanged = true
+            picture.source = fileDialog.selectedFile
+        }
     }
 
     Rectangle
@@ -65,6 +77,66 @@ Page
                 width: parent.width
                 height: parent.height
                 spacing:25
+
+                Row
+                {
+                    width:parent.width
+                    height:150
+                    Image
+                    {
+                        id:picture
+                        width:100
+                        height:100
+                        onStatusChanged:
+                        {
+                            if (status === Image.Error)
+                            {
+                                console.warn("Image failed to load:", source);
+                                visible=false
+                            }
+                            else
+                                visible=true
+                        }
+                    }
+
+                    CustomButton
+                    {
+                        setButtonText:"choose picture";
+                        setButtonBorderColor:appColors.c_buttonBorderColor
+                        setButtonBackColor: appColors.c_buttonBgColor
+                        setButtonFontColor: appColors.c_buttonFontColor
+                        setBold: true
+                        setButtonFontsize: appFontSizes.f_buttonFontSize
+                        setButtonsBorderWidth: 0
+                        setRadius: 20
+                        setWidth: 100
+                        setHeight: 50
+                        onButtonClicked:
+                        {
+                            //open picture dialog
+                            fileDialog.open()
+                        }
+                    }
+                    CustomButton
+                    {
+                        setButtonText:"remove picture";
+                        setButtonBorderColor:appColors.c_buttonBorderColor
+                        setButtonBackColor: appColors.c_buttonCancelBgColor
+                        setButtonFontColor: appColors.c_buttonCancelFontColor
+                        setBold: true
+                        setButtonFontsize: appFontSizes.f_buttonFontSize
+                        setButtonsBorderWidth: 0
+                        setRadius: 20
+                        setWidth: 100
+                        setHeight: 50
+                        onButtonClicked:
+                        {
+                            removePicture=true;
+                            picture.visible=false;
+                        }
+                    }
+
+                }
 
                 Repeater
                 {
@@ -132,11 +204,22 @@ Page
                             else
                             {
                                 var data = readDataFromRepeater(false,true)
-                                //check empty items
-                                // if(data[1]==="" || data[1]===" ")
-                                    // console.log("you must fill first item atleast")
-                                // else
-                                    backend.modifyWordOnTable(wordId, formType, data);
+                                if(pictureChanged)
+                                {
+                                    backend.modifyWordOnTable(wordId,
+                                                              formType,
+                                                              data,
+                                                              fileDialog.selectedFile,
+                                                              formData[6]);
+                                }
+                                else
+                                {
+                                    backend.modifyWordOnTable(wordId,
+                                                              formType,
+                                                              data,
+                                                              (removePicture ? "remove" : ""),
+                                                              formData[6]);
+                                }
                             }
                         }
                     }
@@ -168,6 +251,7 @@ Page
 
 
 
+
         //inject/append form titles, form data into repeater's list
         for (var i = 0; i < arr.length; i++)
         {
@@ -175,6 +259,8 @@ Page
                                "text": formData[i] || ""
                               })
         }
+
+        picture.source = "file://"+contentPath+formData[6];
     }
 
     function readDataFromRepeater(wihtId=false,dataForBackend=false)
@@ -209,6 +295,37 @@ Page
             else
                 console.log("invalid item repeater to read.")
         }
+
+
+        //check is picture modified?
+        var obj2 = {};
+        if(pictureChanged)
+        {
+            // Extract the file name from the selected file path
+            // Check if the selected file is a QUrl
+            var filePath = fileDialog.selectedFile.toString();
+            if (filePath)
+                var fileName = filePath.split('/').pop();
+
+            obj2["picture"] = fileName;
+            data.push(obj2);
+        }
+        else if(removePicture)
+        {
+            obj2["picture"] = "";
+            data.push(obj2);
+        }
+        else
+        {
+            //data for practice included same picture path
+            obj2["picture"] = formData[6]; //same picture
+            data.push(obj2);
+        }
+
+        // for (var x = 0; x < data.length; x++) {
+        //     console.log("data[" + x + "] = " + JSON.stringify(data[x]));
+        // }
+
         return data
     }
 
@@ -255,6 +372,7 @@ Page
         tempData.push(getValueByKey(formData,"translate","translate")) //pass possible keys to get value
         tempData.push(getValueByKey(formData,"source","source")) //pass possible keys to get value
         tempData.push(getValueByKey(formData,"status","status")) //pass possible keys to get value
+        tempData.push(getValueByKey(formData,"picture","picture")) //pass possible keys to get value
 
         formData=tempData
     }
@@ -285,6 +403,8 @@ Page
         //     }
         //     console.log("---")
         // }
+
+        contentPath= backend.getContentPath()
 
         //fill form
         updateTextValues()

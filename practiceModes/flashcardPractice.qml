@@ -17,12 +17,14 @@ Page {
 
     property bool isThisWordModified: false;
 
+    property string contentPath;
     property var currentWord:
     {
         "text": "Apple",
         "meaning": "A fruit",
         "example": "An apple a day keeps the doctor away.",
-        "translate": "Elma"
+        "translate": "Elma",
+        "picture": ""
     }
 
 
@@ -133,18 +135,51 @@ Page {
                     id: frontFace
                     anchors.fill: parent
                     visible: !showInfo  && !flipAnimation.running
-                    Label
+                    Column
                     {
-                        id:lblText
-                        anchors.centerIn: parent
-                        text: ""
-                        width: parent.width/2
-                        height:parent.height/2
-                        font.pixelSize: appFontSizes.f_title
-                        font.bold: true
-                        color: appColors.c_fontcolor
-                        horizontalAlignment: Text.AlignHCenter
+                        width: parent.width/1.50
+                        height:parent.height
+                        spacing:50
+                        anchors
+                        {
+                            top:parent.top
+                            topMargin:70
+                            horizontalCenter: parent.horizontalCenter
+                        }
+
+                        Image
+                        {
+                            id:cardPicture
+                            width:150
+                            height:150
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            onStatusChanged:
+                            {
+                                if (status === Image.Error)
+                                {
+                                    console.warn("Image failed to load:", source);
+                                    visible=false
+                                }
+                                else
+                                    visible=true
+                            }
+                        }
+
+                        Label
+                        {
+                            id:lblText
+                            text: ""
+                            width: parent.width/2
+                            height:150
+                            font.pixelSize: appFontSizes.f_title
+                            font.bold: true
+                            color: appColors.c_fontcolor
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            horizontalAlignment: Text.AlignHCenter
+                        }
                     }
+
+
                 }
 
                 Item
@@ -419,8 +454,8 @@ Page {
             updateTextValues()
         }
 
-        /*
-        console.log("routeBackFromModifyPage, data=")
+
+        /*console.log("routeBackFromModifyPage, data=")
         for (var i = 0; i < currentWord.length; ++i)
         {
             var row = currentWord[i]
@@ -450,8 +485,11 @@ Page {
 
     function updateTextValues()
     {
+        var id = getValueByKey(currentWord,"id","id")
         if(practiceMode==="word")
         {
+            var picPath = "file://"+contentPath+getValueByKey(currentWord,"picture","picture");
+            cardPicture.source= picPath;
             lblText.text=""+getValueByKey(currentWord,"text","text")
             lblMeaning.text="Meaning:\n"+getValueByKey(currentWord,"meaning","meaning")
             lblExample.text="Example:\n"+getValueByKey(currentWord,"example","example")
@@ -464,7 +502,7 @@ Page {
         }
 
         lblTranslate.text="\nTranslate:\n"+getValueByKey(currentWord,"translate","translate")
-        currentWordId=getValueByKey(currentWord,"id","id")
+        currentWordId=id;
     }
 
 
@@ -492,6 +530,9 @@ Page {
     Component.onCompleted:
     {
         backend.resetPractice()
+
+        contentPath = backend.getContentPath()
+
         maxWordId = backend.getNextWord("firstword")
 
         if(maxWordId<=0)//this table doesn't have enough words
@@ -500,5 +541,6 @@ Page {
             proccessBar.totalValue = maxWordId
 
         practiceTimeCom.startTimer()
+
     }
 }

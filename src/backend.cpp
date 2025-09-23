@@ -13,6 +13,7 @@ bool Backend::init(QString databaseName)
     m_api_url = settings.getValue("api_url").toString();
 
     databaseFullPath = QDir(m_dbPath).filePath(databaseName);
+    localFileManager.setPath(m_dbPath);
 
     if(m_db.init(m_dbPath, databaseName))
     {
@@ -260,6 +261,7 @@ void Backend::createTable(const QString &tableName, const QString &tableType)
     if(tableType=="word")
     {
             bool qresult = m_db.createTable(tableName, "id INTEGER PRIMARY KEY AUTOINCREMENT,\
+                             picture TEXT,\
                              text TEXT,\
                              meaning TEXT,\
                              example TEXT,\
@@ -270,6 +272,9 @@ void Backend::createTable(const QString &tableName, const QString &tableType)
             if(qresult)
             {
                 result="word table successfully created.";
+
+                //create directory for pictures of table
+                localFileManager.makeDirectory(whatIsCurrentDatabase()+"_"+tableName);
 
                 QMap<QString, QVariant> rowData;
                 rowData["t_title"] = tableName;
@@ -357,6 +362,10 @@ void Backend::switchTable(const QString &tableName, const QString& ttype)
 
     resetPractice();
 
+    m_contentPath = m_dbPath + "/" +
+                        whatIsCurrentDatabase()+"_"
+                          +currentTableName+"/";
+
     max_id=m_db.countRows(currentTableName);
 
     qInfo() << "table switched name=" << currentTableName << "type=" << currentTableType;
@@ -431,6 +440,11 @@ void Backend::addWordToTable(const QStringList &data)
     bool qresult;
     if(currentTableType=="word" && data.size() >=6)
     {
+        QString fileName = localFileManager.extractFileName(data[6]);
+        QString destination = whatIsCurrentDatabase()+"_"
+                              +currentTableName+"/"
+                              +fileName;
+
         //data order passed by QML for word: text, meaning, example, translate, source, status
         QMap<QString, QVariant> rowData;
         rowData["text"] = data[0];
@@ -439,10 +453,20 @@ void Backend::addWordToTable(const QStringList &data)
         rowData["translate"] = data[3];
         rowData["source"] = data[4];
         rowData["status"] = data[5];
+        rowData["picture"] = fileName;
 
         qresult = m_db.insertIntoTable(currentTableName, rowData);
         if(qresult)
-            result= "word added to the table.";
+        {
+            //try to copy picture from data[6] to directory of table
+
+            bool re = localFileManager.copyFile(data[6],destination);
+            if(re)
+                result= "word added to the table.";
+            else
+                result= "word added to the table but couldn't copy picture";
+
+        }
         else
             result= "error";//:failed to add word into the table.
     }
@@ -471,12 +495,15 @@ void Backend::addWordToTable(const QStringList &data)
 }
 
 void Backend::modifyWordOnTable(const int& targetWordId,
-                                const QString& tagetTableType, const QStringList &data)
+                                const QString& tagetTableType, const QStringList &data, const QString& picture, const QString& oldPicture)
 {
     // qInfo() << "modifyWordOnTable received id=" << targetWordId << ",data=" << data;
     QString result;
     bool qresult;
     QMap<QString, QVariant> rowData;
+
+    QString fileName = picture;
+    fileName = localFileManager.extractFileName(fileName);
 
     if(tagetTableType=="word" && data.size() >=6)
     {
@@ -487,10 +514,50 @@ void Backend::modifyWordOnTable(const int& targetWordId,
         rowData["translate"] = data[3];
         rowData["source"] = data[4];
         rowData["status"] = data[5];
+        rowData["picture"] = fileName;
 
         qresult = m_db.updateTableRow(currentTableName, "id", targetWordId, rowData);
         if(qresult)
-            result= "word modified in the table.";
+        {
+            result= "word modified in the table";
+            //picture from data[6]
+
+            QString destination = whatIsCurrentDatabase()+"_"
+                                  +currentTableName+"/";
+
+            //picture is removed
+            if(picture=="remove")
+            {
+                if(localFileManager.removeFile(destination+oldPicture))
+                    result+= " and picture removed.";
+                else
+                    result += " but couldn't remove picture";
+            }
+            else if(picture=="") //picture didn't change at all
+            {
+                result= " but picture didn't change.";
+            }
+            else //remove old one and copy new one
+            {
+                qInfo() << "oldPicture=" << oldPicture << " destination=" << destination;
+                if(localFileManager.removeFile(destination+oldPicture))
+                {
+                    result += " and previous picture removed";
+                }
+                else
+                {
+                    result += " but couldn't remove previous picture";
+                }
+
+                qresult = localFileManager.copyFile(picture,destination+fileName);
+                if(qresult)
+                    result+= " and picture copied.";
+                else
+                    result+= " but picture couldn't copy.";
+
+            }
+
+        }
         else
             result= "error";//:failed to modify word on the table.
     }
@@ -686,6 +753,12 @@ QStringList Backend::getStreakDays()
 
     return streak;
 
+}
+
+
+QString Backend::getContentPath() const
+{
+    return m_contentPath;
 }
 
 int Backend::calculateStreakDays(QDate& currentDate)
