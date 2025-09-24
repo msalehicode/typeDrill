@@ -53,6 +53,7 @@ Page
     {
         id: fileDialog
         title: "Select a File"
+        nameFilters: "Images (*.png *.jpg *.jpeg *.bmp *.gif)"
         onAccepted:
         {
             console.log("File selected: " + fileDialog.selectedFile)

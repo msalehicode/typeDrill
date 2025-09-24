@@ -38,8 +38,12 @@ Page
             color: appColors.c_fontcolor
             font.pixelSize: appFontSizes.f_normal
             font.bold:true
-            anchors.verticalCenter:parent.verticalCenter
-
+            anchors
+            {
+                verticalCenter:parent.verticalCenter
+                left:parent.left
+                leftMargin: 25
+            }
         }
     }
 
@@ -53,10 +57,21 @@ Page
     {
         id: fileDialog
         title: "Select a File"
+        nameFilters: "Images (*.png *.jpg *.jpeg *.bmp *.gif)"
         onAccepted:
+
         {
             pictureChanged = true
-            picture.source = fileDialog.selectedFile
+            var theFile = fileDialog.selectedFile
+            picture.source = theFile
+
+            // URL-decode the file path to handle any encoded characters (e.g., %3A for colon)
+            var decodedFilePath = decodeURIComponent(theFile.toString())
+            console.log("Decoded file path: ", decodedFilePath)
+
+
+            //if picture is animated one play it
+            picture.playing = theFile.toString().split('.').pop().toLowerCase()==="gif"? true : false
         }
     }
 
@@ -70,65 +85,69 @@ Page
             id:baseForm
             color:"transparent"
             width:parent.width/2
-            height:parent.height/2
-            anchors.centerIn: parent
+            height:parent.height
+            anchors.horizontalCenter: parent.horizontalCenter
             Column
             {
                 width: parent.width
                 height: parent.height
-                spacing:25
+                spacing:15
 
+                AnimatedImage
+                {
+                    id:picture
+                    width:150
+                    height:150
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    onStatusChanged:
+                    {
+                        if (status === Image.Error)
+                        {
+                            console.warn("Image failed to load:", source);
+                            visible=false
+                        }
+                        else
+                            visible=true
+                    }
+                }
                 Row
                 {
-                    width:parent.width
-                    height:150
-                    Image
+                    width:100
+                    height:100
+                    spacing:10
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    CustomButtonWithIcon
                     {
-                        id:picture
-                        width:100
-                        height:100
-                        onStatusChanged:
-                        {
-                            if (status === Image.Error)
-                            {
-                                console.warn("Image failed to load:", source);
-                                visible=false
-                            }
-                            else
-                                visible=true
-                        }
-                    }
-
-                    CustomButton
-                    {
-                        setButtonText:"choose picture";
+                        setButtonText:"";
                         setButtonBorderColor:appColors.c_buttonBorderColor
                         setButtonBackColor: appColors.c_buttonBgColor
                         setButtonFontColor: appColors.c_buttonFontColor
-                        setBold: true
-                        setButtonFontsize: appFontSizes.f_buttonFontSize
+                        setIconSource: appIcons.icon_browse
                         setButtonsBorderWidth: 0
-                        setRadius: 20
-                        setWidth: 100
-                        setHeight: 50
+                        setIconWidth: 20
+                        setIconHeight: 20
+                        setRadius: 45
+                        setWidth: 45
+                        setHeight: 45
                         onButtonClicked:
                         {
                             //open picture dialog
                             fileDialog.open()
                         }
                     }
-                    CustomButton
+                    CustomButtonWithIcon
                     {
-                        setButtonText:"remove picture";
+                        setButtonText:"";
                         setButtonBorderColor:appColors.c_buttonBorderColor
                         setButtonBackColor: appColors.c_buttonCancelBgColor
                         setButtonFontColor: appColors.c_buttonCancelFontColor
-                        setBold: true
-                        setButtonFontsize: appFontSizes.f_buttonFontSize
+                        setIconSource: appIcons.icon_delete
                         setButtonsBorderWidth: 0
-                        setRadius: 20
-                        setWidth: 100
-                        setHeight: 50
+                        setIconWidth: 20
+                        setIconHeight: 20
+                        setRadius: 45
+                        setWidth: 45
+                        setHeight: 45
                         onButtonClicked:
                         {
                             removePicture=true;
@@ -246,8 +265,8 @@ Page
             console.log("formType unkown, formType=",formType)
 
 
-        for(var x=0; x< formData.length; x++)
-            console.log("formdata[i]=",formData[x])
+        // for(var x=0; x< formData.length; x++)
+        //     console.log("formdata[i]=",formData[x])
 
 
 

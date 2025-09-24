@@ -147,7 +147,7 @@ Page {
                             horizontalCenter: parent.horizontalCenter
                         }
 
-                        Image
+                        AnimatedImage
                         {
                             id:cardPicture
                             width:150
@@ -490,6 +490,12 @@ Page {
         {
             var picPath = "file://"+contentPath+getValueByKey(currentWord,"picture","picture");
             cardPicture.source= picPath;
+
+
+            //if picture is animated one play it
+            if (picPath.split('.').pop().toLowerCase() === "gif")
+                cardPicture.playing=true
+
             lblText.text=""+getValueByKey(currentWord,"text","text")
             lblMeaning.text="Meaning:\n"+getValueByKey(currentWord,"meaning","meaning")
             lblExample.text="Example:\n"+getValueByKey(currentWord,"example","example")

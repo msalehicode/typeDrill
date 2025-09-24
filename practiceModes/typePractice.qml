@@ -19,6 +19,11 @@ Page
     property int currentIndex: 0;
     property int maxIndex: 100;
 
+    property bool pictureIsAnimated:false;
+
+    property string contentPath;
+
+
     //for practice verb needs to user type whole three inputs to get next word:
     property int passedState:0;
 
@@ -115,12 +120,30 @@ Page
 
             }
 
+            AnimatedImage
+            {
+                id:wordPicture
+                width:150
+                height:150
+                playing: pictureIsAnimated;
+                anchors.horizontalCenter: parent.horizontalCenter
+                onStatusChanged:
+                {
+                    if (status === Image.Error)
+                    {
+                        console.warn("Image failed to load:", source);
+                        visible=false
+                    }
+                    else
+                        visible=true
+                }
+            }
             Label
             {
                 id:w_text
                 text:""
                 width: parent.width
-                height:50
+                height:implicitHeight
                 font.pixelSize:appFontSizes.f_title
                 font.bold: true
                 color:appColors.c_fontcolor
@@ -141,8 +164,8 @@ Page
                     id:w_meaning
                     text:""
                     width: parent.width
-                    height: text.length > 0 ? 100 : 0
-                    visible: hideAllExceptFirstItem ? false : true
+                    height:implicitHeight
+                    visible: hideAllExceptFirstItem ? false : text.length>0 ? true : false;
                     font.pixelSize:appFontSizes.f_large
                     color:appColors.c_fontcolor
                     horizontalAlignment: Text.AlignHCenter
@@ -152,9 +175,9 @@ Page
                 {
                     id:w_example
                     text:""
-                    visible: hideAllExceptFirstItem ? false : true
+                    visible: hideAllExceptFirstItem ? false : text.length>0 ? true : false;
                     width: parent.width
-                    height: text.length > 0 ? 100 : 0
+                    height: implicitHeight
                     font.pixelSize:appFontSizes.f_large
                     color:appColors.c_fontcolor
                     horizontalAlignment: Text.AlignHCenter
@@ -165,9 +188,9 @@ Page
                 {
                     id:w_translate
                     text:""
-                    visible: hideAllExceptFirstItem ? false : true
+                    visible: hideAllExceptFirstItem ? false : text.length>0 ? true : false;
                     width: parent.width
-                    height: text.length > 0 ? 100 : 0
+                    height: implicitHeight
                     font.pixelSize:appFontSizes.f_large
                     color:appColors.c_fontcolor
                     horizontalAlignment: Text.AlignHCenter
@@ -240,6 +263,24 @@ Page
         CustomTimer
         {
             id:practiceTimeCom
+            onWhenPaused:
+            {
+                //to pause animatedImage when we are on ModifyWord
+                if(pictureIsAnimated)
+                {
+                    console.log("pausing anbimated image...")
+                    wordPicture.playing=false
+                }
+            }
+            onWhenResumed:
+            {
+                //to resume when we are back from ModifyWord
+                if(pictureIsAnimated)
+                {
+                    console.log("resuming animatedimage...")
+                    wordPicture.playing=true
+                }
+            }
         }
 
 
@@ -344,6 +385,7 @@ Page
     {
         backend.resetPractice()
         practiceTimeCom.startTimer()
+        contentPath = backend.getContentPath()
 
         //to fetch first word and get maxium number of content on table
         var totalWords = backend.getNextWord("firstword");
@@ -362,6 +404,7 @@ Page
     {
         text_input.clear()
         isThisWordModified=true;
+
         practiceTimeCom.pauseTimer()
         practiceCore.m_stackView.push("../forms/ModifyWordForm.qml",
                                           {"formType":practiceMode,
@@ -381,7 +424,7 @@ Page
         }
 
 
-        console.log("typepractice routeBackFromModifyPage, data=")
+        /*console.log("typepractice routeBackFromModifyPage, data=")
         for (var i = 0; i < practiceData.length; ++i)
         {
             var row = practiceData[i]
@@ -390,7 +433,7 @@ Page
                 console.log("  " + key + ": " + row[key])
             }
             console.log("---")
-        }
+        }*/
 
         practiceTimeCom.resumeTimer()
     }
@@ -413,6 +456,13 @@ Page
 
     function updateTextValues()
     {
+        var picPath = "file://"+contentPath+getValueByKey(practiceData,"picture","picture");
+        wordPicture.source= picPath;
+
+
+        //if picture is animated one play it
+        pictureIsAnimated = picPath.split('.').pop().toLowerCase()==="gif"? true : false
+
         w_text.text=getValueByKey(practiceData,"text","verb")
         w_meaning.text=getValueByKey(practiceData,"meaning","past")
         w_example.text=getValueByKey(practiceData,"example","past_perfect")
