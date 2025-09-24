@@ -17,24 +17,33 @@ Item
     signal eachTrigger;
     signal timerRunningChanged;
 
+    signal whenPaused;
+    signal whenResumed;
+    signal whenStarted;
+    signal whenStoppped;
+
     function startTimer()
     {
         timerString="";
         secondsPassed=0;
         timer.running=true
+        whenStarted()
     }
     function stopTimer()
     {
         timer.running=false;
+        whenStoppped()
     }
 
     function pauseTimer()
     {
         timer.running=false
+        whenPaused()
     }
     function resumeTimer()
     {
         timer.running=true
+        whenResumed();
     }
 
 
