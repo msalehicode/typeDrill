@@ -104,13 +104,13 @@ int Backend::getNextWord(const QString &userText, const bool& isModified)
 
 
             // Print results
-            qDebug() << "Search Results:";
+            /*qDebug() << "Search Results:";
             for (const auto& row : current_word)
             {
                 for (auto it = row.constBegin(); it != row.constEnd(); ++it)
                     qDebug() << it.key() << ":" << it.value();
                 qDebug() << "ccc------";
-            }
+            }*/
         }
 
         return max_id;
@@ -274,7 +274,10 @@ void Backend::createTable(const QString &tableName, const QString &tableType)
                 result="word table successfully created.";
 
                 //create directory for pictures of table
-                localFileManager.makeDirectory(whatIsCurrentDatabase()+"_"+tableName);
+                if(localFileManager.makeDirectory(whatIsCurrentDatabase()+"_"+tableName))
+                    qInfo() << "direcrry doesnt exists so made one";
+                else
+                    qInfo() <<"database exists or couldnt add one";
 
                 QMap<QString, QVariant> rowData;
                 rowData["t_title"] = tableName;
@@ -458,8 +461,13 @@ void Backend::addWordToTable(const QStringList &data)
         qresult = m_db.insertIntoTable(currentTableName, rowData);
         if(qresult)
         {
-            //try to copy picture from data[6] to directory of table
+            //if directory doesnt exsits make one
+            if(localFileManager.makeDirectory(whatIsCurrentDatabase()+"_"+currentTableName))
+                qInfo() << "direcrry doesnt exists so made one";
+            else
+                qInfo() <<"database exists or couldnt add one";
 
+            //try to copy picture from data[6] to directory of table
             bool re = localFileManager.copyFile(data[6],destination);
             if(re)
                 result= "word added to the table.";
@@ -548,6 +556,12 @@ void Backend::modifyWordOnTable(const int& targetWordId,
                 {
                     result += " but couldn't remove previous picture";
                 }
+
+                //if directory doesnt exsits make one
+                if(localFileManager.makeDirectory(whatIsCurrentDatabase()+"_"+currentTableName))
+                    qInfo() << "direcrry doesnt exists so made one";
+                else
+                    qInfo() <<"database exists or couldnt add one";
 
                 qresult = localFileManager.copyFile(picture,destination+fileName);
                 if(qresult)
