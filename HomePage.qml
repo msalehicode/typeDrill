@@ -279,7 +279,7 @@ Page
                     width:parent.width/1.10
                     height:60
                     color:"transparent"
-                    clip:true
+                    // clip:true
                     anchors
                     {
                         horizontalCenter: parent.horizontalCenter
