@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import "../CustomComponents"
 import QtQuick.Dialogs
+import QtMultimedia
 
 Page
 {
@@ -14,6 +15,24 @@ Page
     property var wordTitles: ["Enter Word:", "Enter Meaning:", "Enter Example:", "Enter Translate:", "Enter Source:", "Enter Status:"]
     property var verbTitles: ["Enter Verb:","Enter Past:", "Enter Past Participle:", "Enter Translate:","Enter Status:"]
 
+    property var fileDialogFilters : ["Images (*.png *.jpg *.jpeg *.bmp *.gif)",
+                                      "Audio (*.wav *.mp3 *.ogg *.flac *.m4a *.aiff)"]
+
+    property bool fileDialogPickingImage: true
+    onFileDialogPickingImageChanged:
+    {
+        if(fileDialogPickingImage)
+        {
+            fileDialog.nameFilters = fileDialogFilters[0]
+        }
+        else
+        {
+            fileDialog.nameFilters = fileDialogFilters[1]
+        }
+    }
+
+    property string selectedImagePath : ""
+    property string selectedAudioPath : ""
 
     ListModel
     {
@@ -49,19 +68,38 @@ Page
         }
     }
 
+
+    SoundEffect
+    {
+        id: audio
+        volume: 1.0
+        onStatusChanged:
+        {
+            if (audio.status === SoundEffect.Ready)
+            {
+                playButton.setVisible=true
+            }
+        }
+    }
+
     FileDialog
     {
         id: fileDialog
         title: "Select a File"
-        nameFilters: "Images (*.png *.jpg *.jpeg *.bmp *.gif)"
         onAccepted:
         {
-            console.log("File selected: " + fileDialog.selectedFile)
+            if(fileDialogPickingImage)
+            {
+                selectedImagePath = selectedFile
+                removePictureButton.setVisible=true
+            }
+            else
+            {
+                selectedAudioPath = selectedFile
+                removeAudioButton.setVisible=true
+            }
         }
-        onRejected:
-        {
-            console.log("File selection canceled.")
-        }
+
     }
 
     Rectangle
@@ -142,26 +180,153 @@ Page
                 width: parent.width
                 height: parent.height
                 spacing:25
-
-                CustomButton
+                Row
                 {
-                    setButtonText:"choose picture";
-                    setButtonBorderColor:appColors.c_buttonBorderColor
-                    setButtonBackColor: appColors.c_buttonBgColor
-                    setButtonFontColor: appColors.c_buttonFontColor
-                    setBold: true
-                    setButtonFontsize: appFontSizes.f_buttonFontSize
-                    setButtonsBorderWidth: 0
-                    setRadius: 20
-                    setWidth: 100
-                    setHeight: 50
+                    id:imageControl
+                    width:100
+                    height:100
+                    spacing:10
                     anchors.horizontalCenter: parent.horizontalCenter
-                    onButtonClicked:
+                    Label
                     {
-                        //open picture dialog
-                        fileDialog.open()
+                        text:"image:"
+                        color:appColors.c_fontcolor
                     }
+                    CustomButtonWithIcon
+                    {
+                        setButtonText:"";
+                        setButtonBorderColor:appColors.c_buttonBorderColor
+                        setButtonBackColor: appColors.c_buttonBgColor
+                        setButtonFontColor: appColors.c_buttonFontColor
+                        setIconSource: appIcons.icon_browse
+                        setButtonsBorderWidth: 0
+                        setIconWidth: 20
+                        setIconHeight: 20
+                        setRadius: 45
+                        setWidth: 45
+                        setHeight: 45
+                        onButtonClicked:
+                        {
+                            //open picture dialog
+                            fileDialogPickingImage=true
+                            fileDialog.open()
+                        }
+                    }
+                    CustomButtonWithIcon
+                    {
+                        id:removePictureButton
+                        setButtonText:"";
+                        setButtonBorderColor:appColors.c_buttonBorderColor
+                        setButtonBackColor: appColors.c_buttonCancelBgColor
+                        setButtonFontColor: appColors.c_buttonCancelFontColor
+                        setIconSource: appIcons.icon_delete
+                        setButtonsBorderWidth: 0
+                        setIconWidth: 20
+                        setIconHeight: 20
+                        setVisible: false
+                        setRadius: 45
+                        setWidth: 45
+                        setHeight: 45
+                        onButtonClicked:
+                        {
+                            picture.visible=false;
+                            selectedImagePath=""
+                            picture.source=""
+                            setVisible=false;
+                        }
+                    }
+
                 }
+
+
+                Row
+                {
+                    id:audioControl
+                    width:100
+                    height:100
+                    spacing:10
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    Label
+                    {
+                        text:"audio:"
+                        color:appColors.c_fontcolor
+                    }
+                    CustomButtonWithIcon
+                    {
+                        setButtonText:"";
+                        setButtonBorderColor:appColors.c_buttonBorderColor
+                        setButtonBackColor: appColors.c_buttonBgColor
+                        setButtonFontColor: appColors.c_buttonFontColor
+                        setIconSource: appIcons.icon_browse
+                        setButtonsBorderWidth: 0
+                        setIconWidth: 20
+                        setIconHeight: 20
+                        setRadius: 45
+                        setWidth: 45
+                        setHeight: 45
+                        onButtonClicked:
+                        {
+                            //open picture dialog
+                            fileDialogPickingImage=false
+                            fileDialog.open()
+                        }
+                    }
+
+                    CustomButtonWithIcon
+                    {
+                        id:removeAudioButton
+                        setButtonText:"";
+                        setButtonBorderColor:appColors.c_buttonBorderColor
+                        setButtonBackColor: appColors.c_buttonCancelBgColor
+                        setButtonFontColor: appColors.c_buttonCancelFontColor
+                        setIconSource: appIcons.icon_delete
+                        setButtonsBorderWidth: 0
+                        setIconWidth: 20
+                        setIconHeight: 20
+                        setRadius: 45
+                        setVisible: false
+                        setWidth: 45
+                        setHeight: 45
+                        onButtonClicked:
+                        {
+                            selectedAudioPath=""
+                            audio.source=""
+                            setVisible=false
+                            playButton.setVisible=false
+                        }
+                    }
+                    CustomButtonWithIcon
+                    {
+                        id:playButton
+                        setButtonText:"";
+                        setButtonBorderColor:appColors.c_buttonBorderColor
+                        setButtonBackColor: appColors.c_buttonBgColor
+                        setButtonFontColor: appColors.c_buttonFontColor
+                        setIconSource: appIcons.icon_play
+                        setButtonsBorderWidth: 0
+                        setIconWidth: 20
+                        setIconHeight: 20
+                        setRadius: 45
+                        setVisible: false
+                        setWidth: 45
+                        setHeight: 45
+                        onButtonClicked:
+                        {
+                            if(audio.playing)
+                            {
+                                audio.play()
+                                playButton.setIconSource= appIcons.icon_pause
+                            }
+                            else
+                            {
+                                audio.stop()
+                                playButton.setIconSource= appIcons.icon_play
+                            }
+                        }
+                    }
+
+                }
+
                 Repeater
                 {
                     id: repeater
@@ -207,7 +372,10 @@ Page
                         }
 
                         //add picture to data:
-                        data.push(fileDialog.selectedFile);
+                        data.push(selectedImagePath);
+
+                        //add audio to data:
+                        data.push(selectedAudioPath);
 
 
                         //check empty items

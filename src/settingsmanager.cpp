@@ -23,7 +23,7 @@ void SettingsManager::remove(const QString &key) {
 void SettingsManager::initSettings()
 {
     if(!settings.contains("api_url"))
-        settings.setValue("api_url","http://typedrill.ir/typedrill/api/api.php");
+        settings.setValue("api_url","http://tsmamad.ir");
 
     if(!settings.contains("username"))
         settings.setValue("username","");
@@ -42,4 +42,7 @@ void SettingsManager::initSettings()
 
     if (!settings.contains("currentDatabase"))
         settings.setValue("currentDatabase", "practiceWord");
+
+    if (!settings.contains("autoPlayAudioOnPractice"))
+        settings.setValue("autoPlayAudioOnPractice", "true");
 }

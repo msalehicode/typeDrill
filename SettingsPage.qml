@@ -134,6 +134,52 @@ Page
                     }
                 }
 
+
+                Item
+                {
+                    width:parent.width/2
+                    height:50
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    Row
+                    {
+                        width:parent.width
+                        height:parent.height
+                        spacing:5
+                        Label
+                        {
+                            text:"auto play audio\n on practice:"
+                            color:appColors.c_fontcolor
+                            font.pixelSize: appFontSizes.f_normal
+                        }
+                        CustomSwitch
+                        {
+                            setWidth:50
+                            setHeight:30
+                            setBgColorActivated: appColors.c_buttonBgColor
+                            switchStatus:appSettings.autoPlayAudioOnPractice
+                            // setStatusBorder:false;
+                            onSwitchClicked:
+                            {
+                                 if(switchStatus)
+                                 {
+                                    appSettings.autoPlayAudioOnPractice=true
+                                    backend.setSetting("autoPlayAudioOnPractice","true");
+                                 }
+                                 else
+                                 {
+                                    appSettings.autoPlayAudioOnPractice=false
+                                    backend.setSetting("autoPlayAudioOnPractice","false");
+                                 }
+                            }
+                        }
+                    }
+
+
+                }
+
+
+
+
             }
         }
     }

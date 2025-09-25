@@ -130,6 +130,13 @@ Window
         property int f_buttonFontSize:  ThemeConfig.fontSizes["buttonsfontSize"];
         
     }
+
+
+    QtObject
+    {
+        id:appSettings;
+        property bool autoPlayAudioOnPractice:true;
+    }
     
     QtObject
     {
@@ -155,6 +162,9 @@ Window
         property string icon_eye: appIcons.i_path + "eye.png"
         property string icon_hide: appIcons.i_path + "hide.png"
 
+
+        property string icon_play: appIcons.i_path + "play.png"
+        property string icon_pause: appIcons.i_path + "pause.png"
 
         //practice tableList
         property string icon_pinned: appIcons.i_path + "pin.png";
@@ -414,11 +424,17 @@ Window
     Component.onCompleted:
     {
         reloadTheme();
+
         rootWindow.width = backend.getLastWindowSize("w");
         rootWindow.height = backend.getLastWindowSize("h");
 
         //manually reload icon
         //often it's color is default theme since loading, doesn't change with theme at start
         buttonBackOrDrawer.modifyIcon(appIcons.icon_menubar2)
+
+
+        //get settings
+        appSettings.autoPlayAudioOnPractice = backend.getSetting("autoPlayAudioOnPractice")==="true" ? true : false;
+        console.log("setting autoPlayAudioOnPractice=",appSettings.autoPlayAudioOnPractice)
     }
 }

@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import "../CustomComponents"
 import QtQuick.Dialogs
+import QtMultimedia
 
 Page
 {
@@ -24,6 +25,29 @@ Page
 
     property bool pictureChanged : false;
     property bool removePicture: false;
+
+    property bool audioChanged : false;
+    property bool removeAudio: false;
+
+    property string selectedImagePath : ""
+    property string selectedAudioPath : ""
+
+
+    property var fileDialogFilters : ["Images (*.png *.jpg *.jpeg *.bmp *.gif)",
+                                      "Audio (*.wav *.mp3 *.ogg *.flac *.m4a *.aiff)"]
+
+    property bool fileDialogPickingImage: true
+    onFileDialogPickingImageChanged:
+    {
+        if(fileDialogPickingImage)
+        {
+            fileDialog.nameFilters = fileDialogFilters[0]
+        }
+        else
+        {
+            fileDialog.nameFilters = fileDialogFilters[1]
+        }
+    }
 
     header: Rectangle
     {
@@ -53,25 +77,53 @@ Page
         id: titleModel
     }
 
+    SoundEffect
+    {
+        id: audio
+        volume: 1.0
+        onStatusChanged:
+        {
+            if (audio.status === SoundEffect.Ready)
+            {
+                playButton.setVisible=true
+            }
+        }
+    }
+
+
+
     FileDialog
     {
         id: fileDialog
         title: "Select a File"
-        nameFilters: "Images (*.png *.jpg *.jpeg *.bmp *.gif)"
         onAccepted:
-
         {
-            pictureChanged = true
-            var theFile = fileDialog.selectedFile
-            picture.source = theFile
+            var theFile;
+            var decodedFilePath;
+            if(fileDialogPickingImage)
+            {
+                pictureChanged = true
+                removePictureButton.setVisible=true
+                selectedImagePath = fileDialog.selectedFile.toString()
+                picture.source = selectedImagePath
 
-            // URL-decode the file path to handle any encoded characters (e.g., %3A for colon)
-            var decodedFilePath = decodeURIComponent(theFile.toString())
-            console.log("Decoded file path: ", decodedFilePath)
+                //if picture is animated one play it
+                picture.playing = selectedImagePath.toString().split('.').pop().toLowerCase()==="gif"? true : false
 
 
-            //if picture is animated one play it
-            picture.playing = theFile.toString().split('.').pop().toLowerCase()==="gif"? true : false
+                // URL-decode the file path to handle any encoded characters (e.g., %3A for colon)
+                // decodedFilePath = decodeURIComponent(selectedImagePath.toString())
+                // console.log("Decoded file path: ", decodedFilePath)
+            }
+            else
+            {
+                audioChanged = true
+                removeAudioButton.setVisible=true
+                selectedAudioPath = fileDialog.selectedFile.toString()
+                audio.source = selectedAudioPath
+                playButton.setVisible=true
+            }
+
         }
     }
 
@@ -112,10 +164,16 @@ Page
                 }
                 Row
                 {
+                    id:imageControl
                     width:100
-                    height:100
+                    height:50
                     spacing:10
                     anchors.horizontalCenter: parent.horizontalCenter
+                    Label
+                    {
+                        text:"image:"
+                        color:appColors.c_fontcolor
+                    }
                     CustomButtonWithIcon
                     {
                         setButtonText:"";
@@ -132,11 +190,71 @@ Page
                         onButtonClicked:
                         {
                             //open picture dialog
+                            fileDialogPickingImage=true
                             fileDialog.open()
                         }
                     }
                     CustomButtonWithIcon
                     {
+                        id:removePictureButton
+                        setButtonText:"";
+                        setButtonBorderColor:appColors.c_buttonBorderColor
+                        setButtonBackColor: appColors.c_buttonCancelBgColor
+                        setButtonFontColor: appColors.c_buttonCancelFontColor
+                        setIconSource: appIcons.icon_delete
+                        setButtonsBorderWidth: 0
+                        setIconWidth: 20
+                        setIconHeight: 20
+                        setVisible: (formData[6] && formData[6].length > 0) ? true : false
+                        setRadius: 45
+                        setWidth: 45
+                        setHeight: 45
+                        onButtonClicked:
+                        {
+                            removePicture=true;
+                            picture.visible=false;
+                            setVisible=false;
+                        }
+                    }
+
+                }
+
+                Row
+                {
+                    id:audioControl
+                    width:100
+                    height:50
+                    spacing:10
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    Label
+                    {
+                        text:"audio:"
+                        color:appColors.c_fontcolor
+                    }
+                    CustomButtonWithIcon
+                    {
+                        setButtonText:"";
+                        setButtonBorderColor:appColors.c_buttonBorderColor
+                        setButtonBackColor: appColors.c_buttonBgColor
+                        setButtonFontColor: appColors.c_buttonFontColor
+                        setIconSource: appIcons.icon_browse
+                        setButtonsBorderWidth: 0
+                        setIconWidth: 20
+                        setIconHeight: 20
+                        setRadius: 45
+                        setWidth: 45
+                        setHeight: 45
+                        onButtonClicked:
+                        {
+                            //open picture dialog
+                            fileDialogPickingImage=false
+                            fileDialog.open()
+                        }
+                    }
+
+                    CustomButtonWithIcon
+                    {
+                        id:removeAudioButton
                         setButtonText:"";
                         setButtonBorderColor:appColors.c_buttonBorderColor
                         setButtonBackColor: appColors.c_buttonCancelBgColor
@@ -146,12 +264,43 @@ Page
                         setIconWidth: 20
                         setIconHeight: 20
                         setRadius: 45
+                        setVisible: (formData[7] && formData[7].length > 0) ? true : false
                         setWidth: 45
                         setHeight: 45
                         onButtonClicked:
                         {
-                            removePicture=true;
-                            picture.visible=false;
+                            removeAudio=true;
+                            setVisible=false
+                            playButton.setVisible=false
+                        }
+                    }
+                    CustomButtonWithIcon
+                    {
+                        id:playButton
+                        setButtonText:"";
+                        setButtonBorderColor:appColors.c_buttonBorderColor
+                        setButtonBackColor: appColors.c_buttonBgColor
+                        setButtonFontColor: appColors.c_buttonFontColor
+                        setIconSource: appIcons.icon_play
+                        setButtonsBorderWidth: 0
+                        setIconWidth: 20
+                        setIconHeight: 20
+                        setRadius: 45
+                        setVisible: false
+                        setWidth: 45
+                        setHeight: 45
+                        onButtonClicked:
+                        {
+                            if(audio.playing)
+                            {
+                                audio.play()
+                                playButton.setIconSource= appIcons.icon_pause
+                            }
+                            else
+                            {
+                                audio.stop()
+                                playButton.setIconSource= appIcons.icon_play
+                            }
                         }
                     }
 
@@ -222,23 +371,9 @@ Page
                                 console.log("invalid wordId/formType to modify word.")
                             else
                             {
-                                var data = readDataFromRepeater(false,true)
-                                if(pictureChanged)
-                                {
-                                    backend.modifyWordOnTable(wordId,
-                                                              formType,
-                                                              data,
-                                                              fileDialog.selectedFile,
-                                                              formData[6]);
-                                }
-                                else
-                                {
-                                    backend.modifyWordOnTable(wordId,
-                                                              formType,
-                                                              data,
-                                                              (removePicture ? "remove" : ""),
-                                                              formData[6]);
-                                }
+                                backend.modifyWordOnTable(wordId,
+                                                          formType,
+                                                          readDataFromRepeater(false,true));
                             }
                         }
                     }
@@ -280,6 +415,7 @@ Page
         }
 
         picture.source = "file://"+contentPath+formData[6];
+        audio.source = "file://"+contentPath+formData[7];
     }
 
     function readDataFromRepeater(wihtId=false,dataForBackend=false)
@@ -322,24 +458,101 @@ Page
         {
             // Extract the file name from the selected file path
             // Check if the selected file is a QUrl
-            var filePath = fileDialog.selectedFile.toString();
+            var filePath = selectedImagePath
             if (filePath)
                 var fileName = filePath.split('/').pop();
 
-            obj2["picture"] = fileName;
-            data.push(obj2);
+
+            if(dataForBackend)
+            {
+                data.push(selectedImagePath)//new picture
+                data.push(formData[6])//oldpciture
+            }
+            else
+            {
+                obj2["picture"] = fileName;
+                data.push(obj2);
+            }
         }
         else if(removePicture)
         {
-            obj2["picture"] = "";
-            data.push(obj2);
+            if(dataForBackend)
+            {
+                data.push("remove")//picture is removed
+                data.push(formData[6])//oldpciture
+            }
+            else
+            {
+                obj2["picture"] = "";
+                data.push(obj2);
+            }
         }
         else
         {
             //data for practice included same picture path
-            obj2["picture"] = formData[6]; //same picture
-            data.push(obj2);
+            if(dataForBackend)
+            {
+                data.push("")//picture didn't change at all
+                data.push(formData[6])//old pic
+            }
+            else
+            {
+                obj2["picture"] = formData[6]; //same picture
+                data.push(obj2);
+            }
         }
+
+
+        //check audio modifed?
+        if(audioChanged)
+        {
+            // Extract the file name from the selected file path
+            // Check if the selected file is a QUrl
+            var filePath = selectedAudioPath
+            if (filePath)
+                var fileName = filePath.split('/').pop();
+
+
+            if(dataForBackend)
+            {
+                data.push(selectedAudioPath)//new audio
+                data.push(formData[7])//old audio
+            }
+            else
+            {
+                obj2["audio"] = fileName;
+                data.push(obj2);
+            }
+        }
+        else if(removePicture)
+        {
+            if(dataForBackend)
+            {
+                data.push("remove")//audio is removed
+                data.push(formData[7])//old audio
+            }
+            else
+            {
+                obj2["audio"] = "";
+                data.push(obj2);
+            }
+        }
+        else
+        {
+            //data for practice included same audio path
+            if(dataForBackend)
+            {
+                data.push("")//audio didn't change at all
+                data.push(formData[7])//old audio
+            }
+            else
+            {
+                obj2["audio"] = formData[7]; //same audio
+                data.push(obj2);
+            }
+        }
+
+
 
         // for (var x = 0; x < data.length; x++) {
         //     console.log("data[" + x + "] = " + JSON.stringify(data[x]));
@@ -392,6 +605,7 @@ Page
         tempData.push(getValueByKey(formData,"source","source")) //pass possible keys to get value
         tempData.push(getValueByKey(formData,"status","status")) //pass possible keys to get value
         tempData.push(getValueByKey(formData,"picture","picture")) //pass possible keys to get value
+        tempData.push(getValueByKey(formData,"audio","audio")) //pass possible keys to get value
 
         formData=tempData
     }

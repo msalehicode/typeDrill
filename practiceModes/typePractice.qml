@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import "../CustomComponents"
+import QtMultimedia
 
 Page
 {
@@ -59,8 +60,35 @@ Page
                 {
                     //spacer
                     color:"transparent"
-                    width:parent.width/3.50
+                    width:parent.width/4.30
                     height:parent.height
+                }
+                CustomButtonWithIcon
+                {
+                    id:playButton
+                    setWidth:30
+                    setHeight:30
+                    setButtonText:"";
+                    setButtonBorderColor: "transparent";
+                    setButtonFontColor:appColors.c_fontcolor;
+                    setButtonBackColor:"transparent"
+                    setTextMagin: 5
+                    setIconHeight: 25
+                    setIconWidth: 25
+                    setIconSource:  appIcons.icon_play
+                    onButtonClicked:
+                    {
+                        if(audio.playing)
+                        {
+                            audio.play()
+                            playButton.setIconSource= appIcons.icon_pause
+                        }
+                        else
+                        {
+                            audio.stop()
+                            playButton.setIconSource= appIcons.icon_play
+                        }
+                    }
                 }
 
                 CustomProccessBar
@@ -116,8 +144,6 @@ Page
                         routeToModifyPage()
                     }
                 }
-
-
             }
 
             AnimatedImage
@@ -279,6 +305,19 @@ Page
                 {
                     console.log("resuming animatedimage...")
                     wordPicture.playing=true
+                }
+            }
+        }
+
+        SoundEffect
+        {
+            id: audio
+            volume: 1.0
+            onStatusChanged:
+            {
+                if (audio.status === SoundEffect.Ready)
+                {
+                    playButton.setVisible=true
                 }
             }
         }
@@ -456,13 +495,21 @@ Page
 
     function updateTextValues()
     {
+
+        //image setup
         var picPath = "file://"+contentPath+getValueByKey(practiceData,"picture","picture");
         wordPicture.source= picPath;
-
-
         //if picture is animated one play it
         pictureIsAnimated = picPath.split('.').pop().toLowerCase()==="gif"? true : false
 
+
+        //audio setup
+        var audioPath = "file://"+contentPath+getValueByKey(practiceData,"audio","audio");
+        audio.source = audioPath;
+        if(appSettings.autoPlayAudioOnPractice)
+            audio.play()
+
+        //other data setup
         w_text.text=getValueByKey(practiceData,"text","verb")
         w_meaning.text=getValueByKey(practiceData,"meaning","past")
         w_example.text=getValueByKey(practiceData,"example","past_perfect")

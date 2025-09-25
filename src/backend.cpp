@@ -7,6 +7,8 @@ bool Backend::init(QString databaseName)
     //for switching between databases
     if(databaseName.length()<=0)
         databaseName = settings.getValue("currentDatabase").toString();
+    else //update qsettings
+        settings.setValue("currentDatabase",databaseName);
 
     min_id=0;
     m_session_key = settings.getValue("session_key").toString();
@@ -104,13 +106,13 @@ int Backend::getNextWord(const QString &userText, const bool& isModified)
 
 
             // Print results
-            /*qDebug() << "Search Results:";
-            for (const auto& row : current_word)
-            {
-                for (auto it = row.constBegin(); it != row.constEnd(); ++it)
-                    qDebug() << it.key() << ":" << it.value();
-                qDebug() << "ccc------";
-            }*/
+            // qDebug() << "Search Results:";
+            // for (const auto& row : current_word)
+            // {
+            //     for (auto it = row.constBegin(); it != row.constEnd(); ++it)
+            //         qDebug() << it.key() << ":" << it.value();
+            //     qDebug() << "ccc------";
+            // }
         }
 
         return max_id;
@@ -132,6 +134,17 @@ void Backend::getNextWord()
         current_word = m_db.searchTable(currentTableName, "id", QString::number(last_id));
         emit wordReady(current_word);
     }
+}
+
+QString Backend::getSetting(const QString &settingKey)
+{
+    return settings.getValue(settingKey).toString();
+}
+
+void Backend::setSetting(const QString &settingKey, const QString &settingValue)
+{
+    settings.setValue(settingKey,settingValue);
+    qInfo() << "setting " << settingKey << " set to " << settingValue << " newvalue=" << getSetting(settingKey);
 }
 
 void Backend::setPracticeResult(const QString &mistakeCount, const QString &timeSpent, const int& practiceType)
@@ -261,12 +274,13 @@ void Backend::createTable(const QString &tableName, const QString &tableType)
     if(tableType=="word")
     {
             bool qresult = m_db.createTable(tableName, "id INTEGER PRIMARY KEY AUTOINCREMENT,\
-                             picture TEXT,\
                              text TEXT,\
                              meaning TEXT,\
                              example TEXT,\
                              translate TEXT,\
                              status TEXT,\
+                             picture TEXT,\
+                             audio TEXT,\
                              source TEXT"
                              );
             if(qresult)
@@ -443,10 +457,10 @@ void Backend::addWordToTable(const QStringList &data)
     bool qresult;
     if(currentTableType=="word" && data.size() >=6)
     {
-        QString fileName = localFileManager.extractFileName(data[6]);
+        QString ImagefileName = localFileManager.extractFileName(data[6]);
+        QString AudioFileName = localFileManager.extractFileName(data[7]);
         QString destination = whatIsCurrentDatabase()+"_"
-                              +currentTableName+"/"
-                              +fileName;
+                              +currentTableName+"/";
 
         //data order passed by QML for word: text, meaning, example, translate, source, status
         QMap<QString, QVariant> rowData;
@@ -456,23 +470,35 @@ void Backend::addWordToTable(const QStringList &data)
         rowData["translate"] = data[3];
         rowData["source"] = data[4];
         rowData["status"] = data[5];
-        rowData["picture"] = fileName;
+        rowData["picture"] = ImagefileName;
+        rowData["audio"] = AudioFileName;
 
         qresult = m_db.insertIntoTable(currentTableName, rowData);
         if(qresult)
         {
+            result= "word added to the table ";
+
             //if directory doesnt exsits make one
             if(localFileManager.makeDirectory(whatIsCurrentDatabase()+"_"+currentTableName))
-                qInfo() << "direcrry doesnt exists so made one";
+                qInfo() << "direcrry doesnt exists so we've made one";
             else
-                qInfo() <<"database exists or couldnt add one";
+                qInfo() <<"directory content exists or couldnt add one";
 
             //try to copy picture from data[6] to directory of table
-            bool re = localFileManager.copyFile(data[6],destination);
+            bool re = localFileManager.copyFile(data[6],destination+ImagefileName);
             if(re)
-                result= "word added to the table.";
+                result+= " & picture copied successfully";
             else
-                result= "word added to the table but couldn't copy picture";
+                result+= " & couldn't copy picture";
+
+
+
+            //copy audio file
+            re = localFileManager.copyFile(data[7],destination+AudioFileName);
+            if(re)
+                result+= " & audio copied successfully";
+            else
+                result+= " & couldn't copy audio";
 
         }
         else
@@ -503,15 +529,23 @@ void Backend::addWordToTable(const QStringList &data)
 }
 
 void Backend::modifyWordOnTable(const int& targetWordId,
-                                const QString& tagetTableType, const QStringList &data, const QString& picture, const QString& oldPicture)
+                                const QString& tagetTableType, const QStringList &data)
 {
     // qInfo() << "modifyWordOnTable received id=" << targetWordId << ",data=" << data;
     QString result;
     bool qresult;
     QMap<QString, QVariant> rowData;
 
-    QString fileName = picture;
-    fileName = localFileManager.extractFileName(fileName);
+    QString picture = data[6];
+    QString oldPicture = data[7];
+    QString audio = data[8];
+    QString oldAudio = data[9];
+
+
+    qInfo() << "modify data stringlist=" << data;
+    QString imageFileName = localFileManager.extractFileName(picture);
+    QString audioFileName = localFileManager.extractFileName(audio);
+
 
     if(tagetTableType=="word" && data.size() >=6)
     {
@@ -522,14 +556,13 @@ void Backend::modifyWordOnTable(const int& targetWordId,
         rowData["translate"] = data[3];
         rowData["source"] = data[4];
         rowData["status"] = data[5];
-        rowData["picture"] = fileName;
+        rowData["picture"] = imageFileName;
+        rowData["audio"] = audioFileName;
 
         qresult = m_db.updateTableRow(currentTableName, "id", targetWordId, rowData);
         if(qresult)
         {
             result= "word modified in the table";
-            //picture from data[6]
-
             QString destination = whatIsCurrentDatabase()+"_"
                                   +currentTableName+"/";
 
@@ -537,40 +570,86 @@ void Backend::modifyWordOnTable(const int& targetWordId,
             if(picture=="remove")
             {
                 if(localFileManager.removeFile(destination+oldPicture))
-                    result+= " and picture removed.";
+                    result+= " , picture removed.";
                 else
-                    result += " but couldn't remove picture";
+                    result += " , couldn't remove picture";
             }
             else if(picture=="") //picture didn't change at all
             {
-                result= " but picture didn't change.";
+                result= " , picture didn't change.";
             }
             else //remove old one and copy new one
             {
-                qInfo() << "oldPicture=" << oldPicture << " destination=" << destination;
-                if(localFileManager.removeFile(destination+oldPicture))
+                if(oldPicture!="")
                 {
-                    result += " and previous picture removed";
+                    if(localFileManager.removeFile(destination+oldPicture))
+                    {
+                        result += " , previous picture removed";
+                    }
+                    else
+                    {
+                        result += " , couldn't remove previous picture";
+                    }
                 }
-                else
-                {
-                    result += " but couldn't remove previous picture";
-                }
+
 
                 //if directory doesnt exsits make one
                 if(localFileManager.makeDirectory(whatIsCurrentDatabase()+"_"+currentTableName))
                     qInfo() << "direcrry doesnt exists so made one";
                 else
-                    qInfo() <<"database exists or couldnt add one";
+                    qInfo() <<"directory content exists or couldnt add one";
 
-                qresult = localFileManager.copyFile(picture,destination+fileName);
+
+                //copy picture
+                qresult = localFileManager.copyFile(picture,destination+imageFileName);
                 if(qresult)
-                    result+= " and picture copied.";
+                    result+= " , picture copied.";
                 else
-                    result+= " but picture couldn't copy.";
-
+                    result+= " , picture couldn't copy.";
             }
 
+
+            //audio is removed
+            if(audio=="remove")
+            {
+                if(localFileManager.removeFile(destination+oldAudio))
+                    result+= " , audio removed.";
+                else
+                    result += " , couldn't remove audio";
+            }
+            else if(audio=="")
+            {
+                result= " ,audio didn't change.";
+            }
+            else //remove old one and copy new one
+            {
+                if(oldAudio!="")
+                {
+                    if(localFileManager.removeFile(destination+oldAudio))
+                    {
+                        result += " , previous audio removed";
+                    }
+                    else
+                    {
+                        result += " , couldn't remove previous audio";
+                    }
+                }
+
+
+                //if directory doesnt exsits make one
+                if(localFileManager.makeDirectory(whatIsCurrentDatabase()+"_"+currentTableName))
+                    qInfo() << "direcrry doesnt exists so made one";
+                else
+                    qInfo() <<"directory content exists or couldnt add one";
+
+
+                //copy picture
+                qresult = localFileManager.copyFile(picture,destination+audioFileName);
+                if(qresult)
+                    result+= " , audio copied.";
+                else
+                    result+= " , audio couldn't copy.";
+            }
         }
         else
             result= "error";//:failed to modify word on the table.

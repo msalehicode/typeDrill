@@ -127,6 +127,10 @@ public:
     Q_INVOKABLE void getNextWord();
 
 
+    Q_INVOKABLE QString getSetting(const QString& settingKey);
+    Q_INVOKABLE void setSetting(const QString& settingKey,const QString& settingValue);
+
+
     /*!
      * \brief to trace practice by submitting them inside table (trace_practices)
      * \param mistake count made inside practice, timeSpent in practice (e.g: 00:15:25),  practiceType(e.g: 1->typePractice, 2->flashcardPractice)
@@ -189,7 +193,7 @@ public:
      * \param wordId, tableType(e.g: word/verb) and list of word in speicific order indexes depends on tableType
      * \return emit modifyWordOnTableResult with result, in failure will return "error" else will return a message
      */
-    Q_INVOKABLE void modifyWordOnTable(const int& targetWordId, const QString& tagetTableType, const QStringList& data, const QString &picture, const QString &oldPicture);
+    Q_INVOKABLE void modifyWordOnTable(const int& targetWordId, const QString& tagetTableType, const QStringList& data);
 
 
     /*!

@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import "../CustomComponents"
-
+import QtMultimedia
 
 Page {
     id: flashcardPracticeCore
@@ -32,6 +32,18 @@ Page {
     {
         id:practiceTimeCom
     }
+    SoundEffect
+    {
+        id: audio
+        volume: 1.0
+        onStatusChanged:
+        {
+            if (audio.status === SoundEffect.Ready)
+            {
+                playButton.setVisible=true
+            }
+        }
+    }
 
     Rectangle
     {
@@ -58,9 +70,37 @@ Page {
                 {
                     //spacer
                     color:"transparent"
-                    width:parent.width/3.50
+                    width:parent.width/4.50
                     height:parent.height
                 }
+                CustomButtonWithIcon
+                {
+                    id:playButton
+                    setWidth:30
+                    setHeight:30
+                    setButtonText:"";
+                    setButtonBorderColor: "transparent";
+                    setButtonFontColor:appColors.c_fontcolor;
+                    setButtonBackColor:"transparent"
+                    setTextMagin: 5
+                    setIconHeight: 25
+                    setIconWidth: 25
+                    setIconSource:  appIcons.icon_play
+                    onButtonClicked:
+                    {
+                        if(audio.playing)
+                        {
+                            audio.play()
+                            playButton.setIconSource= appIcons.icon_pause
+                        }
+                        else
+                        {
+                            audio.stop()
+                            playButton.setIconSource= appIcons.icon_play
+                        }
+                    }
+                }
+
                 CustomProccessBar
                 {
                     id:proccessBar
@@ -488,14 +528,22 @@ Page {
         var id = getValueByKey(currentWord,"id","id")
         if(practiceMode==="word")
         {
+            //image setup
             var picPath = "file://"+contentPath+getValueByKey(currentWord,"picture","picture");
             cardPicture.source= picPath;
-
-
             //if picture is animated one play it
             if (picPath.split('.').pop().toLowerCase() === "gif")
                 cardPicture.playing=true
 
+            //audio setup
+            var audioPath = "file://"+contentPath+getValueByKey(currentWord,"audio","audio");
+            audio.source = audioPath;
+            if(appSettings.autoPlayAudioOnPractice)
+                audio.play()
+
+
+
+            //other data setup
             lblText.text=""+getValueByKey(currentWord,"text","text")
             lblMeaning.text="Meaning:\n"+getValueByKey(currentWord,"meaning","meaning")
             lblExample.text="Example:\n"+getValueByKey(currentWord,"example","example")
