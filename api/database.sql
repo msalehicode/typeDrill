@@ -10,3 +10,16 @@ CREATE TABLE users (
     verification_code VARCHAR(32) NOT NULL,
     is_verified BOOLEAN DEFAULT 0
 );
+
+
+CREATE TABLE files
+(
+    id INT AUTO_INCREMENT PRIMARY KEY,               -- Unique file ID
+    user_id INT NOT NULL,                             -- User who uploaded the file (foreign key from `users`)
+    filename VARCHAR(255) NOT NULL,                   -- File name (may include timestamps to handle duplicates)
+    file_path VARCHAR(255) NOT NULL,                  -- File path in the server
+    first_uploaded DATETIME DEFAULT CURRENT_TIMESTAMP, -- Timestamp of first upload
+    last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- Last update timestamp
+    visibility ENUM('private', 'public') DEFAULT 'private', -- File visibility (public/private)
+    FOREIGN KEY (user_id) REFERENCES users(id)       -- Foreign key linking to the `users` table
+);
