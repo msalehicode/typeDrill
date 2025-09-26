@@ -259,7 +259,7 @@ public:
     /*!
      * \brief will send sessionKey to apiurl by using QNetworkAccessManager then connects finished to onUrlListReceived to return list of received json from web api
      */
-    Q_INVOKABLE void fetchUrlList();
+    Q_INVOKABLE void fetchUrlList(const QString& visibilityFilter);
 
     /*!
      * \brief to download a file and call signals onDownloadFinished,onDownloadProgress (already we have connected these inside Backend Constructor with private ones to notify user of download status)
@@ -304,6 +304,12 @@ public:
 
     Q_INVOKABLE QString getContentPath() const;
 
+
+    Q_INVOKABLE void changeApiDbFileVisiblity(const QString& fileId, const QString& newStatus);
+    Q_INVOKABLE void renameApiDbFile(const QString& fileId, const QString& newDbName);
+    Q_INVOKABLE void deleteApiDbFile(const QString& fileId);
+
+
 signals:
     void wordReady(const QList<QMap<QString, QVariant>>& word);  // Emit to QML
     void practiceFinished();
@@ -332,12 +338,24 @@ signals:
 
     void signResult(const QString& sessionKeyOrMessage);
 
+
+
+    void renameApiDbFileResult(const QString& result);
+    void changeApiDbFileVisiblityResult(const QString& result);
+    void deleteApiDbFileResult(const QString& result);
+
 private slots:
     void onUrlListReceived();
     void onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal);
     void onDownloadFinished(bool success, const QString &filePath);
     void onUploadFinished(bool success, const QString& result);
     void onSignResult();
+
+
+
+    void onRenameApiDbFile();
+    void onChangeApiDbFileVisiblity();
+    void onDeleteApiDbFile();
 };
 
 #endif // BACKEND_H

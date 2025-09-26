@@ -46,12 +46,27 @@ Page
             Rectangle
             {
                 color: appColors.c_background
-                anchors
+                anchors.fill: parent
+
+                CustomCombobox
                 {
-                    top:parent.top
-                    left:parent.left
-                    right:parent.right
-                    bottom:parent.bottom
+                    id: visibilityFilter
+                    setBgColor: appColors.c_comboboxBgColor
+                    setFontColor: appColors.c_buttonFontColor
+                    setfontSize: appFontSizes.f_normal
+                    setIconArrow: appIcons.icon_back_white
+                    setWidth: parent.width
+                    height:45
+                    modelData: [{text:"community"},
+                        {text:"all mine"}, {text:"my privates"},{ text:"my publics"},
+                        {text: "officials"}]
+
+                    setBgColorCurrentItem: appColors.c_comboboxBgColorCurrentItem
+                    onActivated: function(index)
+                    {
+                        currentIndex = index
+                        changeLoaderContent("list",currentItemText);
+                    }
                 }
 
 
@@ -59,7 +74,7 @@ Page
                     id: listView
                     anchors
                     {
-                        top:parent.top
+                        top:visibilityFilter.bottom
                         topMargin:25
                         left:parent.left
                         right:parent.right
@@ -72,7 +87,7 @@ Page
 
                     delegate:Rectangle
                     {
-                        width:parent.width/1.50
+                        width:parent.width/1.25
                         height:75
                         color:appColors.c_bgTableitem
                         radius: 15
@@ -128,42 +143,92 @@ Page
                                 font.bold:true
                                 anchors.centerIn: parent
                             }
+
+
+                            Row
+                            {
+                                anchors.top:tableTitleText.bottom
+                                width: parent.width
+                                height:15
+                                Label
+                                {
+                                    text:"id:"+model.d_id
+                                    color:appColors.c_fontcolor
+                                }
+                                Label
+                                {
+                                    text:(visibilityFilter.currentItemText==="community"||visibilityFilter.currentItemText==="officials")
+                                         ? " by: "+model.d_owner : " by you"
+                                    color:appColors.c_fontcolor
+                                }
+                                Image
+                                {
+                                    width:15
+                                    height:15
+                                    source: model.d_visibility==="public"? appIcons.icon_eye : appIcons.icon_hide
+                                }
+                            }
+                        }
+
+                        MouseArea {
+                            id:mAreaItem
+                            anchors.fill: parent
+                            onPressAndHold:
+                            {
+                                popupMenu.openWhereOnClicked(mAreaItem,listView)
+
+                                //add items into the menu
+                                if(visibilityFilter.currentItemText==="all mine" ||
+                                   visibilityFilter.currentItemText==="my privates" ||
+                                   visibilityFilter.currentItemText==="my publics")
+                                {
+                                    popupMenu.addItem("Delete",model.d_name,model.d_id,"delete",appIcons.icon_delete);
+                                    // popupMenu.addItem("Rename",model.d_name,model.d_id,"rename",appIcons.icon_delete);
+                                    if(model.d_visibility==="private")
+                                        popupMenu.addItem("Change Visibility to public",model.d_name,model.d_id,"public",appIcons.icon_eye);
+                                    else
+                                        popupMenu.addItem("Change Visibility to private",model.d_name,model.d_id,"private",appIcons.icon_hide);
+                                }
+                            }
                         }
 
 
-                        Rectangle
+                        //download is upper than menu
+                        Row
                         {
-                            width:35
-                            height:35
-                            color:appColors.c_buttonBgColor
-                            radius:50
-                            // rotation: 180
+                            width: 100
+                            height:parent.height
                             anchors
                             {
                                 right:parent.right
                                 rightMargin:20
                                 verticalCenter:parent.verticalCenter
                             }
-                            Image
+
+                            CustomButtonWithIcon
                             {
-                                source: appIcons.icon_download
-                                width:parent.width/1.50
-                                height:parent.height/1.50
-                                anchors.centerIn: parent
+                                id:downloadButton
+                                setWidth:35
+                                setHeight:35
+                                setButtonText:"";
+                                setButtonBorderColor: "transparent";
+                                setButtonFontColor:appColors.c_fontcolor;
+                                setButtonBackColor:appColors.c_buttonBgColor
+                                setTextMagin: 5
+                                setIconHeight: 25
+                                setIconWidth: 25
+                                setIconSource:  appIcons.icon_download
+                                onButtonClicked:
+                                {
+                                    changeLoaderContent("download")
+                                    backend.download(model.d_url,model.d_name);
+                                }
                             }
                         }
 
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked:
-                            {
 
-                                changeLoaderContent("download")
-                                backend.download(model.d_url,model.d_name);
-                            }
-                        }
 
-                    }
+                    }//end of the item
 
                 }
 
@@ -220,9 +285,119 @@ Page
                         changeLoaderContent("list")
                     }
                 }
+
+                CustomPopupMenu
+                {
+                    id:popupMenu
+                    setWidth:parent.width/1.10
+                    setBgColor: appColors.c_background
+                    setFontColor:appColors.c_fontcolor
+                    setBgItemColor: appColors.c_comboboxBgColor
+                    setFontSize: appFontSizes.f_normal
+                    onItemClicked: function(tid,iaction,ttext)
+                    {
+                        // console.log("onItme clicked: tid=",tid, " iaction=",iaction, "ttext=",ttext)
+                        var result;
+                        switch(iaction)
+                        {
+                            case "rename":
+                            {
+                                backend.renameApiDbFile(tid,"new file name");
+                            }break;
+
+                            case "delete":
+                            {
+                                buttonConfirmPopupMessage.setActionHandler(function()
+                                {
+                                    backend.deleteApiDbFile(tid);
+                                    popupMessage.close()
+                                });
+                                popupMessage.open("Are you sure to delete " + ttext + " ?");
+                            }break;
+                            case "public":
+                            {
+                                buttonConfirmPopupMessage.setActionHandler(function()
+                                {
+                                    backend.changeApiDbFileVisiblity(tid,"public");
+                                    popupMessage.close()
+                                });
+                                popupMessage.open("Are you sure to public " + ttext + " ?");
+                            }break;
+
+                            case "private":
+                            {
+                                buttonConfirmPopupMessage.setActionHandler(function()
+                                {
+                                    backend.changeApiDbFileVisiblity(tid,"private");
+                                    popupMessage.close()
+                                });
+                                popupMessage.open("Are you sure to private " + ttext + " ?");
+                            }break;
+                        }
+                        popupMenu.close()
+                    }
+
+                }//end of menu
+                CustomPopupMessage
+                {
+                    id:popupMessage
+                    setDefaultText: ""
+                    setFailColor: appColors.c_bgPopupContentFailed
+                    setSuccessColor:appColors.c_bgPopupContentSuccess
+                    setBgContent: appColors.c_bgPopupContentDefault
+                    setTextFontSize: appFontSizes.f_normal
+                    setTextColor:  appColors.c_fontcolor
+                    setBgColorPopup: appColors.c_background
+                    CustomButton
+                    {
+                        id:buttonConfirmPopupMessage
+                        setButtonText:"Confirm";
+                        setButtonBorderColor:appColors.c_buttonBorderColor
+                        setButtonBackColor: appColors.c_buttonBgColor
+                        setButtonFontColor: appColors.c_buttonFontColor
+                        setBold: true
+                        setButtonFontsize: appFontSizes.f_buttonFontSize
+                        setButtonsBorderWidth: 0
+                        setRadius: 20
+                        setWidth: 70
+                        setHeight:50
+                        anchors
+                        {
+                            bottom:parent.bottom
+                            right: parent.right
+                        }
+                        //actions will handle dynamically for each item by passing function to setActionHandler()
+                    }
+                    CustomButton
+                    {
+                        id:buttonCancelPopupMessage
+                        setButtonText:"Cancel";
+                        setButtonBorderColor:appColors.c_buttonBorderColor
+                        setButtonBackColor: appColors.c_buttonBgColor
+                        setButtonFontColor: appColors.c_buttonFontColor
+                        setBold: true
+                        setButtonFontsize: appFontSizes.f_buttonFontSize
+                        setButtonsBorderWidth: 0
+                        setRadius: 20
+                        setWidth: 70
+                        setHeight:50
+                        anchors
+                        {
+                            bottom:parent.bottom
+                            left: parent.left
+                        }
+                        onButtonClicked:
+                        {
+                            popupMessage.close()
+                        }
+                    }
+                }
+
+
             }
 
         }
+
     }
 
 
@@ -350,13 +525,14 @@ Page
     }
 
 
-    function changeLoaderContent(target="list")
+
+    function changeLoaderContent(target="list",filter="community")
     {
         if(target==="list")
         {
             appBlockBackButton=false
             theLoader.sourceComponent=databasesListComponent
-            backend.fetchUrlList()
+            backend.fetchUrlList(filter);
 
             //sometimes after emit FetchUrlList the server/backend doesn't emit result(onUrlListFailed/onUrlListReady)
             //so need to make sure user have way to be able try again
@@ -380,14 +556,20 @@ Page
             theLoader.item.listView.visible=true
 
 
+
             theLoader.item.urlModel.clear()
             for (var i = 0; i < list.length; i++) {
                 // console.log("Model item", list[i].d_name, list[i].d_icon, list[i].d_url);
                 // Append an object with name, url, and icon properties
+                // console.log("Item:", JSON.stringify(list[i]));
+
                 theLoader.item.urlModel.append({
+                                                   d_id: list[i].d_id,
                                                    d_name: list[i].d_name,
                                                    d_url: list[i].d_url,
-                                                   d_icon: list[i].d_icon
+                                                   d_icon: list[i].d_icon,
+                                                   d_visibility: list[i].d_visibility,
+                                                   d_owner: list[i].d_owner
                                                });
             }
         }
@@ -478,10 +660,51 @@ Page
         {
             handleDownloadFinished(success, filePath)
         }
+
+        onDeleteApiDbFileResult: function (result)
+        {
+            // if (result !== "error")
+            //     changeLoaderContent("list",visibilityFilter.currentItemText);
+            // else
+            //     console.log("couldn't delete file on server, result:", result);
+            console.log("delete result:", result);
+            changeLoaderContent("list");
+        }
+
+
+        onRenameApiDbFileResult: function(result)
+        {
+            // if (result !== "error")
+            //     changeLoaderContent("list",visibilityFilter.currentItemText);
+            // else
+            //     console.log("couldn't rename file, result:", result);
+            console.log("rename result:", result);
+            changeLoaderContent("list");
+        }
+
+        onChangeApiDbFileVisiblityResult: function (result)
+        {
+            // if (result !== "error")
+            //     changeLoaderContent("list",visibilityFilter.currentItemText);
+            // else
+            //     console.log("couldn't public file, result:", result);
+
+
+
+            // if (result !== "error")
+            //     changeLoaderContent("list",visibilityFilter.currentItemText);
+            // else
+                // console.log("couldn't private file, result:", result);
+
+            console.log("visibility result:", result);
+            changeLoaderContent("list");
+
+        }
+
     }
 
     Component.onCompleted:
     {
-        changeLoaderContent("list")
+        changeLoaderContent("list")//,visibilityFilter.currentItemText);
     }
 }

@@ -752,7 +752,7 @@ void Backend::setSessionKey(const QString &sessionKey)
     settings.setValue("session_key",m_session_key);
 }
 
-void Backend::fetchUrlList()
+void Backend::fetchUrlList(const QString& visibilityFilter)
 {
     QUrl url(m_api_url);
     // Append query parameters to the URL
@@ -760,6 +760,7 @@ void Backend::fetchUrlList()
 
     query.addQueryItem("request", "get-db-list");
     query.addQueryItem("sessionKey", m_session_key);
+    query.addQueryItem("getOnly", visibilityFilter);
 
     url.setQuery(query);
 
@@ -852,6 +853,65 @@ QStringList Backend::getStreakDays()
 QString Backend::getContentPath() const
 {
     return m_contentPath;
+}
+
+void Backend::changeApiDbFileVisiblity(const QString &fileId, const QString &newStatus)
+{
+    QUrl url(m_api_url);
+    // Append query parameters to the URL
+    QUrlQuery query;
+
+    query.addQueryItem("request", "update-visibility");
+    query.addQueryItem("sessionKey", m_session_key);
+    query.addQueryItem("fileId", fileId);
+    query.addQueryItem("visibility", newStatus);
+
+    url.setQuery(query);
+
+    QNetworkRequest request(url);
+
+    // Send the GET request
+    QNetworkReply *reply = m_networkManager.get(request);
+    connect(reply, &QNetworkReply::finished, this, &Backend::onChangeApiDbFileVisiblity);
+}
+
+void Backend::renameApiDbFile(const QString &fileId, const QString &newDbName)
+{
+    QUrl url(m_api_url);
+    // Append query parameters to the URL
+    QUrlQuery query;
+
+    query.addQueryItem("request", "rename-db");
+    query.addQueryItem("sessionKey", m_session_key);
+    query.addQueryItem("fileId", fileId);
+    query.addQueryItem("newName", newDbName);
+
+    url.setQuery(query);
+
+    QNetworkRequest request(url);
+
+    // Send the GET request
+    QNetworkReply *reply = m_networkManager.get(request);
+    connect(reply, &QNetworkReply::finished, this, &Backend::onRenameApiDbFile);
+}
+
+void Backend::deleteApiDbFile(const QString &fileId)
+{
+    QUrl url(m_api_url);
+    // Append query parameters to the URL
+    QUrlQuery query;
+
+    query.addQueryItem("request", "remove-db");
+    query.addQueryItem("sessionKey", m_session_key);
+    query.addQueryItem("fileId", fileId);
+
+    url.setQuery(query);
+
+    QNetworkRequest request(url);
+
+    // Send the GET request
+    QNetworkReply *reply = m_networkManager.get(request);
+    connect(reply, &QNetworkReply::finished, this, &Backend::onDeleteApiDbFile);
 }
 
 int Backend::calculateStreakDays(QDate& currentDate)
@@ -1235,12 +1295,16 @@ void Backend::onUrlListReceived()
                 QJsonObject obj = item.toObject();
                 resultError = obj["error"].toString();
                 resultMessage = obj["message"].toString();
-                qInfo() << "onSignResult, resultError=" << resultError << "message=" << resultMessage;
+                qInfo() << "onUrlListReceived, resultError=" << resultError << "message=" << resultMessage;
 
                 QVariantMap map;
+                map["d_id"] = obj["d_id"].toString();
                 map["d_name"] = obj["d_name"].toString();
                 map["d_url"] = obj["d_url"].toString();
                 map["d_icon"] = obj["d_icon"].toString();
+                map["d_visibility"] = obj["d_visibility"].toString();
+                map["d_owner"] = obj["d_owner"].toString();
+
                 urlList.append(map);
             }
             else
@@ -1263,9 +1327,13 @@ void Backend::onUrlListReceived()
         if (obj.contains("d_name") && obj.contains("d_url") && obj.contains("d_icon"))
         {
             QVariantMap map;
+            map["d_id"] = obj["d_id"].toString();
             map["d_name"] = obj["d_name"].toString();
             map["d_url"] = obj["d_url"].toString();
             map["d_icon"] = obj["d_icon"].toString();
+            map["d_visibility"] = obj["d_visibility"].toString();
+            map["d_owner"] = obj["d_owner"].toString();
+
             urlList.append(map);
 
             // Emit the URL list
@@ -1385,6 +1453,217 @@ void Backend::onSignResult()
         emit signResult(resultError);  // Pass the error message if present
     } else {
         emit signResult(resultMessage.isEmpty() ? resultKey : resultMessage);  // Pass the message or sessionKey
+    }
+}
+
+void Backend::onRenameApiDbFile()
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    if (!reply) {
+        qInfo() << "Error: Sender is not a valid QNetworkReply!";
+        return;
+    }
+
+    QString resultMessage;
+    QString resultError;
+    QString resultKey;
+
+    // Check for network error first
+    if (reply->error() != QNetworkReply::NoError) {
+        qInfo() << "Network error: " << reply->errorString();
+        reply->deleteLater();
+        emit signResult("Network error: " + reply->errorString());
+        return;
+    }
+
+    // Check the HTTP status code
+    int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    qInfo() << "HTTP Status Code: " << statusCode;
+
+    // Read and print the response body
+    QByteArray response = reply->readAll();
+    qInfo() << "Response: " << response;
+
+    // Parse the response as a JSON document
+    QJsonDocument doc = QJsonDocument::fromJson(response);
+
+    // Check if the document is an array or an object
+    if (doc.isArray())
+    {
+        // Handle JSON array
+        QJsonArray arr = doc.array();
+        for (const auto &item : arr) {
+            if (item.isObject()) {
+                QJsonObject obj = item.toObject();
+                resultError = obj["error"].toString();
+                resultMessage = obj["message"].toString();
+                qInfo() << "onRenameApiDbFile, resultError=" << resultError << "message=" << resultMessage << "key=" << resultKey;
+            } else {
+                qInfo() << "Array item is not a valid object";
+            }
+        }
+    }
+    else if (doc.isObject())
+    {
+        // Handle JSON object
+        QJsonObject obj = doc.object();
+        resultError = obj["error"].toString();
+        resultMessage = obj["message"].toString();
+        qInfo() << "onRenameApiDbFile, resultError=" << resultError << "message=" << resultMessage << "key=" << resultKey;
+    }
+    else {
+        // Handle unexpected JSON format
+        qInfo() << "Unexpected response format: Neither an object nor an array.";
+        resultError = "Unexpected response format";
+    }
+
+    // Emit result or error
+    reply->deleteLater();
+    if (!resultError.isEmpty()) {
+        emit renameApiDbFileResult(resultError);
+    } else {
+        emit renameApiDbFileResult(resultMessage);
+    }
+}
+
+void Backend::onChangeApiDbFileVisiblity()
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    if (!reply) {
+        qInfo() << "Error: Sender is not a valid QNetworkReply!";
+        return;
+    }
+
+    QString resultMessage;
+    QString resultError;
+    QString resultKey;
+
+    // Check for network error first
+    if (reply->error() != QNetworkReply::NoError) {
+        qInfo() << "Network error: " << reply->errorString();
+        reply->deleteLater();
+        emit signResult("Network error: " + reply->errorString());
+        return;
+    }
+
+    // Check the HTTP status code
+    int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    qInfo() << "HTTP Status Code: " << statusCode;
+
+    // Read and print the response body
+    QByteArray response = reply->readAll();
+    qInfo() << "Response: " << response;
+
+    // Parse the response as a JSON document
+    QJsonDocument doc = QJsonDocument::fromJson(response);
+
+    // Check if the document is an array or an object
+    if (doc.isArray())
+    {
+        // Handle JSON array
+        QJsonArray arr = doc.array();
+        for (const auto &item : arr) {
+            if (item.isObject()) {
+                QJsonObject obj = item.toObject();
+                resultError = obj["error"].toString();
+                resultMessage = obj["message"].toString();
+                qInfo() << "onChangeApiDbFileVisiblity, resultError=" << resultError << "message=" << resultMessage << "key=" << resultKey;
+            } else {
+                qInfo() << "Array item is not a valid object";
+            }
+        }
+    }
+    else if (doc.isObject())
+    {
+        // Handle JSON object
+        QJsonObject obj = doc.object();
+        resultError = obj["error"].toString();
+        resultMessage = obj["message"].toString();
+        qInfo() << "onChangeApiDbFileVisiblity, resultError=" << resultError << "message=" << resultMessage << "key=" << resultKey;
+    }
+    else {
+        // Handle unexpected JSON format
+        qInfo() << "Unexpected response format: Neither an object nor an array.";
+        resultError = "Unexpected response format";
+    }
+
+    // Emit result or error
+    reply->deleteLater();
+    if (!resultError.isEmpty()) {
+        emit changeApiDbFileVisiblityResult(resultError);
+    } else {
+        emit changeApiDbFileVisiblityResult(resultMessage);
+    }
+}
+
+
+void Backend::onDeleteApiDbFile()
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    if (!reply) {
+        qInfo() << "Error: Sender is not a valid QNetworkReply!";
+        return;
+    }
+
+    QString resultMessage;
+    QString resultError;
+    QString resultKey;
+
+    // Check for network error first
+    if (reply->error() != QNetworkReply::NoError) {
+        qInfo() << "Network error: " << reply->errorString();
+        reply->deleteLater();
+        emit signResult("Network error: " + reply->errorString());
+        return;
+    }
+
+    // Check the HTTP status code
+    int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    qInfo() << "HTTP Status Code: " << statusCode;
+
+    // Read and print the response body
+    QByteArray response = reply->readAll();
+    qInfo() << "Response: " << response;
+
+    // Parse the response as a JSON document
+    QJsonDocument doc = QJsonDocument::fromJson(response);
+
+    // Check if the document is an array or an object
+    if (doc.isArray())
+    {
+        // Handle JSON array
+        QJsonArray arr = doc.array();
+        for (const auto &item : arr) {
+            if (item.isObject()) {
+                QJsonObject obj = item.toObject();
+                resultError = obj["error"].toString();
+                resultMessage = obj["message"].toString();
+                qInfo() << "onDeleteApiDbFile, resultError=" << resultError << "message=" << resultMessage << "key=" << resultKey;
+            } else {
+                qInfo() << "Array item is not a valid object";
+            }
+        }
+    }
+    else if (doc.isObject())
+    {
+        // Handle JSON object
+        QJsonObject obj = doc.object();
+        resultError = obj["error"].toString();
+        resultMessage = obj["message"].toString();
+        qInfo() << "onDeleteApiDbFile, resultError=" << resultError << "message=" << resultMessage << "key=" << resultKey;
+    }
+    else {
+        // Handle unexpected JSON format
+        qInfo() << "Unexpected response format: Neither an object nor an array.";
+        resultError = "Unexpected response format";
+    }
+
+    // Emit result or error
+    reply->deleteLater();
+    if (!resultError.isEmpty()) {
+        emit deleteApiDbFileResult(resultError);
+    } else {
+        emit deleteApiDbFileResult(resultMessage);
     }
 }
 
