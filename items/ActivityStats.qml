@@ -6,6 +6,7 @@ Item {
     anchors.fill: parent
     property int setWidth: 100
     property int setHeight: 100
+    property var vartotalMinutesList: [10, 22, 33, 42, 33]
 
     SwipeView {
         id: view
@@ -70,34 +71,42 @@ Item {
 
         Item {
             id: thirdPage
+
             ChartView
             {
-                title: "Month Stats (Total Mistakes and Activities)"
-                anchors.fill: parent
-                legend.alignment: Qt.AlignBottom
-                antialiasing: true
+                width: parent.width
+                height: parent.height
+                title: "Total Minutes Data"
 
-                BarSeries
-                {
-                    id:activityAndMistakesBarSeries
-                    axisX: BarCategoryAxis { categories: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31] }
-                    axisY: ValueAxis {
-                        id: monthYAxis
-                        min: 0
-                        max: 300  // Initial max value, will be updated dynamically
-                    }
-                    BarSet
-                    {
-                        id:monthTotalMistakes
-                        label: "Mistakes";
-                        color:"red"
-                    }
-                    BarSet
-                    {
-                        id:monthTotalMinutes
-                        label: "Minutes";
-                        color:"blue"
-                    }
+                // Define X and Y axes
+                ValuesAxis {
+                    id: monthAxisX
+                    min: 1
+                    max: 31
+                    tickInterval: 2
+                    // tickCount: totalMinutesList.length
+                }
+
+                ValuesAxis {
+                    id: monthAxisY
+                    min: 0
+                    max: 10  // Adjust this value according to your data range
+                }
+
+                // LineSeries for the data
+                LineSeries {
+                    id:minutesSeries
+                    name: "Total Minutes"
+                    axisX: monthAxisX
+                    axisY: monthAxisY
+                    color:"blue"
+                }
+                LineSeries {
+                    id:mistakesSeries
+                    name: "Total Mistakes"
+                    axisX: monthAxisX
+                    axisY: monthAxisY
+                    color:"red"
                 }
             }
         }
@@ -155,17 +164,21 @@ Item {
             mistakesYAxis.max = Math.max(...totalMistakesList);
         }
 
-        function onGetMonthStatsResult(totalMinutesList,totalMistakesList)
+
+        function onGetMonthStatsResult(totalMinutesList, totalMistakesList)
         {
-            // Update the values
-            monthTotalMinutes.values = totalMinutesList
-            monthTotalMistakes.values = totalMistakesList
-            // Set the min and max for the activity chart for (Total Minutes, mistakes)
+            minutesSeries.clear()
+            mistakesSeries.clear()
 
-            const result = getMinMax(totalMinutesList, totalMistakesList);
+            monthAxisY.min=0
+            monthAxisY.max= getMinMax(totalMinutesList,totalMistakesList).max
 
-            monthYAxis.min = 0 //result.min
-            monthYAxis.max = result.max
+            for (var i = 0; i < totalMinutesList.length; i++)
+                minutesSeries.append(i, totalMinutesList[i]);
+
+
+            for (var i = 0; i < totalMistakesList.length; i++)
+                mistakesSeries.append(i, totalMistakesList[i]);
         }
 
 
