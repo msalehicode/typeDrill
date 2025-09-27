@@ -221,6 +221,8 @@ Page
         setTextFontSize: appFontSizes.f_normal
         setTextColor:  appColors.c_fontcolor
         setBgColorPopup: appColors.c_background
+        setWidth: parent.width/1.50
+        setHeight: 250
         onPopUpClosed:
         {
             //reset value and status upload and hide button
@@ -289,7 +291,7 @@ Page
         target:backend
         function onUploadDone(result)
         {
-            if(result==="File uploaded")
+            if(result==="File uploaded successfully")
             {
                 popup.setResult(result,"1")
             }
