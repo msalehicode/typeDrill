@@ -37,11 +37,21 @@ Page
         id: databasesListComponent
         Item
         {
+            //true=visible ok button for popupmessage, false=visible cancel&Confirm buttons
+            property bool visibleOKFlag: false
+            onVisibleOKFlagChanged:
+            {
+                buttonOkPopup.setVisible=visibleOKFlag
+                baseCofirmationButtons.visible=!visibleOKFlag
+            }
+
             //because we want access to items from outside of component need to make them alis
             property alias urlModel: urlModel
             property alias listView: listView
             property alias buttonTryAgainList: buttonTryAgainList
             property alias textFetchListError: textFetchListError
+            property alias popup: popupMessage
+
 
             Rectangle
             {
@@ -66,6 +76,7 @@ Page
                     {
                         currentIndex = index
                         changeLoaderContent("list",currentItemText);
+                        urlModel.clear()
                     }
                 }
 
@@ -75,7 +86,7 @@ Page
                     anchors
                     {
                         top:visibilityFilter.bottom
-                        topMargin:25
+                        topMargin:75
                         left:parent.left
                         right:parent.right
                         bottom:parent.bottom
@@ -175,13 +186,14 @@ Page
                             anchors.fill: parent
                             onPressAndHold:
                             {
-                                popupMenu.openWhereOnClicked(mAreaItem,listView)
 
                                 //add items into the menu
                                 if(visibilityFilter.currentItemText==="all mine" ||
                                    visibilityFilter.currentItemText==="my privates" ||
                                    visibilityFilter.currentItemText==="my publics")
                                 {
+                                    popupMenu.openWhereOnClicked(mAreaItem,listView)
+
                                     popupMenu.addItem("Delete",model.d_name,model.d_id,"delete",appIcons.icon_delete);
                                     // popupMenu.addItem("Rename",model.d_name,model.d_id,"rename",appIcons.icon_delete);
                                     if(model.d_visibility==="private")
@@ -218,6 +230,13 @@ Page
                                 setIconHeight: 25
                                 setIconWidth: 25
                                 setIconSource:  appIcons.icon_download
+                                anchors
+                                {
+                                    verticalCenter:parent.verticalCenter
+                                    right:parent.right
+                                    rightMargin:10
+                                }
+
                                 onButtonClicked:
                                 {
                                     changeLoaderContent("download")
@@ -252,7 +271,7 @@ Page
                     font.pixelSize: appFontSizes.f_title
                     wrapMode: Text.WordWrap
                     width:parent.width/2
-                    height:200
+                    height:implicitHeight
                     anchors
                     {
                         centerIn:parent
@@ -282,7 +301,7 @@ Page
 
                     onButtonClicked:
                     {
-                        changeLoaderContent("list")
+                        changeLoaderContent("list",visibilityFilter.currentItemText)
                     }
                 }
 
@@ -312,7 +331,7 @@ Page
                                     backend.deleteApiDbFile(tid);
                                     popupMessage.close()
                                 });
-                                popupMessage.open("Are you sure to delete " + ttext + " ?");
+                                popupMessage.open("Are you sure to delete file: " + ttext + " ?");
                             }break;
                             case "public":
                             {
@@ -321,7 +340,7 @@ Page
                                     backend.changeApiDbFileVisiblity(tid,"public");
                                     popupMessage.close()
                                 });
-                                popupMessage.open("Are you sure to public " + ttext + " ?");
+                                popupMessage.open("Are you sure to change visibility to public file: " + ttext + " ?");
                             }break;
 
                             case "private":
@@ -331,7 +350,7 @@ Page
                                     backend.changeApiDbFileVisiblity(tid,"private");
                                     popupMessage.close()
                                 });
-                                popupMessage.open("Are you sure to private " + ttext + " ?");
+                                popupMessage.open("Are you sure to change visibility to private file: " + ttext + " ?");
                             }break;
                         }
                         popupMenu.close()
@@ -348,14 +367,18 @@ Page
                     setTextFontSize: appFontSizes.f_normal
                     setTextColor:  appColors.c_fontcolor
                     setBgColorPopup: appColors.c_background
+                    setWidth: parent.width/1.50
+                    setHeight: 250
+
                     CustomButton
                     {
-                        id:buttonConfirmPopupMessage
-                        setButtonText:"Confirm";
+                        id:buttonOkPopup
+                        setButtonText:"Ok got it";
                         setButtonBorderColor:appColors.c_buttonBorderColor
                         setButtonBackColor: appColors.c_buttonBgColor
                         setButtonFontColor: appColors.c_buttonFontColor
                         setBold: true
+                        setVisible: false
                         setButtonFontsize: appFontSizes.f_buttonFontSize
                         setButtonsBorderWidth: 0
                         setRadius: 20
@@ -364,33 +387,65 @@ Page
                         anchors
                         {
                             bottom:parent.bottom
-                            right: parent.right
-                        }
-                        //actions will handle dynamically for each item by passing function to setActionHandler()
-                    }
-                    CustomButton
-                    {
-                        id:buttonCancelPopupMessage
-                        setButtonText:"Cancel";
-                        setButtonBorderColor:appColors.c_buttonBorderColor
-                        setButtonBackColor: appColors.c_buttonBgColor
-                        setButtonFontColor: appColors.c_buttonFontColor
-                        setBold: true
-                        setButtonFontsize: appFontSizes.f_buttonFontSize
-                        setButtonsBorderWidth: 0
-                        setRadius: 20
-                        setWidth: 70
-                        setHeight:50
-                        anchors
-                        {
-                            bottom:parent.bottom
-                            left: parent.left
+                            horizontalCenter: parent.horizontalCenter
                         }
                         onButtonClicked:
                         {
+                            visibleOKFlag=false;
                             popupMessage.close()
+                            changeLoaderContent("list",visibilityFilter.currentItemText);
                         }
                     }
+
+                    Row
+                    {
+                        id:baseCofirmationButtons
+                        visible: true
+                        width:70*2+10
+                        height:50
+                        spacing:10
+                        anchors
+                        {
+                            bottom:parent.bottom
+                            horizontalCenter: parent.horizontalCenter
+                        }
+                        CustomButton
+                        {
+                            id:buttonCancelPopupMessage
+                            setButtonText:"Cancel";
+                            setButtonBorderColor:appColors.c_buttonBorderColor
+                            setButtonBackColor: appColors.c_buttonCancelBgColor
+                            setButtonFontColor: appColors.c_buttonCancelFontColor
+                            setBold: true
+                            setButtonFontsize: appFontSizes.f_buttonFontSize
+                            setButtonsBorderWidth: 0
+                            setRadius: 20
+                            setWidth: 70
+                            setHeight:50
+                            onButtonClicked:
+                            {
+                                popupMessage.close()
+                            }
+                        }
+                        CustomButton
+                        {
+                            id:buttonConfirmPopupMessage
+                            setButtonText:"Confirm";
+                            setButtonBorderColor:appColors.c_buttonBorderColor
+                            setButtonBackColor: appColors.c_buttonBgColor
+                            setButtonFontColor: appColors.c_buttonFontColor
+                            setBold: true
+                            setButtonFontsize: appFontSizes.f_buttonFontSize
+                            setButtonsBorderWidth: 0
+                            setRadius: 20
+                            setWidth: 70
+                            setHeight:50
+                            //actions will handle dynamically for each item by passing function to setActionHandler()
+                        }
+
+                    }
+
+
                 }
 
 
@@ -476,6 +531,8 @@ Page
                     setTextFontSize: appFontSizes.f_normal
                     setTextColor:  appColors.c_fontcolor
                     setBgColorPopup: appColors.c_background
+                    setWidth: parent.width/1.50
+                    setHeight: 200
                     onPopUpClosed:
                     {
                         //reset text after close and hide button
@@ -551,27 +608,39 @@ Page
     {
         if (theLoader.item && theLoader.item.urlModel)
         {
-            theLoader.item.buttonTryAgainList.setVisible=false
-            theLoader.item.textFetchListError.visible=false
-            theLoader.item.listView.visible=true
-
-
-
             theLoader.item.urlModel.clear()
-            for (var i = 0; i < list.length; i++) {
-                // console.log("Model item", list[i].d_name, list[i].d_icon, list[i].d_url);
-                // Append an object with name, url, and icon properties
-                // console.log("Item:", JSON.stringify(list[i]));
-
-                theLoader.item.urlModel.append({
-                                                   d_id: list[i].d_id,
-                                                   d_name: list[i].d_name,
-                                                   d_url: list[i].d_url,
-                                                   d_icon: list[i].d_icon,
-                                                   d_visibility: list[i].d_visibility,
-                                                   d_owner: list[i].d_owner
-                                               });
+            if(list.length<=0)
+            {
+                theLoader.item.buttonTryAgainList.setVisible=true
+                theLoader.item.textFetchListError.visible=true
+                theLoader.item.listView.visible=false
+                theLoader.item.textFetchListError.text= "there is no file check somewhere else.";
             }
+            else
+            {
+                //hide try again text and button and show list
+                theLoader.item.buttonTryAgainList.setVisible=false
+                theLoader.item.textFetchListError.visible=false
+                theLoader.item.listView.visible=true
+
+                for (var i = 0; i < list.length; i++) {
+                    // console.log("Model item", list[i].d_name, list[i].d_icon, list[i].d_url);
+                    // Append an object with name, url, and icon properties
+                    // console.log("Item:", JSON.stringify(list[i]));
+
+                    theLoader.item.urlModel.append({
+                                                       d_id: list[i].d_id,
+                                                       d_name: list[i].d_name,
+                                                       d_url: list[i].d_url,
+                                                       d_icon: list[i].d_icon,
+                                                       d_visibility: list[i].d_visibility,
+                                                       d_owner: list[i].d_owner
+                                                   });
+                }
+
+            }
+
+
         }
         else
             console.warn("urlModel is not available yet")
@@ -638,6 +707,30 @@ Page
         }
     }
 
+    function showResult(result)
+    {
+        // if (theLoader.item && theLoader.item.popupMessage)
+        {
+            theLoader.item.popup.open("please wait...")
+
+            //hide confimation buttons and just show ok button
+            theLoader.item.visibleOKFlag=true
+            switch(result)
+            {
+                case "File removed successfully":
+                case "File renamed successfully":
+                case "File visibility updated":
+                    theLoader.item.popup.setResult(result,"1")
+                    break;
+
+                default:  theLoader.item.popup.setResult(result,"0")
+                    break;
+            }
+        }
+        // else
+            // console.log("item is not ready")
+    }
+
     Connections
     {
         target: backend
@@ -663,42 +756,15 @@ Page
 
         onDeleteApiDbFileResult: function (result)
         {
-            // if (result !== "error")
-            //     changeLoaderContent("list",visibilityFilter.currentItemText);
-            // else
-            //     console.log("couldn't delete file on server, result:", result);
-            console.log("delete result:", result);
-            changeLoaderContent("list");
+            showResult(result);
         }
-
-
         onRenameApiDbFileResult: function(result)
         {
-            // if (result !== "error")
-            //     changeLoaderContent("list",visibilityFilter.currentItemText);
-            // else
-            //     console.log("couldn't rename file, result:", result);
-            console.log("rename result:", result);
-            changeLoaderContent("list");
+            showResult(result);
         }
-
         onChangeApiDbFileVisiblityResult: function (result)
         {
-            // if (result !== "error")
-            //     changeLoaderContent("list",visibilityFilter.currentItemText);
-            // else
-            //     console.log("couldn't public file, result:", result);
-
-
-
-            // if (result !== "error")
-            //     changeLoaderContent("list",visibilityFilter.currentItemText);
-            // else
-                // console.log("couldn't private file, result:", result);
-
-            console.log("visibility result:", result);
-            changeLoaderContent("list");
-
+            showResult(result);
         }
 
     }
