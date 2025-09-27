@@ -131,6 +131,8 @@ public:
     Q_INVOKABLE void setSetting(const QString& settingKey,const QString& settingValue);
 
 
+    Q_INVOKABLE QString getVersion();
+
     /*!
      * \brief to trace practice by submitting them inside table (trace_practices)
      * \param mistake count made inside practice, timeSpent in practice (e.g: 00:15:25),  practiceType(e.g: 1->typePractice, 2->flashcardPractice)

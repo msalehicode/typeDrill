@@ -182,6 +182,20 @@ Page
 
             }
         }
+
+        Label
+        {
+            text:"version: " + backend.getVersion();
+            horizontalAlignment: Text.AlignHCenter
+            color: appColors.c_fontcolor
+            font.pixelSize: appFontSizes.f_normal
+            font.bold:true
+            anchors
+            {
+                horizontalCenter:parent.horizontalCenter
+                bottom:parent.bottom
+            }
+        }
     }
 
     Component.onCompleted:

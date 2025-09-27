@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(TypeDrill VERSION 0.1 LANGUAGES CXX)
+project(TypeDrill VERSION 1.35.3 LANGUAGES CXX)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -14,10 +14,11 @@ qt_add_executable(appTypeDrill
     main.cpp
 )
 
+
 # Define QML module
 qt_add_qml_module(appTypeDrill
     URI TypeDrill
-    VERSION 1.22.6
+    VERSION 1.0
 
     SOURCES
         include/backend.h
@@ -105,13 +106,16 @@ qt_add_qml_module(appTypeDrill
         resourses/lightMode/50x50/pause.png resourses/darkMode/50x50/pause.png
 )
 
-# Set app properties for macOS/Windows
-set_target_properties(appTypeDrill PROPERTIES
-    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-    MACOSX_BUNDLE TRUE
-    WIN32_EXECUTABLE TRUE
-)
+
+
+
+# # Set app properties for macOS/Windows
+# set_target_properties(appTypeDrill PROPERTIES
+#     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+#     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+#     MACOSX_BUNDLE TRUE
+#     WIN32_EXECUTABLE TRUE
+# )
 
 # Link against Qt libraries
 target_link_libraries(appTypeDrill PRIVATE
@@ -124,6 +128,12 @@ target_link_libraries(appTypeDrill PRIVATE
     Qt6::Gui
     Qt6::Qml
 )
+
+
+# define version macro for backend.getVersion()
+target_compile_definitions(appTypeDrill PRIVATE APP_VERSION="${PROJECT_VERSION}")
+
+
 
 # Install rules (for desktop)
 include(GNUInstallDirs)

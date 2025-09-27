@@ -147,6 +147,11 @@ void Backend::setSetting(const QString &settingKey, const QString &settingValue)
     qInfo() << "setting " << settingKey << " set to " << settingValue << " newvalue=" << getSetting(settingKey);
 }
 
+QString Backend::getVersion()
+{
+    return QString::fromUtf8(APP_VERSION);//version macro from cmake
+}
+
 void Backend::setPracticeResult(const QString &mistakeCount, const QString &timeSpent, const int& practiceType)
 {
     QDateTime currentDate = QDateTime::currentDateTime();
