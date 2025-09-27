@@ -91,8 +91,8 @@ Item {
                 font.pixelSize: setTextFontSize
                 color:setTextColor
                 anchors.centerIn: parent
-                width:parent.width/2
-                height:parent.height/4
+                width:parent.width/1.75
+                height:implicitHeight
                 wrapMode: Text.WordWrap
             }
 
