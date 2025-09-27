@@ -342,7 +342,7 @@ function updateFileVisibility($fileId,$visibility,$sessionKey,$successResponseAl
     if ($stmt->execute())
     {
         if($successResponseAllowed)
-          sendResponse(['success' => 'File visibility updated']);
+          sendResponse(['message' => 'File visibility updated']);
         else
           return true;
     }
@@ -395,8 +395,7 @@ function removeFile($fileId,$sessionKey)
     $stmt->bind_param("i", $fileId);
     if ($stmt->execute())
     {
-        if($successResponseAllowed)
-          sendResponse(['success' => 'File removed successfully']);
+          sendResponse(['message' => 'File removed successfully']);
     }
     else
     {
@@ -535,7 +534,7 @@ function renameFile($fileId,$newFilename,$sessionKey,$successResponseAllowed=tru
         if ($stmt->execute())
         {
             if($successResponseAllowed)
-              sendResponse(['success' => 'File renamed successfully']);
+              sendResponse(['message' => 'File renamed successfully']);
             else
               return true;
         }
@@ -727,41 +726,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // If method is not POST
-sendResponse(['error' => 'Method not allowed']);
-
-// Handle POST requests
-if ($_SERVER['REQUEST_METHOD'] === 'POST')
-{
-  $headers = getallheaders();
-  $requestType = $headers['request'];
-  $sessionKey = $headers['sessionKey'];
-  $fileVisibilityStatus = isset($headers['status']) ? $headers['status'] : "private";
-  // $debugTXT = "stuff, reqtype=" . $requestType . "sesionKey=" .  $sessionKey . "status=" . $status;
-    // sendResponse($debugTXT);
-
-  if(isset($requestType))
-  {
-    if(checkSessionKey($sessionKey,$requestType))
-    {
-      switch ($requestType)
-      {
-          case 'upload-db':
-          {
-              uploadFile($fileVisibilityStatus,$sessionKey);
-          }break;
-
-          default:
-            sendResponse(['error' => "invalid request"]);
-            break;
-      }
-    }
-  }
-  else
-  {
-      sendResponse(['error' => 'you must set request']);
-  }
-}
-
-
-// If method not allowed
 sendResponse(['error' => 'Method not allowed']);
