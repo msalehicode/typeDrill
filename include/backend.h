@@ -82,6 +82,22 @@ class Backend : public QObject
 
 
     bool removeFile(const QString& filepath);
+
+
+
+
+
+
+
+
+    //crossword
+
+    QList<QString> whatIsMostCompatible(const QMap<QString,QString>& wordText_Instruction);
+    void printGrid(const QVector<QVector<QString>>& grid);
+    void insertWordToGrid(QVector<QVector<QString>>& gridWords, int x, int y, const QString &word,QString mode);
+    QVector<QVector<QString>> getGridAs2DArray(const QVector<QVector<QString>>& gridWords);
+    QList<QVector<QString>> whatAreCompatible(const QMap<QString,QString>& wordlist, QString beginOrEnds, QString targetWord);
+    QList<QList<QVector<QString>>> sortedsortWordsBy(const QString& beginOrEnd, const QList<QVector<QString>>& list);
 public:
 
     /*!
@@ -89,6 +105,9 @@ public:
      * \return emits getWeeklyStatsResult to pass (Total Minutes List , Total Mistakes List)
      */
     Q_INVOKABLE void getWeeklyStats();
+
+
+    Q_INVOKABLE void makeCrossword();
 
 
 
@@ -125,6 +144,9 @@ public:
      * \return emits wordReady with QList of next word
      */
     Q_INVOKABLE void getNextWord();
+
+    QVariantList getTableWords();
+
 
 
     Q_INVOKABLE QString getSetting(const QString& settingKey);
@@ -313,10 +335,11 @@ public:
 
 
 signals:
-    void wordReady(const QList<QMap<QString, QVariant>>& word);  // Emit to QML
+    void wordReady(const QList<QMap<QString, QVariant>>& word);
+    void crosswordReady(const QVector<QVector<QString>>& crossword);
     void practiceFinished();
     void wordIsIncorrect(const QString& correctStatus);
-    void tablesList(const QVariantList& tableList);  // Emit to QML
+    void tablesList(const QVariantList& tableList);
     void lessonList(const QVariantList& tableList);
 
     void tableCreationResult(const QString& tableCreationResult);

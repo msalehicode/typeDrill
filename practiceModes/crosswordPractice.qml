@@ -12,6 +12,13 @@ Page {
         ["", "", "", "", "","B","","",""]
     ]
 
+
+    ListModel
+    {
+        id:listmodel
+    }
+
+
     Rectangle {
         width: parent.width
         height: parent.height
@@ -27,16 +34,7 @@ Page {
 
             // Iterate through the grid cells
             Repeater {
-                model: ListModel {
-                    // Flatten the 2D crossword array into a 1D model
-                    Component.onCompleted: {
-                        for (var i = 0; i < crossword.length; i++) {
-                            for (var j = 0; j < crossword[i].length; j++) {
-                                append({ row: i, col: j, value: crossword[i][j] });
-                            }
-                        }
-                    }
-                }
+                model:listmodel
 
                 delegate: Rectangle
                 {
@@ -73,7 +71,7 @@ Page {
                         onTextChanged:
                         {
                             console.log(model.value, " " , text)
-                            text = text.toUpperCase();
+                            // text = text.toUpperCase();
 
                             // Check if the user input matches the crossword value for this specific cell
                             if (text === model.value) {
@@ -93,7 +91,29 @@ Page {
         }
     }
 
-    Component.onCompleted: {
+
+    Connections
+    {
+        target:backend
+        function onCrosswordReady(crosswordGrid)
+        {
+            console.log("crosswordGrid=",crosswordGrid)
+            crossword=crosswordGrid;
+
+            listmodel.clear()
+            for (var i = 0; i < crossword.length; i++)
+            {
+                for (var j = 0; j < crossword[i].length; j++)
+                {
+                    listmodel.append({ row: i, col: j, value: crossword[i][j] });
+                }
+            }
+        }
+    }
+
+    Component.onCompleted:
+    {
         console.log(crossword[0].length, " ", crossword.length)
+        backend.makeCrossword();
     }
 }

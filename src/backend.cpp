@@ -136,6 +136,13 @@ void Backend::getNextWord()
     }
 }
 
+QVariantList Backend::getTableWords()
+{
+    return m_db.getAllRowsAsVariantList(currentTableName);
+}
+
+
+
 QString Backend::getSetting(const QString &settingKey)
 {
     return settings.getValue(settingKey).toString();
@@ -1025,6 +1032,186 @@ void Backend::getWeeklyStats()
     emit getWeeklyStatsResult(totalMinutes,totalMistakes);
 }
 
+void Backend::makeCrossword()
+{
+    // Get the list of words
+    QVariantList wordList = getTableWords();
+
+
+    //add words and their instruction to the wordText_Instruction
+    QMap<QString,QString> wordText_Instruction;
+    for (const QVariant &item : wordList)
+    {
+        if (item.canConvert<QVariantMap>())
+        {
+            QVariantMap map = item.toMap();
+            QString textValue = map.value("text").toString();
+
+            // QString textInstruction = map.value("picture").toString();
+            // if(textInstruction.isEmpty())
+            QString textInstruction = map.value("meaning").toString();
+
+
+            wordText_Instruction.insert(textValue,textInstruction);
+        }
+    }
+
+
+
+    //find most compatible word, [0]->compatibilityCount , [1]->word, [2]->meaning/picture
+    QList<QString> coreWord = whatIsMostCompatible(wordText_Instruction);
+    for (const QString& str : coreWord)
+    {
+        qDebug() << str;
+    }
+
+
+
+    //remove core-word from wordText_Instruction
+    if (coreWord.size() > 0)
+    {
+        QString wordToRemove = coreWord[1];  // coreWord[0] is the word, coreWord[1] is its meaning
+
+        wordText_Instruction.remove(wordToRemove);
+        qInfo() << "core-word removed from list";
+    }
+    else
+        qWarning() << "No core-word found to remove.";
+
+
+    //build first empty grid with core-word length
+    int gridSize = coreWord[1].length();
+    QVector<QVector<QString>> gridWords(gridSize, QVector<QString>(gridSize, ""));
+    qInfo() << "grid initialized size: " << gridSize << "grid:";
+    printGrid(gridWords);
+
+
+
+    //place core-word
+    insertWordToGrid(gridWords,0, 0, coreWord[1], "h");
+    qInfo() << "core-word added:";
+    printGrid(gridWords);
+
+
+
+    //find most compatible words begins with core-word vertically
+    QList<QVector<QString>> vertical_from_coreWord = whatAreCompatible(wordText_Instruction,"begin",coreWord[1]);
+    qInfo() << "words starts with one letter of core-word=";
+    for (const QVector<QString>& row : vertical_from_coreWord)
+        qDebug() << "[" << row.join(", ") << "]";
+
+
+    // List to store the chosen words from each group
+    QList<QVector<QString>> chosenWords;
+    int compatibilityCount = 0;
+    int maxCompatibility = 0;
+
+    // Sort vertical words based on the first character
+    QList<QList<QVector<QString>>> vertical_sorted = sortedsortWordsBy("begin", vertical_from_coreWord);
+
+    // Loop through each group in the sorted vertical list
+    for (int i = 0; i < vertical_sorted.size(); ++i)
+    {
+        QList<QVector<QString>> group = vertical_sorted[i];
+
+        qDebug() << "Group " << i + 1 << ":";
+
+        // Reset maxCompatibility for each group
+        maxCompatibility = 0;
+        QVector<QString> bestWord;
+
+        // Loop through each word in the current group
+        for (const QVector<QString>& wordDef : group)
+        {
+            // Get the compatibility count for the current word
+            compatibilityCount = whatAreCompatible(wordText_Instruction, "begin", wordDef[0]).size();
+
+            qDebug() << "Word: " << wordDef[0] << ", Definition: " << wordDef[1] << " compatibility count: " << compatibilityCount;
+
+            // If the compatibility count is higher than the current maximum, update maxCompatibility and store the word
+            if (compatibilityCount > maxCompatibility)
+            {
+                maxCompatibility = compatibilityCount;
+                bestWord = wordDef;  // Store the best word
+            }
+            // In case of a tie, you can decide to add the word or skip it
+            // else if (compatibilityCount == maxCompatibility)
+            // {
+            //     bestWord = wordDef;  // Optionally handle ties here
+            // }
+        }
+
+        // After processing the group, add the word with the highest compatibility to chosenWords
+        if (!bestWord.isEmpty())
+        {
+            chosenWords.append(bestWord); // Add the word with the highest compatibility
+        }
+
+        qDebug() << "-----------------------------";
+    }
+
+
+
+    // Final result - chosen words (one from each group)
+    qInfo() << "Chosen words with the highest compatibility count from each group:";
+    for (const QVector<QString>& item : chosenWords)
+    {
+        qInfo() << item[0] << " " << item[1];
+    }
+
+    QString w_test = coreWord[1];
+    QList<QVector<QString>> addedVertically;
+    for (const QVector<QString>& item : chosenWords)
+    {
+        for(int x=0; x<w_test.length(); x++)
+        {
+            qInfo() << "char=" << w_test[x] << " index:" << x;
+            if(item[0][0] == w_test[x])
+            {
+                //add item to addedVertically to later know which words are vertically
+                addedVertically.append(item);
+
+                //remove item from choseWords to avoid duplicate and know this word is used
+                chosenWords.removeOne(item);
+
+
+                //insert
+                insertWordToGrid(gridWords,0,x,item[0],"v");
+            }
+
+        }
+    }
+
+    qInfo() << "Vertical chosenWords added:";
+    printGrid(gridWords);
+
+
+
+
+
+    emit crosswordReady(getGridAs2DArray(gridWords));
+/*
+
+
+    //remove vertical_from_coreWord from wordText_Instruction
+
+
+    //returns those words are compatible with vectical, x,y position of the vertical's character
+    QList<int, int, QVector<QString>> horizontal_to_vertical_reses =
+            whatAreCompatible(wordText_Instruction,"horizontal","begin",vertical_from_coreWord);
+
+
+    //place vertical
+    //place horizontal
+
+    emit crosswordReady(crosswordGrid);  // Emit the crossword grid with placed words
+
+*/
+}
+
+
+
+
 void Backend::getMonthStats()
 {
     QDate today = QDate::currentDate();
@@ -1140,6 +1327,249 @@ bool Backend::removeFile(const QString &filepath)
     }
     return false;
 }
+
+
+QList<QString> Backend::whatIsMostCompatible(const QMap<QString, QString>& wordText_Instruction)
+{
+    QList<QString> result;
+
+    QMap<int, QPair<QString, QString>> scoreBoard;
+
+    // Iterate through each key-value pair in the QMap
+    for (auto it = wordText_Instruction.begin(); it != wordText_Instruction.end(); ++it)
+    {
+        QString key = it.key();
+        QString key2;
+        int compatibilityCount = 0;
+
+        // Compare the current key with all other keys
+        for (auto it2 = wordText_Instruction.begin(); it2 != wordText_Instruction.end(); ++it2)
+        {
+            key2=it2.key();
+            // Skip comparing the key to itself
+            if (it == it2) continue;
+
+            for(int i=0; i<key2.length(); i++)
+            {
+                if(key.contains(key2[i]))
+                {
+                    compatibilityCount++;
+                }
+            }
+        }
+        scoreBoard.insert(compatibilityCount, QPair<QString, QString>(it.key(), it.value()));
+    }
+
+
+    //assuming first item is bigger.
+    int max= scoreBoard.begin().key();
+    QString t=scoreBoard.begin().value().first;
+    QString v=scoreBoard.begin().value().second;
+
+    //find the most compatible word
+    for (auto it = scoreBoard.begin(); it != scoreBoard.end(); ++it)
+    {
+        // qDebug() << "compatibilityCount:" << it.key() << ", key:" << it.value().first << ", val:" << it.value().second;
+        if(max<it.key())
+        {
+            max=it.key();
+            t=it.value().first;
+            v=it.value().second;
+        }
+    }
+
+    qInfo() << "condidated = " << max << " text=" << t << " val=" << v;
+    result.append(QString::number(max));
+    result.append(t);
+    result.append(v);
+    return result;
+}
+
+
+void Backend::printGrid(const QVector<QVector<QString>>& grid)
+{
+    // Iterate through each row in the grid
+    for (int i = 0; i < grid.size(); ++i)
+    {
+        QString row;  // To accumulate the row's elements
+
+        // Iterate through each column in the row
+        for (int j = 0; j < grid[i].size(); ++j)
+        {
+            // Append the element to the row string
+            row += grid[i][j];
+
+            // Add a space between elements in the same row, but not after the last element
+            if (j < grid[i].size() - 1)
+            {
+                row += ",";
+            }
+        }
+
+        // Print the row with a newline at the end
+        qInfo() << row;  // Print the whole row in one line
+    }
+}
+
+void Backend::insertWordToGrid(QVector<QVector<QString>>& gridWords, int x, int y, const QString& word, QString mode)
+{
+    // Ensure the word fits within the current grid bounds
+    int wordLength = word.length();
+    int gridSize = gridWords.size();
+
+    // Check if the grid is large enough to accommodate the word
+    if (mode == "h") {
+        // Horizontal: Check if there are enough columns
+        if (y + wordLength > gridSize) {
+            // Expand the grid horizontally (increase the number of columns)
+            int newCols = y + wordLength;
+            for (int i = 0; i < gridSize; ++i) {
+                gridWords[i].resize(newCols, "");
+            }
+        }
+    } else if (mode == "v") {
+        // Vertical: Check if there are enough rows
+        if (x + wordLength > gridSize) {
+            // Expand the grid vertically (increase the number of rows)
+            int newRows = x + wordLength;
+            gridWords.resize(newRows);
+
+            // Ensure all rows have the correct number of columns
+            for (int i = 0; i < newRows; ++i) {
+                if (gridWords[i].size() < gridSize) {
+                    gridWords[i].resize(gridSize, "");
+                }
+            }
+        }
+    }
+
+    // Now insert the word in the specified mode (horizontal or vertical)
+    for (int i = 0; i < wordLength; i++) {
+        if (mode == "h") {  // Horizontal insertion
+            gridWords[x][y + i] = word[i];
+        } else {  // Vertical insertion
+            gridWords[x + i][y] = word[i];
+        }
+    }
+
+    qInfo() << "Inserted word '" << word << "' at position (" << x << ", " << y << ") in " << mode << " direction.";
+}
+
+
+QVector<QVector<QString>> Backend::Backend::getGridAs2DArray(const QVector<QVector<QString> > &gridWords)
+{
+    QVector<QVector<QString>> result;
+
+    // Iterate through each row of the grid
+    for (const auto& row : gridWords)
+    {
+        QVector<QString> rowResult;
+
+        // Iterate through each cell of the row
+        for (const auto& cell : row)
+        {
+            if (cell.isEmpty())
+                rowResult.append("");  // Add an empty string for empty cells
+            else
+                rowResult.append(cell);  // Add the word/letter in non-empty cells
+        }
+
+        // Add the processed row to the result
+        result.append(rowResult);
+    }
+
+    return result;
+}
+
+QList<QVector<QString>> Backend::whatAreCompatible(const QMap<QString, QString> &wordlist,
+                                                   QString beginOrEnds, QString targetWord)
+{
+    QList<QVector<QString>> result;
+    QVector<QString> row;
+    for (auto it = wordlist.begin(); it != wordlist.end(); ++it)
+    {
+        for(int i=0; i<targetWord.length(); i++)
+        {
+            //check for same word
+            if(it.key()[0]==targetWord)
+                continue;
+
+            if(beginOrEnds=="begin")//begins with
+            {
+                if(targetWord[i] == it.key()[0])
+                {
+
+
+                    row.clear();
+                    row.push_back(it.key());
+                    row.push_back(it.value());
+
+                    //check for duplicates
+                    if(!result.contains(row))
+                        result.append(row);
+
+                }
+            }
+            else //ends with
+            {
+                if(targetWord[i] == it.key()[it.key().length()-1])
+                {
+                    row.clear();
+                    row.push_back(it.key());
+                    row.push_back(it.value());
+
+                    //check for duplicates
+                    if(!result.contains(row))
+                        result.append(row);
+
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
+QList<QList<QVector<QString>>> Backend::sortedsortWordsBy(const QString &beginOrEnd, const QList<QVector<QString>> &list)
+{
+    QList<QList<QVector<QString>>> result;
+
+    // Helper function to get the first or last character of a word
+    auto getSortChar = [&beginOrEnd](const QString &word) -> QChar {
+        if (beginOrEnd == "begin") {
+            // Return the first character
+            return word.trimmed().at(0);
+        } else if (beginOrEnd == "end") {
+            // Return the last character
+            return word.trimmed().at(word.length() - 1);
+        }
+        return QChar();
+    };
+
+    // Map to store groups of words based on their first or last character
+    QMap<QChar, QList<QVector<QString>>> sortedWords;
+
+    for (const QVector<QString> &wordDef : list) {
+        QString word = wordDef[0];  // The first element in each QVector is the word
+        QChar keyChar = getSortChar(word);
+
+        if (keyChar.isLetter()) {
+            sortedWords[keyChar].append(wordDef);
+        }
+    }
+
+    // Prepare the result by converting the QMap into a QList<QList<QVector<QString>>>
+    for (auto it = sortedWords.begin(); it != sortedWords.end(); ++it) {
+        result.append(it.value());
+    }
+
+    return result;
+}
+
+
+
+
+
 
 int Backend::getLastWindowSize(const QString &widthOrHeight)
 {
