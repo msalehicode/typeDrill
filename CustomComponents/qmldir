@@ -10,3 +10,4 @@ CustomSwitchText 1.0 CustomSwitchText.qml
 CustomTextInput 1.0 CustomTextInput.qml 
 CustomTimer 1.0 CustomTimer.qml
 CustomPopupMenu 1.0 CustomPopupMenu.qml
+CustomCollapsiblePanel 1.0 CustomCollapsiblePanel.qml
