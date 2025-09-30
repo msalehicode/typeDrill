@@ -75,7 +75,7 @@ Page
             Rectangle
             {
                 id:weekReport
-                width:parent.width/1.35
+                width:parent.width/1.15
                 height:140
                 color:appColors.c_bg_weekReport
                 radius:30
@@ -210,7 +210,7 @@ Page
             Rectangle
             {
                 id:selectPracticeOrEtc
-                width:parent.width/1.35
+                width:parent.width/1.15
                 height:60
                 color: appColors.c_bg_tableList
                 radius:90
@@ -261,7 +261,7 @@ Page
 
             Rectangle {
                 id:tableList
-                width:parent.width/1.35
+                width:parent.width/1.15
                 height:parent.height/1.75
                 color: appColors.c_bg_tableList
                 radius:30
