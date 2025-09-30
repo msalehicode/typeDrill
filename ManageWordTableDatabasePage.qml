@@ -43,88 +43,139 @@ Page
                 width:parent.width
                 height:parent.height
                 spacing:5
-                Row
+                CustomCollapsiblePanel
                 {
-                    width:parent.width
-                    height:100
-                    // anchors.horizontalCenter: parent.horizontalCenter
-                    spacing: 35
-                    CustomButtonWithIcon
+                    id:tableCollaps
+                    setTitle: "Table:"
+                    setWidth: parent.width/1.50
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    setHeight:50
+                    setBgColorButton: appColors.c_comboboxBgColor
+                    setTextColor: appColors.c_buttonFontColor
+                    setTextFontSize: appFontSizes.f_normal
+                    setIconArrow: appIcons.icon_back_white
+                    setContentHeight:120
+                    setOpen:true
+
+                    onCollapsed:
                     {
-                        setWidth:80
-                        setHeight:80
-                        setButtonText:"Add Word";
-                        setButtonFontColor:appColors.c_fontcolor
-                        setButtonBackColor:"transparent"
-                        setTextMagin: 5
-                        setIconHeight: 50
-                        setIconWidth: 50
-                        setButtonsBorderWidth:2
-                        setButtonBorderColor:appColors.c_fontcolor
-                        setIconSource:  appIcons.icon_settings
-                        onButtonClicked:
-                        {
-                            mainStackView.push("./forms/AddNewWordForm.qml")
-                        }
+                        if(setOpen)
+                            setHeight = setHeight+setContentHeight
+                        else
+                            setHeight=50
                     }
 
-
-                    CustomButtonWithIcon
+                    Row
                     {
-                        setWidth:80
-                        setHeight:80
-                        setButtonText:"New Table";
-                        setButtonFontColor:appColors.c_fontcolor
-                        setButtonBackColor:"transparent"
-                        setTextMagin: 5
-                        setIconHeight: 50
-                        setIconWidth: 50
-                        setButtonsBorderWidth:2
-                        setButtonBorderColor:appColors.c_fontcolor
-                        setIconSource:  appIcons.icon_browse
-                        onButtonClicked:
+                        width: parent.width
+                        height:80
+                        spacing:50
+                        CustomButtonWithIcon
                         {
-                            mainStackView.push("./forms/AddNewTableForm.qml")
+                            setWidth:80
+                            setHeight:80
+                            setButtonText:"Add Word";
+                            setButtonFontColor:appColors.c_fontcolor
+                            setButtonBackColor:"transparent"
+                            setTextMagin: 5
+                            setIconHeight: 50
+                            setIconWidth: 50
+                            setButtonsBorderWidth:2
+                            setButtonBorderColor:appColors.c_fontcolor
+                            setIconSource:  appIcons.icon_settings
+                            onButtonClicked:
+                            {
+                                mainStackView.push("./forms/AddNewWordForm.qml")
+                            }
+                        }
+
+                        CustomButtonWithIcon
+                        {
+                            setWidth:80
+                            setHeight:80
+                            setButtonText:"New Table";
+                            setButtonFontColor:appColors.c_fontcolor
+                            setButtonBackColor:"transparent"
+                            setTextMagin: 5
+                            setIconHeight: 50
+                            setIconWidth: 50
+                            setButtonsBorderWidth:2
+                            setButtonBorderColor:appColors.c_fontcolor
+                            setIconSource:  appIcons.icon_browse
+                            onButtonClicked:
+                            {
+                                mainStackView.push("./forms/AddNewTableForm.qml")
+                            }
                         }
                     }
+                }
 
-                    CustomButtonWithIcon
+                CustomCollapsiblePanel
+                {
+                    id:databaseCollaps
+                    setTitle: "Database:"
+                    setWidth: parent.width/1.50
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    setHeight:50
+                    setBgColorButton: appColors.c_comboboxBgColor
+                    setTextColor: appColors.c_buttonFontColor
+                    setTextFontSize: appFontSizes.f_normal
+                    setIconArrow: appIcons.icon_back_white
+                    setContentHeight:120
+                    setOpen: false
+
+                    onCollapsed:
                     {
-                        setWidth:80
-                        setHeight:80
-                        setButtonText:"New Database";
-                        setButtonFontColor:appColors.c_fontcolor
-                        setButtonBackColor:"transparent"
-                        setTextMagin: 5
-                        setIconHeight: 50
-                        setIconWidth: 50
-                        setButtonsBorderWidth:2
-                        setButtonBorderColor:appColors.c_fontcolor
-                        setIconSource:  appIcons.icon_settings
-                        onButtonClicked:
-                        {
-                            mainStackView.push("./forms/AddNewDatabaseForm.qml")
-                        }
+                        if(setOpen)
+                            setHeight = setHeight+setContentHeight
+                        else
+                            setHeight=50
                     }
 
-
-                    CustomButtonWithIcon
+                    Row
                     {
-                        setWidth:80
-                        setHeight:80
-                        setButtonText:"delete Database";
-                        setButtonFontColor:appColors.c_fontcolor
-                        setButtonBackColor:"transparent"
-                        setTextMagin: 5
-                        setIconHeight: 50
-                        setIconWidth: 50
-                        setButtonsBorderWidth:2
-                        setButtonBorderColor:appColors.c_fontcolor
-                        setIconSource:  appIcons.icon_delete
-                        onButtonClicked:
+                        width: parent.width
+                        height:80
+                        spacing:50
+                        CustomButtonWithIcon
                         {
-                            mainStackView.push("./forms/RemoveDatabaseForm.qml")
+                            setWidth:80
+                            setHeight:80
+                            setButtonText:"New Database";
+                            setButtonFontColor:appColors.c_fontcolor
+                            setButtonBackColor:"transparent"
+                            setTextMagin: 5
+                            setIconHeight: 50
+                            setIconWidth: 50
+                            setButtonsBorderWidth:2
+                            setButtonBorderColor:appColors.c_fontcolor
+                            setIconSource:  appIcons.icon_settings
+                            onButtonClicked:
+                            {
+                                mainStackView.push("./forms/AddNewDatabaseForm.qml")
+                            }
                         }
+
+
+                        CustomButtonWithIcon
+                        {
+                            setWidth:80
+                            setHeight:80
+                            setButtonText:"delete Database";
+                            setButtonFontColor:appColors.c_fontcolor
+                            setButtonBackColor:"transparent"
+                            setTextMagin: 5
+                            setIconHeight: 50
+                            setIconWidth: 50
+                            setButtonsBorderWidth:2
+                            setButtonBorderColor:appColors.c_fontcolor
+                            setIconSource:  appIcons.icon_delete
+                            onButtonClicked:
+                            {
+                                mainStackView.push("./forms/RemoveDatabaseForm.qml")
+                            }
+                        }
+
                     }
 
                 }
