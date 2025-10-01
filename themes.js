@@ -40,6 +40,8 @@ const themeDark =
     "bgPopupContentSuccess": "#30613d",
     "bgPopupContentDefault" : "#383347",
 
+    //collapsible panel
+    "collapsContentBgColor" : "#383347",
 
     //indicator
     "bg_indicator" : "transparent"
@@ -89,6 +91,10 @@ const themeLight =
     "bgPopupContentFailed": "#c94b34",
     "bgPopupContentSuccess": "#66d483",
     "bgPopupContentDefault" : "#a281fc",
+
+
+    //collapsible panel
+    "collapsContentBgColor" : "white",
 
 
     //indicator

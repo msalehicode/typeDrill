@@ -109,7 +109,9 @@ Window
         property color c_bgPopupContentSuccess : currentTheme["bgPopupContentSuccess"];
         property color c_bgPopupContentDefault : currentTheme["bgPopupContentDefault"];
         
-        
+        //collapsible panel
+        property color c_collapsContentBgColor: currentTheme["collapsContentBgColor"]
+
         //indicator
         property color c_bgIndicator : currentTheme["bg_indicator"];
     }

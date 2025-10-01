@@ -54,8 +54,10 @@ Page
                     setTextColor: appColors.c_buttonFontColor
                     setTextFontSize: appFontSizes.f_normal
                     setIconArrow: appIcons.icon_back_white
+                    setBgContent:appColors.c_collapsContentBgColor
                     setContentHeight:120
-                    setOpen:true
+                    setOpen:false
+
 
                     onCollapsed:
                     {
@@ -80,8 +82,8 @@ Page
                             setTextMagin: 5
                             setIconHeight: 50
                             setIconWidth: 50
-                            setButtonsBorderWidth:2
-                            setButtonBorderColor:appColors.c_fontcolor
+                            setButtonsBorderWidth:0
+                            setButtonBorderColor: "transparent"
                             setIconSource:  appIcons.icon_settings
                             onButtonClicked:
                             {
@@ -99,8 +101,8 @@ Page
                             setTextMagin: 5
                             setIconHeight: 50
                             setIconWidth: 50
-                            setButtonsBorderWidth:2
-                            setButtonBorderColor:appColors.c_fontcolor
+                            setButtonsBorderWidth:0
+                            setButtonBorderColor: "transparent"
                             setIconSource:  appIcons.icon_browse
                             onButtonClicked:
                             {
@@ -113,7 +115,7 @@ Page
                 CustomCollapsiblePanel
                 {
                     id:databaseCollaps
-                    setTitle: "Database:"
+                    setTitle: "Database"
                     setWidth: parent.width/1.50
                     anchors.horizontalCenter: parent.horizontalCenter
                     setHeight:50
@@ -121,6 +123,7 @@ Page
                     setTextColor: appColors.c_buttonFontColor
                     setTextFontSize: appFontSizes.f_normal
                     setIconArrow: appIcons.icon_back_white
+                    setBgContent:appColors.c_collapsContentBgColor
                     setContentHeight:120
                     setOpen: false
 
@@ -147,8 +150,8 @@ Page
                             setTextMagin: 5
                             setIconHeight: 50
                             setIconWidth: 50
-                            setButtonsBorderWidth:2
-                            setButtonBorderColor:appColors.c_fontcolor
+                            setButtonsBorderWidth:0
+                            setButtonBorderColor:"transparent"
                             setIconSource:  appIcons.icon_settings
                             onButtonClicked:
                             {
@@ -167,8 +170,8 @@ Page
                             setTextMagin: 5
                             setIconHeight: 50
                             setIconWidth: 50
-                            setButtonsBorderWidth:2
-                            setButtonBorderColor:appColors.c_fontcolor
+                            setButtonsBorderWidth:0
+                            setButtonBorderColor:"transparent"
                             setIconSource:  appIcons.icon_delete
                             onButtonClicked:
                             {
@@ -181,29 +184,51 @@ Page
                 }
 
 
-                Rectangle
+                CustomCollapsiblePanel
                 {
-                    color:"transparent"
-                    width:parent.width/1.50
-                    height:250
-                    border.width: 2
-                    radius:20
-                    border.color: appColors.c_fontcolor
+                    id:uploadCollaps
+                    setTitle: "Upload:"
+                    setWidth: parent.width/1.50
                     anchors.horizontalCenter: parent.horizontalCenter
-                    clip:true
+                    setHeight:50
+                    setBgColorButton: appColors.c_comboboxBgColor
+                    setTextColor: appColors.c_buttonFontColor
+                    setTextFontSize: appFontSizes.f_normal
+                    setIconArrow: appIcons.icon_back_white
+                    setBgContent:appColors.c_collapsContentBgColor
+                    setContentHeight:200
+                    setOpen: true
+
+                    onCollapsed:
+                    {
+                        if(setOpen)
+                            setHeight = setHeight+setContentHeight
+                        else
+                            setHeight=50
+                    }
+
                     Column
                     {
                         width:parent.width
                         height:parent.height
                         anchors.horizontalCenter: parent.horizontalCenter
                         spacing: 25
-
-                        CheckBox
+                        CustomCheckBox
                         {
                             id:isitPublicCheckBox
-                            checkState: "Unchecked"
-                            text:"is it public?"
+                            setWidth: parent.width/2
+                            setHeight: 50
+                            setBoxCheckedBorderColor:appColors.c_buttonBgColor
+                            setBoxUncheckedBorderColor:appColors.c_buttonBgColor
+                            setBoxCheckedBackColor:appColors.c_buttonBgColor
+                            setCheckBoxFontColor:appColors.c_fontcolor
+                            setCheckBoxFontsize:appFontSizes.f_normal
+                            setBold:true
+                            setCheckBoxText:"Is it public?"
+                            setBoxBorderWidth:3
                             anchors.horizontalCenter: parent.horizontalCenter
+                            setBoxIconSource: appIcons.icon_check
+                            setStatus: true
                         }
 
                         CustomComboboxWithIcon
@@ -242,13 +267,12 @@ Page
                             {
                                 appBlockBackButton=true
                                 popup.open("uploading.. please wait..")
-                                var isItPublic = isitPublicCheckBox.checked ? "true" : "false"
+                                var isItPublic = isitPublicCheckBox.setStatus ? "true" : "false"
                                 var selectedDbName = comboboxDatabases.modelData[comboboxDatabases.currentIndex].text;
                                 backend.uploadFileToApi(selectedDbName,isItPublic);
                             }
                         }
                     }
-
 
                 }
 
