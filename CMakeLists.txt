@@ -77,6 +77,7 @@ qt_add_qml_module(appTypeDrill
         CustomComponents/CustomTimer.qml
         CustomComponents/CustomPopupMenu.qml
         CustomComponents/CustomCollapsiblePanel.qml
+        CustomComponents/CustomCheckBox.qml
 
     RESOURCES
         resourses/lightMode/50x50/browse.png resourses/darkMode/50x50/browse.png

@@ -11,3 +11,4 @@ CustomTextInput 1.0 CustomTextInput.qml
 CustomTimer 1.0 CustomTimer.qml
 CustomPopupMenu 1.0 CustomPopupMenu.qml
 CustomCollapsiblePanel 1.0 CustomCollapsiblePanel.qml
+CustomCheckBox 1.0 CustomCheckBox.qml
