@@ -70,7 +70,7 @@ Item
         Rectangle
         {
             color:setBgColor
-            width: titleText.text.length*10
+            width: titleText.implicitWidth
             height:10
             visible: titleText.text.length > 0 ? true : false
             anchors
