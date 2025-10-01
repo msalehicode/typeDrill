@@ -74,6 +74,7 @@ Page
                     setButtonBackColor:"transparent"
                     setTextMagin: 5
                     setIconHeight: 25
+                    setVisible: false
                     setIconWidth: 25
                     setIconSource:  appIcons.icon_play
                     onButtonClicked:
