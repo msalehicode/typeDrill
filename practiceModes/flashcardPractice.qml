@@ -83,6 +83,7 @@ Page {
                     setButtonFontColor:appColors.c_fontcolor;
                     setButtonBackColor:"transparent"
                     setTextMagin: 5
+                    setVisible: false
                     setIconHeight: 25
                     setIconWidth: 25
                     setIconSource:  appIcons.icon_play
@@ -179,11 +180,11 @@ Page {
                     {
                         width: parent.width/1.50
                         height:parent.height
-                        spacing:50
+                        spacing:25
                         anchors
                         {
                             top:parent.top
-                            topMargin:70
+                            topMargin:practiceMode==="verb" ? parent.height/3.50 : 70
                             horizontalCenter: parent.horizontalCenter
                         }
 
@@ -191,18 +192,8 @@ Page {
                         {
                             id:cardPicture
                             width:150
-                            height:150
+                            height: (practiceMode==="verb" ? 0 : (status === Image.Error ? 70: 150))
                             anchors.horizontalCenter: parent.horizontalCenter
-                            onStatusChanged:
-                            {
-                                if (status === Image.Error)
-                                {
-                                    console.warn("Image failed to load:", source);
-                                    visible=false
-                                }
-                                else
-                                    visible=true
-                            }
                         }
 
                         Label
@@ -210,7 +201,7 @@ Page {
                             id:lblText
                             text: ""
                             width: parent.width/2
-                            height:150
+                            height:implicitHeight
                             font.pixelSize: appFontSizes.f_title
                             font.bold: true
                             color: appColors.c_fontcolor
