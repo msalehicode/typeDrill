@@ -184,7 +184,7 @@ Page
                 {
                     id:imageControl
                     width:100
-                    height:100
+                    height:implicitHeight
                     spacing:10
                     anchors.horizontalCenter: parent.horizontalCenter
                     Label
@@ -243,7 +243,7 @@ Page
                 {
                     id:audioControl
                     width:100
-                    height:100
+                    height:implicitHeight
                     spacing:10
                     anchors.horizontalCenter: parent.horizontalCenter
                     Label

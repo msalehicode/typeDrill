@@ -42,11 +42,11 @@ Page
             {
                 width:parent.width
                 height:parent.height
-                spacing:5
+                spacing:10
                 CustomCollapsiblePanel
                 {
                     id:tableCollaps
-                    setTitle: "Table:"
+                    setTitle: "Table"
                     setWidth: parent.width/1.50
                     anchors.horizontalCenter: parent.horizontalCenter
                     setHeight:50
@@ -187,7 +187,7 @@ Page
                 CustomCollapsiblePanel
                 {
                     id:uploadCollaps
-                    setTitle: "Upload:"
+                    setTitle: "Upload"
                     setWidth: parent.width/1.50
                     anchors.horizontalCenter: parent.horizontalCenter
                     setHeight:50
@@ -197,7 +197,7 @@ Page
                     setIconArrow: appIcons.icon_back_white
                     setBgContent:appColors.c_collapsContentBgColor
                     setContentHeight:200
-                    setOpen: true
+                    setOpen: false
 
                     onCollapsed:
                     {
@@ -224,6 +224,8 @@ Page
                             setCheckBoxFontColor:appColors.c_fontcolor
                             setCheckBoxFontsize:appFontSizes.f_normal
                             setBold:true
+                            setWidthBox:25
+                            setHeightBox: 25
                             setCheckBoxText:"Is it public?"
                             setBoxBorderWidth:3
                             anchors.horizontalCenter: parent.horizontalCenter

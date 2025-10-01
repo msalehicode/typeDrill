@@ -34,14 +34,14 @@ Item
     property color setBoxUncheckedBorderColor: "transparent";
     property int setBoxBorderWidth:1
 
-    property int setWidthBox: 30;
-    property int setHeightBox: 30;
+    property int setWidthBox: 20;
+    property int setHeightBox: 20;
 
 
     property bool pathFromComponentDire:true
     property string setBoxIconSource:""
-    property int setBoxIconWidth:25
-    property int setBoxIconHeight:25
+    property int setBoxIconWidth:setWidthBox/1.50
+    property int setBoxIconHeight:setHeightBox/1.50
 
 
 
