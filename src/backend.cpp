@@ -1684,6 +1684,25 @@ QString Backend::changeTableStatus(const int &tableId, const QString &status)
     return qresult;
 }
 
+void Backend::renameTable(const QString &tableName, const QString &newName)
+{
+    //delete table from user_tables
+    bool qResult = m_db.updateTableValue("user_tables","t_title",tableName,"t_title",newName);
+    if(qResult)
+    {
+        qInfo() << "succeed to rename table on uesr_tables";
+        qResult = m_db.renameTable(tableName,newName);
+        if(qResult)
+            qInfo() << "succeed to rename table";
+        else
+            qInfo() << "failed to rename table";
+    }
+    else
+        qInfo() << "succeed to rename table on user_tables";
+
+    emit tableRenameResult(qResult);
+}
+
 
 void Backend::onUrlListReceived()
 {

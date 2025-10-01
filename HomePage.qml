@@ -479,13 +479,13 @@ Page
                                 else
                                     popupMenu.addItem("Pin table",modelData.t_title,modelData.t_id,"pin",appIcons.icon_pinned);
 
-                                popupMenu.addItem("Delete table",modelData.t_title,modelData.t_id,"delete", appIcons.icon_delete);
-
                                 if(modelData.t_status==="archived")
                                     popupMenu.addItem("Unarchive table",modelData.t_title,modelData.t_id,"unarchive", appIcons.icon_archive);
                                 else
                                     popupMenu.addItem("Archive table",modelData.t_title,modelData.t_id,"archive", appIcons.icon_archive);
 
+                                popupMenu.addItem("Rename table",modelData.t_title,modelData.t_id,"rename", appIcons.icon_modify);
+                                popupMenu.addItem("Delete table",modelData.t_title,modelData.t_id,"delete", appIcons.icon_delete);
 
                             }
                         }
@@ -535,6 +535,12 @@ Page
                             }break;
                             case "rename":
                             {
+                                buttonConfirmPopupMessageRename.setActionHandler( function()
+                                {
+                                    backend.renameTable(ttext,newNameTable.theText);
+                                });
+                                newNameTable.theText=ttext;
+                                popupMessageRename.open()
 
                             }break;
 
@@ -718,55 +724,152 @@ Page
         setTextFontSize: appFontSizes.f_normal
         setTextColor:  appColors.c_fontcolor
         setBgColorPopup: appColors.c_background
-        onPopUpClosed:
+        setWidth: parent.width/1.50
+        setHeight: 250
+
+
+        Row
         {
-            homePage.refresh();
-        }
-        CustomButton
-        {
-            id:buttonConfirmPopupMessage
-            setButtonText:"Confirm";
-            setButtonBorderColor:appColors.c_buttonBorderColor
-            setButtonBackColor: appColors.c_buttonBgColor
-            setButtonFontColor: appColors.c_buttonFontColor
-            setBold: true
-            setButtonFontsize: appFontSizes.f_buttonFontSize
-            setButtonsBorderWidth: 0
-            setRadius: 20
-            setWidth: 70
-            setHeight:50
+            width:parent.width/2
+            height:50
+            spacing: 7
             anchors
             {
+                horizontalCenter:parent.horizontalCenter
                 bottom:parent.bottom
-                right: parent.right
             }
-            //actions will handle dynamically for each item by passing function to setActionHandler()
-        }
-        CustomButton
-        {
-            id:buttonCancelPopupMessage
-            setButtonText:"Cancel";
-            setButtonBorderColor:appColors.c_buttonBorderColor
-            setButtonBackColor: appColors.c_buttonBgColor
-            setButtonFontColor: appColors.c_buttonFontColor
-            setBold: true
-            setButtonFontsize: appFontSizes.f_buttonFontSize
-            setButtonsBorderWidth: 0
-            setRadius: 20
-            setWidth: 70
-            setHeight:50
-            anchors
+
+            CustomButton
             {
-                bottom:parent.bottom
-                left: parent.left
+                id:buttonCancelPopupMessage
+                setButtonText:"Cancel";
+                setButtonBorderColor:appColors.c_buttonBorderColor
+                setButtonBackColor: appColors.c_buttonCancelBgColor
+                setButtonFontColor: appColors.c_buttonCancelFontColor
+                setBold: true
+                setButtonFontsize: appFontSizes.f_buttonFontSize
+                setButtonsBorderWidth: 0
+                setRadius: 20
+                setWidth: 70
+                setHeight:50
+                onButtonClicked:
+                {
+                    popupMessage.close()
+                }
             }
-            onButtonClicked:
+
+            CustomButton
             {
-                popupMessage.close()
+                id:buttonConfirmPopupMessage
+                setButtonText:"Confirm";
+                setButtonBorderColor:appColors.c_buttonBorderColor
+                setButtonBackColor: appColors.c_buttonBgColor
+                setButtonFontColor: appColors.c_buttonFontColor
+                setBold: true
+                setButtonFontsize: appFontSizes.f_buttonFontSize
+                setButtonsBorderWidth: 0
+                setRadius: 20
+                setWidth: 70
+                setHeight:50
+                //actions will handle dynamically for each item by passing function to setActionHandler()
             }
         }
+
     }
 
+
+
+
+    CustomPopupMessage
+    {
+        id:popupMessageRename
+        setDefaultText: ""
+        setFailColor: appColors.c_bgPopupContentFailed
+        setSuccessColor:appColors.c_bgPopupContentSuccess
+        setBgContent: appColors.c_bgPopupContentDefault
+        setTextFontSize: appFontSizes.f_normal
+        setTextColor:  appColors.c_fontcolor
+        setBgColorPopup: appColors.c_background
+        setWidth: parent.width/1.50
+        setHeight: 250
+
+        CustomTextInput
+        {
+            id:newNameTable
+            setWidth: parent.width/1.25
+            setHeight: 50
+            setBgColor: appColors.c_bgColor_textinput
+            setBordercolor: appColors.c_borderColor_textinput
+            setBorderWidth:2
+            setFontSize:appFontSizes.f_textInput
+            setFontColor: appColors.c_fontColor_textinput
+            setRadius:10
+            theText:""
+            setErrorPosfix: ""
+            setErrorPrefix: ""
+            setTitleText:"New Table Name:"
+            anchors
+            {
+                centerIn:parent
+            }
+            onTheTextAccepted:
+            {
+                buttonConfirmPopupMessageRename.runActionHandler()
+            }
+        }
+
+
+
+        Row
+        {
+            width:parent.width/2
+            height:50
+            spacing: 7
+            anchors
+            {
+                horizontalCenter:parent.horizontalCenter
+                bottom:parent.bottom
+            }
+
+            CustomButton
+            {
+                id:buttonCancelPopupMessageRename
+                setButtonText:"Cancel";
+                setButtonBorderColor:appColors.c_buttonBorderColor
+                setButtonBackColor: appColors.c_buttonCancelBgColor
+                setButtonFontColor: appColors.c_buttonCancelFontColor
+                setBold: true
+                setButtonFontsize: appFontSizes.f_buttonFontSize
+                setButtonsBorderWidth: 0
+                setRadius: 20
+                setWidth: 70
+                setHeight:50
+                onButtonClicked:
+                {
+                    popupMessageRename.close()
+                }
+            }
+
+
+            CustomButton
+            {
+                id:buttonConfirmPopupMessageRename
+                setButtonText:"Rename";
+                setButtonBorderColor:appColors.c_buttonBorderColor
+                setButtonBackColor: appColors.c_buttonBgColor
+                setButtonFontColor: appColors.c_buttonFontColor
+                setBold: true
+                setButtonFontsize: appFontSizes.f_buttonFontSize
+                setButtonsBorderWidth: 0
+                setRadius: 20
+                setWidth: 70
+                setHeight:50
+                //actions will handle dynamically for each item by passing function to setActionHandler()
+            }
+
+        }
+
+    }
 
     function refresh()
     {
@@ -846,10 +949,28 @@ Page
         }
         function onTableRemovalResult(result)
         {
-            if(result===1)
+            if(result)
+            {
                 console.log("table deleted.")
+                popupMessage.close()
+                homePage.refresh();
+            }
+
             else
                 console.log("failed to delete table")
+        }
+
+        function onTableRenameResult(result)
+        {
+            if(result)
+            {
+                console.log("table renamed.")
+                popupMessageRename.close()
+                homePage.refresh();
+            }
+
+            else
+                console.log("failed to rename table result=", result)
         }
     }
     Connections {

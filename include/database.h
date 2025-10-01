@@ -37,6 +37,7 @@ public:
     QSqlDatabase getDatabase() const;
     bool createTable(const QString& tableName, const QString& schema);
     bool removeTable(const QString& tableName);
+    bool renameTable(const QString& tableName,const QString& newName);
 
     bool insertIntoTable(const QString& tableName, const QMap<QString, QVariant>& data);
     bool updateTableValue(const QString& tableName, const QString& keyColumn, const QVariant& keyValue,

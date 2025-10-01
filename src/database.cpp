@@ -114,6 +114,20 @@ bool DataBase::removeTable(const QString& tableName)
     return true;
 }
 
+bool DataBase::renameTable(const QString &tableName, const QString &newName)
+{
+    if (!m_db.isOpen()) return false;
+
+    QSqlQuery query(m_db);
+    QString sql = QString("ALTER TABLE %1 RENAME TO %2;").arg(tableName).arg(newName);
+
+    if(!query.exec(sql))
+    {
+        return false;
+    }
+    return true;
+}
+
 // Insert into table - data map keys are column names, values are column values
 bool DataBase::insertIntoTable(const QString& tableName, const QMap<QString, QVariant>& data)
 {

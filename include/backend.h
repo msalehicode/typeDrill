@@ -325,6 +325,7 @@ public:
      */
     Q_INVOKABLE QString changeTableStatus(const int& tableId, const QString& status="0");
 
+    Q_INVOKABLE void renameTable(const QString &tableName, const QString& newName);
 
     Q_INVOKABLE QString getContentPath() const;
 
@@ -357,6 +358,7 @@ signals:
     void uploadDone(const QString& result);
 
     void tableRemovalResult(const bool& result);
+    void tableRenameResult(const bool& result);
 
     void getWeeklyStatsResult(const QList<float>& totalMinutes, const QList<int>& totalMistakes);
     void getMonthStatsResult(const QList<float>& totalMinutes, const QList<int>& totalMistakes);
