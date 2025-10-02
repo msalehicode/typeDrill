@@ -26,13 +26,18 @@ Item {
     property int setHeight: 0
 
 
-    function open(strText="")
+    function open(strText="",status="?")
     {
         if(strText.length>0)
             setDefaultText=strText
 
         setOpen=true
         popup.open()
+
+        if(status==="0")
+            popupContent.color=setFailColor
+        else if(status==="1")
+            popupContent.color=setSuccessColor
     }
 
     function setResult(message,status="0")
