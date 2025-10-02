@@ -358,7 +358,7 @@ signals:
     void uploadDone(const QString& result);
 
     void tableRemovalResult(const bool& result);
-    void tableRenameResult(const bool& result);
+    void tableRenameResult(const bool& status, const QString& result);
 
     void getWeeklyStatsResult(const QList<float>& totalMinutes, const QList<int>& totalMistakes);
     void getMonthStatsResult(const QList<float>& totalMinutes, const QList<int>& totalMistakes);

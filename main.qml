@@ -394,6 +394,45 @@ Window
         }
     }
     
+
+
+
+    CustomPopupMessage
+    {
+        id:appPopupMessage
+        setDefaultText: ""
+        setFailColor: appColors.c_bgPopupContentFailed
+        setSuccessColor:appColors.c_bgPopupContentSuccess
+        setBgContent: appColors.c_bgPopupContentDefault
+        setTextFontSize: appFontSizes.f_normal
+        setTextColor:  appColors.c_fontcolor
+        setBgColorPopup: appColors.c_background
+        setWidth: parent.width/1.50
+        setHeight: 250
+        CustomButton
+        {
+            setButtonText:"Ok got it";
+            setButtonBorderColor:appColors.c_buttonBorderColor
+            setButtonBackColor: appColors.c_buttonBgColor
+            setButtonFontColor: appColors.c_buttonFontColor
+            setBold: true
+            setButtonFontsize: appFontSizes.f_buttonFontSize
+            setButtonsBorderWidth: 0
+            setRadius: 20
+            setWidth: 70
+            setHeight:50
+            anchors
+            {
+                bottom:parent.bottom
+                horizontalCenter: parent.horizontalCenter
+            }
+            onButtonClicked:
+            {
+                appPopupMessage.close()
+            }
+        }
+    }
+
     function popStack()
     {
         mainStackView.pop()

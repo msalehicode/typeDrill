@@ -960,17 +960,20 @@ Page
                 console.log("failed to delete table")
         }
 
-        function onTableRenameResult(result)
+        function onTableRenameResult(status,result)
         {
-            if(result)
+            if(status)
             {
                 console.log("table renamed.")
                 popupMessageRename.close()
                 homePage.refresh();
             }
-
             else
+            {
                 console.log("failed to rename table result=", result)
+                appPopupMessage.open(result,"0")
+            }
+
         }
     }
     Connections {
