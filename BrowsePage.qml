@@ -195,7 +195,7 @@ Page
                                     popupMenu.openWhereOnClicked(mAreaItem,listView)
 
                                     popupMenu.addItem("Delete",model.d_name,model.d_id,"delete",appIcons.icon_delete);
-                                    // popupMenu.addItem("Rename",model.d_name,model.d_id,"rename",appIcons.icon_delete);
+                                    popupMenu.addItem("Rename",model.d_name,model.d_id,"rename",appIcons.icon_delete);
                                     if(model.d_visibility==="private")
                                         popupMenu.addItem("Change Visibility to public",model.d_name,model.d_id,"public",appIcons.icon_eye);
                                     else
@@ -321,7 +321,13 @@ Page
                         {
                             case "rename":
                             {
-                                backend.renameApiDbFile(tid,"new file name");
+                                buttonConfirmPopupMessageRename.setActionHandler( function()
+                                {
+                                    backend.renameApiDbFile(tid,newNameTable.theText);
+                                    popupMessageRename.close()
+                                });
+                                newNameTable.theText=ttext;
+                                popupMessageRename.open()
                             }break;
 
                             case "delete":
@@ -448,6 +454,99 @@ Page
 
                 }
 
+
+
+
+                CustomPopupMessage
+                {
+                    id:popupMessageRename
+                    setDefaultText: ""
+                    setFailColor: appColors.c_bgPopupContentFailed
+                    setSuccessColor:appColors.c_bgPopupContentSuccess
+                    setBgContent: appColors.c_bgPopupContentDefault
+                    setTextFontSize: appFontSizes.f_normal
+                    setTextColor:  appColors.c_fontcolor
+                    setBgColorPopup: appColors.c_background
+                    setWidth: parent.width/1.50
+                    setHeight: 250
+
+                    CustomTextInput
+                    {
+                        id:newNameTable
+                        setWidth: parent.width/1.25
+                        setHeight: 50
+                        setBgColor: appColors.c_bgColor_textinput
+                        setBordercolor: appColors.c_borderColor_textinput
+                        setBorderWidth:2
+                        setFontSize:appFontSizes.f_textInput
+                        setFontColor: appColors.c_fontColor_textinput
+                        setRadius:10
+                        theText:""
+                        setErrorPosfix: ""
+                        setErrorPrefix: ""
+                        setTitleText:"New Table Name:"
+                        anchors
+                        {
+                            centerIn:parent
+                        }
+                        onTheTextAccepted:
+                        {
+                            buttonConfirmPopupMessageRename.runActionHandler()
+                        }
+                    }
+
+
+
+                    Row
+                    {
+                        width:parent.width/2
+                        height:50
+                        spacing: 7
+                        anchors
+                        {
+                            horizontalCenter:parent.horizontalCenter
+                            bottom:parent.bottom
+                        }
+
+                        CustomButton
+                        {
+                            id:buttonCancelPopupMessageRename
+                            setButtonText:"Cancel";
+                            setButtonBorderColor:appColors.c_buttonBorderColor
+                            setButtonBackColor: appColors.c_buttonCancelBgColor
+                            setButtonFontColor: appColors.c_buttonCancelFontColor
+                            setBold: true
+                            setButtonFontsize: appFontSizes.f_buttonFontSize
+                            setButtonsBorderWidth: 0
+                            setRadius: 20
+                            setWidth: 70
+                            setHeight:50
+                            onButtonClicked:
+                            {
+                                popupMessageRename.close()
+                            }
+                        }
+
+
+                        CustomButton
+                        {
+                            id:buttonConfirmPopupMessageRename
+                            setButtonText:"Rename";
+                            setButtonBorderColor:appColors.c_buttonBorderColor
+                            setButtonBackColor: appColors.c_buttonBgColor
+                            setButtonFontColor: appColors.c_buttonFontColor
+                            setBold: true
+                            setButtonFontsize: appFontSizes.f_buttonFontSize
+                            setButtonsBorderWidth: 0
+                            setRadius: 20
+                            setWidth: 70
+                            setHeight:50
+                            //actions will handle dynamically for each item by passing function to setActionHandler()
+                        }
+
+                    }
+
+                }
 
             }
 
@@ -720,6 +819,7 @@ Page
                 case "File removed successfully":
                 case "File renamed successfully":
                 case "File visibility updated":
+                case "File renamed successfully":
                     theLoader.item.popup.setResult(result,"1")
                     break;
 

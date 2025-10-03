@@ -23,3 +23,6 @@ CREATE TABLE files
     visibility ENUM('private', 'public') DEFAULT 'private', -- File visibility (public/private)
     FOREIGN KEY (user_id) REFERENCES users(id)       -- Foreign key linking to the `users` table
 );
+
+
+-- TRUNCATE TABLE files; //reset auto-increment

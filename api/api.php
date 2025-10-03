@@ -488,19 +488,18 @@ function getDbListNew($visibilityType, $sessionKey)
 
 
 
-function renameFile($fileId,$newFilename,$sessionKey,$successResponseAllowed=true)
+function renameFile($fileId, $newFilename, $sessionKey, $successResponseAllowed = true)
 {
-    // Validate input parameters
-    if (!isset($fileId) || !isset($newFilename) || $newFilename==null || $fileId==null)
+    if (empty($fileId) || empty($newFilename))
     {
         sendResponse(['error' => 'File ID and new filename are required']);
     }
 
-    $userId = getUserIdFromSession($sessionKey);  // Get user ID from session
-
-    // Validate the file exists and belongs to the user
+    $userId = getUserIdFromSession($sessionKey);
     $conn = connect_db();
-    $stmt = $conn->prepare("SELECT filename, user_id, file_path FROM files WHERE id = ?");
+
+    // Fetch file and check ownership
+    $stmt = $conn->prepare("SELECT user_id FROM files WHERE id = ?");
     $stmt->bind_param("i", $fileId);
     $stmt->execute();
     $stmt->store_result();
@@ -510,7 +509,7 @@ function renameFile($fileId,$newFilename,$sessionKey,$successResponseAllowed=tru
         sendResponse(['error' => 'File not found']);
     }
 
-    $stmt->bind_result($currentFilename, $ownerId, $filePath);
+    $stmt->bind_result($ownerId);
     $stmt->fetch();
 
     if ($ownerId !== $userId)
@@ -518,37 +517,32 @@ function renameFile($fileId,$newFilename,$sessionKey,$successResponseAllowed=tru
         sendResponse(['error' => 'You are not the owner of this file']);
     }
 
-    // Check if the new filename already exists
-    $newFilePath = UPLOAD_DIR . '/' . $newFilename;
-    if (file_exists($newFilePath))
-    {
-        sendResponse(['error' => 'A file with the new filename already exists']);
+    // Optional: prevent duplicate filenames for the same user
+    $check = $conn->prepare("SELECT id FROM files WHERE user_id = ? AND filename = ? AND id != ?");
+    $check->bind_param("isi", $userId, $newFilename, $fileId);
+    $check->execute();
+    $check->store_result();
+
+    if ($check->num_rows > 0) {
+        sendResponse(['error' => 'A file with that name already exists']);
     }
 
-    // Rename the file on the server
-    if (rename($filePath, $newFilePath))
+    // Update the filename in the DB
+    $stmt = $conn->prepare("UPDATE files SET filename = ? WHERE id = ?");
+    $stmt->bind_param("si", $newFilename, $fileId);
+
+    if ($stmt->execute())
     {
-        // Update the filename in the database
-        $stmt = $conn->prepare("UPDATE files SET filename = ?, file_path = ? WHERE id = ?");
-        $stmt->bind_param("ssi", $newFilename, $newFilePath, $fileId);
-        if ($stmt->execute())
-        {
-            if($successResponseAllowed)
-              sendResponse(['message' => 'File renamed successfully']);
-            else
-              return true;
-        }
+        if ($successResponseAllowed)
+            sendResponse(['message' => 'File renamed successfully']);
         else
-        {
-            // Rollback if database update fails
-            rename($newFilePath, $filePath);  // Rename back to the original filename
-            sendResponse(['error' => 'Failed to update database']);
-        }
+            return true;
     }
     else
     {
-        sendResponse(['error' => 'Failed to rename file on the server']);
+        sendResponse(['error' => 'Failed to update filename in database']);
     }
+
     return false;
 }
 
