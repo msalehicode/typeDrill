@@ -229,7 +229,7 @@ Page
                                 setTextMagin: 5
                                 setIconHeight: 25
                                 setIconWidth: 25
-                                setIconSource:  appIcons.icon_download
+                                setIconSource:  appIcons.icon_download_white
                                 anchors
                                 {
                                     verticalCenter:parent.verticalCenter

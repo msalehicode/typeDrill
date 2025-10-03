@@ -368,7 +368,7 @@ Page {
                     setButtonBorderColor:appColors.c_buttonBorderColor
                     setButtonBackColor: appColors.c_buttonBgColor
                     setButtonFontColor: appColors.c_buttonFontColor
-                    setIconSource: appIcons.icon_skip
+                    setIconSource: appIcons.icon_skip_white
                     setIconFlipHorizontal: true
                     setIconWidth: 35
                     setIconHeight: 35
@@ -388,7 +388,7 @@ Page {
                     setButtonBorderColor:appColors.c_buttonBorderColor
                     setButtonBackColor: appColors.c_buttonBgColor
                     setButtonFontColor: appColors.c_buttonFontColor
-                    setIconSource: appIcons.icon_turn
+                    setIconSource: appIcons.icon_turn_white
                     setIconWidth: 35
                     setIconHeight: 35
                     setButtonsBorderWidth: 0
@@ -408,7 +408,7 @@ Page {
                     setButtonBackColor: appColors.c_buttonBgColor
                     setButtonFontColor: appColors.c_buttonFontColor
                     setButtonsBorderWidth: 0
-                    setIconSource: appIcons.icon_skip
+                    setIconSource: appIcons.icon_skip_white
                     setIconWidth: 35
                     setIconHeight: 35
                     setRadius: 50
