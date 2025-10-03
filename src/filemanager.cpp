@@ -28,7 +28,7 @@ void FileManager::downloadFile(const QString &url, const QString &fileName, bool
     {
         while (QFile::exists(dir.filePath(uniqueFileName)))
         {
-            uniqueFileName = QString("%1_%2.%3").arg(baseName).arg(counter).arg(extension);
+            uniqueFileName = QString("%1_%2%3").arg(baseName).arg(counter).arg(extension);
             counter++;
         }
     }

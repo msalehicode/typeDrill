@@ -474,7 +474,7 @@ function getDbListNew($visibilityType, $sessionKey)
         $files[] = [
             'd_id' => (string)$fileId,
             'd_name' => $filename,
-            'd_url' => $baseUrl . '/' . rawurlencode($filename),
+            'd_url' => $baseUrl . '/' . rawurlencode(basename($filePath)),
             'd_icon' => $defaultIcon,
             'd_visibility' => $visibility,
             'd_owner' => $username
@@ -643,24 +643,14 @@ function uploadFile($visibility, $sessionKey,$overwriteIfExists=false, $dontResp
 
     $file = $_FILES['file'];
 
-    // Debugging: Print the $_FILES array
-    // print_r($file);
-    // exit;
-
     // Check for upload error
     if ($file['error'] !== UPLOAD_ERR_OK) {
         sendResponse(['error' => 'File upload error code: ' . $file['error']]);
     }
 
     // Sanitize the filename to prevent directory traversal
-    $filename = basename($file['name']);
+    $originalFilename = basename($file['name']);
     $fileExtension = pathinfo($filename, PATHINFO_EXTENSION);
-
-    // If visibility is "false", add "pv_" prefix to the filename
-    // if ($visibility === "false") {
-    //     $filename = "pv_" . $filename;
-    // }
-
     $visibility = $visibility=="false" ? "private":"public" ;
 
     // Ensure the upload directory exists and is writable
@@ -732,15 +722,13 @@ function uploadFile($visibility, $sessionKey,$overwriteIfExists=false, $dontResp
     }
     else
     {
-        while (file_exists($targetPath))
-        {
-            $filename = pathinfo($file['name'], PATHINFO_FILENAME) . '_' . time() . '.' . $fileExtension;
-            $targetPath = UPLOAD_DIR . '/' . $filename;
-            $fileIndex++;
-        }
+        $uniqueName = md5($userId . time() . $filename);
+        // $targetPath = UPLOAD_DIR . '/' . $uniqueName;
+        $targetPath = $uniqueName;
+
 
         // Move the uploaded file to the target directory
-        if (!move_uploaded_file($file['tmp_name'], $targetPath))
+        if (!move_uploaded_file($file['tmp_name'], UPLOAD_DIR . '/' .$targetPath))
         {
             sendResponse(['error' => 'Failed to move uploaded file']);
         }
@@ -750,7 +738,7 @@ function uploadFile($visibility, $sessionKey,$overwriteIfExists=false, $dontResp
         $conn = connect_db();
         $nowUtc = (new DateTime("now", new DateTimeZone("UTC")))->format("Y-m-d H:i:s");
         $stmt = $conn->prepare("INSERT INTO files (user_id, filename, file_path, visibility, first_uploaded, last_updated) VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("isssss", $userId, $filename, $targetPath, $visibility, $nowUtc, $nowUtc);
+        $stmt->bind_param("isssss", $userId, $originalFilename, $targetPath, $visibility, $nowUtc, $nowUtc);
 
         // Execute the query and return a success message if the file is uploaded successfully
         if ($stmt->execute())
