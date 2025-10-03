@@ -650,7 +650,7 @@ function uploadFile($visibility, $sessionKey,$overwriteIfExists=false, $dontResp
 
     // Sanitize the filename to prevent directory traversal
     $originalFilename = basename($file['name']);
-    $fileExtension = pathinfo($filename, PATHINFO_EXTENSION);
+    $filename = $originalFilename;
     $visibility = $visibility=="false" ? "private":"public" ;
 
     // Ensure the upload directory exists and is writable
@@ -666,7 +666,7 @@ function uploadFile($visibility, $sessionKey,$overwriteIfExists=false, $dontResp
     // Check if file already exists in the target directory and generate a new name if necessary
     $targetPath = UPLOAD_DIR . '/' . $filename;
     $fileIndex = 1;
-    if($overwriteIfExists)
+    if($overwriteIfExists)//update file
     {
         //check is user owned a file with that name
         $conn = connect_db();
@@ -678,7 +678,7 @@ function uploadFile($visibility, $sessionKey,$overwriteIfExists=false, $dontResp
 
         if ($stmt->num_rows === 0)
         {
-            sendResponse(['error' => 'File not found to update']);
+            sendResponse(['error' => 'File not found to update id='.$userId. 'filename='.$filename]);
         }
 
         $stmt->bind_result($ownerId);
