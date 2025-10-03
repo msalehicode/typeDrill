@@ -617,7 +617,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET')
         }break;
 
         default:
-          sendResponse(["error" => "invalid request"]);
+          sendResponse(['error' => "Invalid request mode mode=". $requestType . " method=get"]);
           break;
       }
     }
@@ -634,7 +634,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET')
 //--------------------------------------------------------------------------------- POST
 
 // Function to handle file upload
-function uploadFile($visibility, $sessionKey)
+function uploadFile($visibility, $sessionKey,$overwriteIfExists=false, $dontRespondSuccess=false)
 {
     // Check if the file is uploaded
     if (!isset($_FILES['file'])) {
@@ -668,35 +668,183 @@ function uploadFile($visibility, $sessionKey)
         sendResponse(['error' => 'Upload directory is not writable']);
     }
 
-    // Check if file already exists in the target directory and generate a new name if necessary
-    $targetPath = UPLOAD_DIR . '/' . $filename;
-    $fileIndex = 1;
-    while (file_exists($targetPath)) {
-        $filename = pathinfo($file['name'], PATHINFO_FILENAME) . '_' . time() . '.' . $fileExtension;
-        $targetPath = UPLOAD_DIR . '/' . $filename;
-        $fileIndex++;
-    }
-
-    // Move the uploaded file to the target directory
-    if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
-        sendResponse(['error' => 'Failed to move uploaded file']);
-    }
 
     // Get the user ID based on the session key
     $userId = getUserIdFromSession($sessionKey);  // Implement this function based on your session system
 
-    // Insert file metadata into the database
-    $conn = connect_db();
-    $stmt = $conn->prepare("INSERT INTO files (user_id, filename, file_path, visibility) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("isss", $userId, $filename, $targetPath, $visibility);
 
-    // Execute the query and return a success message if the file is uploaded successfully
-    if ($stmt->execute()) {
-        sendResponse(['message' => 'File uploaded successfully']);
-    } else {
-        sendResponse(['error' => 'Failed to insert file metadata']);
+    // Check if file already exists in the target directory and generate a new name if necessary
+    $targetPath = UPLOAD_DIR . '/' . $filename;
+    $fileIndex = 1;
+    if($overwriteIfExists)
+    {
+        //check is user owned a file with that name
+        $conn = connect_db();
+        $stmt = $conn->prepare("SELECT user_id FROM files WHERE user_id = ? AND filename = ?");
+        $stmt->bind_param("is", $userId, $filename);
+        $stmt->execute();
+        $stmt->store_result();
+
+
+        if ($stmt->num_rows === 0)
+        {
+            sendResponse(['error' => 'File not found to update']);
+        }
+
+        $stmt->bind_result($ownerId);
+        $stmt->fetch();
+
+        if ($ownerId !== $userId)
+        {
+            sendResponse(['error' => 'You are not the owner of this file cannot update it']);
+        }
+        else
+        {
+          //Update last_updated timestamp
+          $stmt->close();
+
+          $nowUtc = (new DateTime("now", new DateTimeZone("UTC")))->format("Y-m-d H:i:s");
+          $updateStmt = $conn->prepare("UPDATE files SET last_updated = ? WHERE user_id = ? AND filename = ?");
+          $updateStmt->bind_param("sis", $nowUtc, $userId, $filename);
+
+          if (!$updateStmt->execute())
+          {
+              sendResponse(['error' => 'Failed to update file timestamp']);
+          }
+          else
+          {
+            // Move the uploaded file to the target directory
+            if (!move_uploaded_file($file['tmp_name'], $targetPath))
+            {
+                sendResponse(['error' => 'Failed to move uploaded file']);
+            }
+            else
+            {
+                if(!$dontRespondSuccess)
+                  sendResponse(['message' => 'File updated successfully']);
+                else
+                 return true;
+            }
+          }
+
+          $updateStmt->close();
+        }
     }
+    else
+    {
+        while (file_exists($targetPath))
+        {
+            $filename = pathinfo($file['name'], PATHINFO_FILENAME) . '_' . time() . '.' . $fileExtension;
+            $targetPath = UPLOAD_DIR . '/' . $filename;
+            $fileIndex++;
+        }
+
+        // Move the uploaded file to the target directory
+        if (!move_uploaded_file($file['tmp_name'], $targetPath))
+        {
+            sendResponse(['error' => 'Failed to move uploaded file']);
+        }
+
+
+        // Insert file metadata into the database
+        $conn = connect_db();
+        $nowUtc = (new DateTime("now", new DateTimeZone("UTC")))->format("Y-m-d H:i:s");
+        $stmt = $conn->prepare("INSERT INTO files (user_id, filename, file_path, visibility, first_uploaded, last_updated) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("isssss", $userId, $filename, $targetPath, $visibility, $nowUtc, $nowUtc);
+
+        // Execute the query and return a success message if the file is uploaded successfully
+        if ($stmt->execute())
+        {
+            if(!$dontRespondSuccess)
+              sendResponse(['message' => 'File uploaded successfully']);
+            else
+             return true;
+        }
+        else
+        {
+            sendResponse(['error' => 'Failed to insert file metadata']);
+        }
+    }
+
+    sendResponse(['error' => 'something went wrong on while uploading try again']);
+
 }
+
+
+function syncFile($sessionKey,$lastModifiedDateFile)
+{
+    if (!isset($_FILES['file'])) {
+        sendResponse(['error' => 'No file uploaded']);
+    }
+
+    $file = $_FILES['file'];
+
+    // Check for upload error
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        sendResponse(['error' => 'File upload error code: ' . $file['error']]);
+    }
+
+    $filename = basename($file['name']);
+    $targetPath = UPLOAD_DIR . '/' . $filename;
+
+    $userId = getUserIdFromSession($sessionKey);
+
+    // sendResponse(['error' => 'filename='.$filename . 'userid='. $userId. "usessionke=".$sessionKey]);
+
+    //check is user owned a file with that name
+    $conn = connect_db();
+    $stmt = $conn->prepare("SELECT user_id, last_updated FROM files WHERE user_id = ? AND filename = ?");
+
+    $stmt->bind_param("is", $userId, $filename);
+    $stmt->execute();
+    $stmt->store_result();
+    if ($stmt->num_rows === 0)
+    {
+        // sendResponse(['error' => 'File not found to sync'.$stmt->num_rows]);
+        if(uploadFile($fileVisibilityStatus, $sessionKey,false, true))
+          sendResponse(['message' => 'synchronized successfully (uploaded)']);
+    }
+    $stmt->bind_result($ownerId, $fileLastUpdatedStr);
+    $stmt->fetch();
+    if ($ownerId !== $userId)
+    {
+        sendResponse(['error' => 'You are not the owner of this file cannot sync it']);
+    }
+    else
+    {
+      // if(file_exists($targetPath))
+      // {
+         // ✅ Compare dates as DateTime objects
+         $clientModified = new DateTime($lastModifiedDateFile, new DateTimeZone('UTC'));
+         $serverModified = new DateTime($fileLastUpdatedStr, new DateTimeZone('UTC'));
+
+         if($clientModified > $serverModified)
+         {
+            //overwrite on file
+            if(uploadFile($fileVisibilityStatus, $sessionKey, true, true))
+                sendResponse(['message' => 'synchronized successfully (updated)']);
+         }
+         else if($clientModified == $serverModified)
+         {
+            sendResponse(['message' => 'no sync needed you\'re fine']);
+         }
+         else
+         {
+           //user need download file from us we are ahead
+           $baseUrl = 'http://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . '/uploads';
+           $downloadUrl = $baseUrl . '/' . $filename;
+
+           sendResponse(['message' => "download and replace to sync:".$downloadUrl]);
+         }
+
+
+      // }
+    }
+
+    sendResponse(['error' => 'something went wrong on while syncing try again']);
+
+}
+
 
 // Handle POST requests
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -704,20 +852,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $requestType = $headers['request'];
     $sessionKey = $headers['sessionKey'];
     $fileVisibilityStatus = isset($headers['status']) ? $headers['status'] : "private";
+    $lastModifiedDateFile = isset($headers['lmdate']) ? $headers['lmdate'] : null;
 
     // Check if the request type is valid
-    if (isset($requestType)) {
-        if (checkSessionKey($sessionKey, $requestType)) {
-            switch ($requestType) {
+    if (isset($requestType))
+    {
+        if (checkSessionKey($sessionKey, $requestType))
+        {
+            switch ($requestType)
+            {
                 case 'upload-db':
                     uploadFile($fileVisibilityStatus, $sessionKey);
                     break;
 
+                case 'update-db':
+                    uploadFile($fileVisibilityStatus, $sessionKey, true);
+                    break;
+
+                case 'sync-db':
+                {
+                    if($lastModifiedDateFile!=null)
+                        syncFile($sessionKey,$lastModifiedDateFile);
+                    else
+                      sendResponse(['error' => "lastModifiedDateFile is null lastModifiedDateFile=" . $lastModifiedDateFile]);
+
+                }break;
+
                 default:
-                    sendResponse(['error' => "Invalid request mode"]);
+                    sendResponse(['error' => "Invalid request mode mode=". $requestType . " method=post"]);
                     break;
             }
-        } else {
+        }
+        else
+        {
             sendResponse(['error' => 'Invalid session key']);
         }
     } else {

@@ -24,8 +24,10 @@ class FileManager : public QObject {
 public:
     explicit FileManager(QObject *parent = nullptr);
 
-    Q_INVOKABLE void downloadFile(const QString &url, const QString &fileName);
-    Q_INVOKABLE void uploadFile(const QString &uploadUrl, const QString &filePath, const QString &apiKey, const QString& publicStatus);
+    Q_INVOKABLE void downloadFile(const QString &url, const QString &fileName, bool overwriteFilename=false);
+    Q_INVOKABLE void uploadFile(const QString &uploadUrl, const QString &filePath,
+                                const QString &apiKey, const QString& publicStatus,
+                                QString requestType, const QString& fileLastModified="");
 
 signals:
     void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);

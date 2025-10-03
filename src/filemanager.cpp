@@ -2,7 +2,8 @@
 
 FileManager::FileManager(QObject *parent) : QObject(parent) {}
 
-void FileManager::downloadFile(const QString &url, const QString &fileName) {
+void FileManager::downloadFile(const QString &url, const QString &fileName, bool overwriteFilename)
+{
     if (m_currentReply) {
         m_currentReply->abort();
         m_currentReply->deleteLater();
@@ -16,16 +17,22 @@ void FileManager::downloadFile(const QString &url, const QString &fileName) {
         dir.mkpath(".");
     }
 
+
     // Find unique filename (adds _1, _2... if needed)
     QString baseName = QFileInfo(fileName).completeBaseName();
     QString extension = QFileInfo(fileName).suffix();
     QString uniqueFileName = fileName;
     int counter = 1;
 
-    while (QFile::exists(dir.filePath(uniqueFileName))) {
-        uniqueFileName = QString("%1_%2.%3").arg(baseName).arg(counter).arg(extension);
-        counter++;
+    if(!overwriteFilename) //add something to filename
+    {
+        while (QFile::exists(dir.filePath(uniqueFileName)))
+        {
+            uniqueFileName = QString("%1_%2.%3").arg(baseName).arg(counter).arg(extension);
+            counter++;
+        }
     }
+
 
     QString savePath = dir.filePath(uniqueFileName);
 
@@ -48,7 +55,9 @@ void FileManager::downloadFile(const QString &url, const QString &fileName) {
 }
 
 void FileManager::uploadFile(const QString &uploadUrl, const QString &filePath,
-                             const QString &apiKey, const QString& publicStatus)
+                             const QString &apiKey, const QString& publicStatus,
+                             QString requestType,
+                             const QString& fileLastModified)
 {
     QFile *file = new QFile(filePath);
     if (!file->open(QIODevice::ReadOnly)) {
@@ -92,9 +101,13 @@ void FileManager::uploadFile(const QString &uploadUrl, const QString &filePath,
     QNetworkRequest request(uploadUrl);
 
     // Set raw headers (this is where sessionKey and requestType should go)
-    request.setRawHeader("sessionKey", apiKey.toUtf8()); // Send sessionKey as a header
-    request.setRawHeader("request", "upload-db"); // Send request as a header
+    request.setRawHeader("sessionKey", apiKey.toUtf8());
+    request.setRawHeader("request", requestType.toUtf8());
+
+    request.setRawHeader("lmdate", fileLastModified.toUtf8());
+
     request.setRawHeader("status", publicStatus.toUtf8()); // Send request as a header
+
 
     // Send the request
     QNetworkReply *reply = m_manager.post(request, multiPart);

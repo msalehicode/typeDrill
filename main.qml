@@ -180,6 +180,8 @@ Window
         //browse
         property string icon_download: appIcons.i_path + "download.png"
         property string icon_upload: appIcons.i_path + "upload.png"
+        property string icon_download_white: i_path_white + "download.png"; //only white
+        property string icon_upload_white: i_path_white + "upload.png"; //only white
         
         //indicator icons
         property string icon_browse: appIcons.i_path + "browse.png";
@@ -197,8 +199,14 @@ Window
 
 
         property string icon_turn : appIcons.i_path + "turn.png"
+        property string icon_turn_white: i_path_white + "turn.png"; //only white
+
         property string icon_skip : appIcons.i_path + "skip.png"
+        property string icon_skip_white: i_path_white + "skip.png"; //only white
+
         property string icon_signout : appIcons.i_path + "signout.png"
+
+
     }
     
     

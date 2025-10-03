@@ -288,10 +288,14 @@ public:
     /*!
      * \brief to download a file and call signals onDownloadFinished,onDownloadProgress (already we have connected these inside Backend Constructor with private ones to notify user of download status)
      */
-    Q_INVOKABLE void download(const QString &url, const QString &fileName);
+    Q_INVOKABLE void download(const QString &url, const QString &fileName,
+                              bool overwriteFileName=false);
 
 
     Q_INVOKABLE void uploadFileToApi(const QString& fileName, const QString& publicStatus);
+    Q_INVOKABLE void overwriteFileToApi(const QString& fileName);
+    Q_INVOKABLE void syncDatabaseWithApi(const QString& fileName);
+
     Q_INVOKABLE QString getThemeMode();
     Q_INVOKABLE void setThemeMode(const QString& themeTitle);
     Q_INVOKABLE int getLastWindowSize(const QString& widthOrHeight);

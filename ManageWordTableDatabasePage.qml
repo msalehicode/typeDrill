@@ -6,6 +6,7 @@ Page
 {
     header: Rectangle
     {
+        id:headerPage
         width: parent.width
         height: 60
         color: appColors.c_headerBg
@@ -23,6 +24,22 @@ Page
                 left:parent.left
                 leftMargin: 50
             }
+        }
+    }
+
+    CustomTimer //to make countdown when during download something happend user can try or cancel
+    {
+        id:downloadUploadTimer
+        onEachTrigger:
+        {
+            if(secondsPassed>15)
+            {
+                baseCancelTryAgainButtons.visible=true
+            }
+        }
+        onWhenStoppped:
+        {
+            baseCancelTryAgainButtons.visible=false
         }
     }
 
@@ -196,7 +213,7 @@ Page
                     setTextFontSize: appFontSizes.f_normal
                     setIconArrow: appIcons.icon_back_white
                     setBgContent:appColors.c_collapsContentBgColor
-                    setContentHeight:200
+                    setContentHeight:300
                     setOpen: false
 
                     onCollapsed:
@@ -212,7 +229,7 @@ Page
                         width:parent.width
                         height:parent.height
                         anchors.horizontalCenter: parent.horizontalCenter
-                        spacing: 25
+                        spacing: 10
                         CustomCheckBox
                         {
                             id:isitPublicCheckBox
@@ -251,33 +268,104 @@ Page
                             }
                         }
 
-                        CustomButton
+                        Row
                         {
-                            id:buttonSubmitSearch
-                            setButtonText:"upload";
-                            setButtonBorderColor:appColors.c_buttonBorderColor
-                            setButtonBackColor: appColors.c_buttonBgColor
-                            setButtonFontColor: appColors.c_buttonFontColor
-                            setBold: true
-                            setButtonFontsize: appFontSizes.f_buttonFontSize
-                            setButtonsBorderWidth: 0
-                            setRadius: 20
-                            setWidth: 70
-                            setHeight:50
+                            width:parent.width/2
+                            height:50
                             anchors.horizontalCenter: parent.horizontalCenter
-                            onButtonClicked:
+                            spacing:5
+                            CustomButtonWithIcon
                             {
-                                appBlockBackButton=true
-                                popup.open("uploading.. please wait..")
-                                var isItPublic = isitPublicCheckBox.setStatus ? "true" : "false"
-                                var selectedDbName = comboboxDatabases.modelData[comboboxDatabases.currentIndex].text;
-                                backend.uploadFileToApi(selectedDbName,isItPublic);
+                                id:buttonUpload
+                                setButtonText:"Upload";
+                                setButtonBorderColor:appColors.c_buttonBorderColor
+                                setButtonBackColor: appColors.c_buttonBgColor
+                                setButtonFontColor: appColors.c_fontcolor
+                                setIconSource: appIcons.icon_upload_white
+                                setTextMagin:10
+                                setIconWidth: 30
+                                setIconHeight: 30
+                                setButtonsBorderWidth: 0
+                                setRadius: 50
+                                setWidth: 50
+                                setHeight:50
+                                anchors.verticalCenter: parent.verticalCenter
+                                onButtonClicked:
+                                {
+                                    blockFlowBack(true)
+                                    buttonTryAgainPopup.setActionHandler(function()
+                                    {
+                                        buttonUpload.buttonClicked()
+                                    });
+                                    popup.open("uploading.. please wait..")
+                                    var isItPublic = isitPublicCheckBox.setStatus ? "true" : "false"
+                                    var selectedDbName = comboboxDatabases.modelData[comboboxDatabases.currentIndex].text;
+                                    backend.uploadFileToApi(selectedDbName,isItPublic);
+                                }
                             }
+
+                            CustomButtonWithIcon
+                            {
+                                id:buttonUpdate
+                                setButtonText:"Update";
+                                setButtonBorderColor:appColors.c_buttonBorderColor
+                                setButtonBackColor: appColors.c_buttonBgColor
+                                setButtonFontColor: appColors.c_fontcolor
+                                setIconSource: appIcons.icon_question
+                                setIconWidth: 30
+                                setIconHeight: 30
+                                setButtonsBorderWidth: 0
+                                setTextMagin:10
+                                setRadius: 50
+                                setWidth: 50
+                                setHeight:50
+                                anchors.verticalCenter: parent.verticalCenter
+                                onButtonClicked:
+                                {
+                                    blockFlowBack(true)
+                                    buttonTryAgainPopup.setActionHandler(function()
+                                    {
+                                        buttonUpdate.buttonClicked()
+                                    });
+                                    popup.open("updating.. please wait..")
+                                    var selectedDbName = comboboxDatabases.modelData[comboboxDatabases.currentIndex].text;
+                                    backend.overwriteFileToApi(selectedDbName);
+                                }
+                            }
+
+                            CustomButtonWithIcon
+                            {
+                                id:buttonSync
+                                setButtonText:"Sync";
+                                setButtonBorderColor:appColors.c_buttonBorderColor
+                                setButtonBackColor: appColors.c_buttonBgColor
+                                setButtonFontColor: appColors.c_fontcolor
+                                setIconSource: appIcons.icon_turn_white
+                                setIconWidth: 30
+                                setIconHeight: 30
+                                setTextMagin:10
+                                setButtonsBorderWidth: 0
+                                setRadius: 50
+                                setWidth: 50
+                                setHeight:50
+                                anchors.verticalCenter: parent.verticalCenter
+                                onButtonClicked:
+                                {
+                                    blockFlowBack(true)
+                                    buttonTryAgainPopup.setActionHandler(function()
+                                    {
+                                        buttonSync.buttonClicked()
+                                    });
+                                    popup.open("syncing.. please wait..")
+                                    var selectedDbName = comboboxDatabases.modelData[comboboxDatabases.currentIndex].text;
+                                    backend.syncDatabaseWithApi(selectedDbName);
+                                }
+                            }
+
                         }
                     }
 
                 }
-
 
             }
 
@@ -310,6 +398,57 @@ Page
         {
             //show button
             buttonClosePopup.setVisible=true
+        }
+
+
+        Row
+        {
+            id:baseCancelTryAgainButtons
+            visible: false
+            width: 145
+            height:50
+            spacing:5
+            anchors
+            {
+                bottom:parent.bottom
+                horizontalCenter:parent.horizontalCenter
+            }
+
+            CustomButton
+            {
+                id:buttonCancelPopup
+                setButtonText:"Cancel";
+                setButtonBorderColor:appColors.c_buttonBorderColor
+                setButtonBackColor: appColors.c_buttonCancelBgColor
+                setButtonFontColor: appColors.c_buttonCancelFontColor
+                setVisible: true
+                setBold: true
+                setButtonFontsize: appFontSizes.f_buttonFontSize
+                setButtonsBorderWidth: 0
+                setRadius: 20
+                setWidth: 70
+                setHeight:50
+                onButtonClicked:
+                {
+                    blockFlowBack(false)
+                    popup.close()
+                }
+            }
+            CustomButton
+            {
+                id:buttonTryAgainPopup
+                setButtonText:"Try Again";
+                setButtonBorderColor:appColors.c_buttonBorderColor
+                setButtonBackColor: appColors.c_buttonBgColor
+                setButtonFontColor: appColors.c_buttonFontColor
+                setVisible: true
+                setBold: true
+                setButtonFontsize: appFontSizes.f_buttonFontSize
+                setButtonsBorderWidth: 0
+                setRadius: 20
+                setWidth: 70
+                setHeight:50
+            }
         }
 
         CustomButton
@@ -363,20 +502,76 @@ Page
         }
         return model;
     }
+
+    function getFilenameFromUrl(url) {
+      // Create a URL object to parse it easily
+      try {
+        let urlObj = new URL(url);
+        let pathname = urlObj.pathname; // e.g. "/some/path/file.txt"
+        // Get the last part after the last slash
+        let filename = pathname.substring(pathname.lastIndexOf('/') + 1);
+        return filename;
+      } catch (e) {
+        // If url is not valid URL (e.g. just a path), fallback to string manipulation
+        let filename = url.substring(url.lastIndexOf('/') + 1);
+        return filename;
+      }
+    }
+
+
+    function blockFlowBack(status)
+    {
+        if(status)
+        {
+            appBlockBackButton=true
+            headerPage.visible=false
+            appVisibleBackOrMenuButton=false
+            downloadUploadTimer.startTimer()
+        }
+        else
+        {
+            appBlockBackButton=false
+            headerPage.visible=true
+            appVisibleBackOrMenuButton=true
+            downloadUploadTimer.stopTimer()
+        }
+    }
+
     Connections
     {
         target:backend
         function onUploadDone(result)
         {
-            if(result==="File uploaded successfully")
+            let syncSeparator = "download and replace to sync:";
+
+
+            if(result==="File uploaded successfully"
+                    || result==="File updated successfully"
+                    || result.includes("synchronized successfully"))
             {
                 popup.setResult(result,"1")
+                blockFlowBack(false)
+
+            }
+            else if(result.includes(syncSeparator))
+            {
+                let parts = result.split(syncSeparator);
+                let downloadUrl = parts[1].trim();
+                let fileName = getFilenameFromUrl(downloadUrl);
+                backend.download(downloadUrl,fileName,true);
             }
             else
             {
                 popup.setResult(result,"0")
+                blockFlowBack(false)
             }
-            appBlockBackButton=false
+
+        }
+
+        function onDownloadFinished(success, filePath)
+        {
+            popup.setResult("synchronized successfully (downloaded)","1")
+            blockFlowBack(false)
         }
     }
 

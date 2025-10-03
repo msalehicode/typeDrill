@@ -22,8 +22,10 @@ public:
     QString extractFileName(const QString &fileUrl);
     QString extractFileExtension(const QString& fileUrl);
     bool isFileExist(QString filename);
+    QDateTime getLastModified(const QString& filePath);
 
     qint64 getFileSize(const QString &fileName);
+    QString getFilename(const QString& filePath);
     void setPath(const QString &newPath);
 
 signals:

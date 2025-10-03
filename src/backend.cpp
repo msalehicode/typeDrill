@@ -783,15 +783,34 @@ void Backend::fetchUrlList(const QString& visibilityFilter)
     connect(reply, &QNetworkReply::finished, this, &Backend::onUrlListReceived);
 }
 
-void Backend::download(const QString &url, const QString &fileName)
+void Backend::download(const QString &url, const QString &fileName, bool overwriteFileName)
 {
-    m_fileManager.downloadFile(url, fileName);
+    m_fileManager.downloadFile(url, fileName, overwriteFileName);
+}
+
+void Backend::overwriteFileToApi(const QString &fileName)
+{
+    QString filePath = m_dbPath +"/"+ fileName;
+    m_fileManager.uploadFile(m_api_url, filePath, m_session_key, "false", "update-db");
+}
+
+void Backend::syncDatabaseWithApi(const QString &fileName)
+{
+
+    QString filePath = m_dbPath +"/"+ fileName;
+    qInfo() << "sync fileName= " << fileName << "filePath="<<filePath;
+
+    QDateTime lastModifyLocalFile = localFileManager.getLastModified(filePath);
+    QString strLastModifyDate = lastModifyLocalFile.toUTC().toString("yyyy-MM-dd HH:mm:ss");
+    qInfo() << "strLastModifyDate=" << strLastModifyDate << " lastModifyLocalFile="<<lastModifyLocalFile.toString();
+
+    m_fileManager.uploadFile(m_api_url, filePath, m_session_key, "false","sync-db",strLastModifyDate);
 }
 
 void Backend::uploadFileToApi(const QString &fileName, const QString& publicStatus)
 {
     QString filePath = m_dbPath +"/"+ fileName;
-    m_fileManager.uploadFile(m_api_url, filePath, m_session_key, publicStatus);
+    m_fileManager.uploadFile(m_api_url, filePath, m_session_key, publicStatus,"upload-db");
 }
 
 QString Backend::getThemeMode()

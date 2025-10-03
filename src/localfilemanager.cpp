@@ -155,6 +155,24 @@ bool LocalFileManager::isFileExist(QString filename)
     return false;
 }
 
+QDateTime LocalFileManager::getLastModified(const QString &filePath)
+{
+    QFileInfo fileInfo(filePath);
+
+    if (fileInfo.exists())
+    {
+        QDateTime lastModified = fileInfo.lastModified();
+        qDebug() << "Last modified:" << lastModified.toString();
+        return lastModified;
+    }
+    else
+    {
+        qDebug() << "File does not exist.";
+        return QDateTime(); // Return invalid/empty QDateTime
+    }
+}
+
+
 qint64 LocalFileManager::getFileSize(const QString &fileName)
 {
     // Convert the QUrl to a local file path
@@ -173,6 +191,12 @@ qint64 LocalFileManager::getFileSize(const QString &fileName)
 
     // Return the size of the file in bytes
     return fileInfo.size();
+}
+
+QString LocalFileManager::getFilename(const QString &filePath)
+{
+    QFileInfo fileInfo(filePath);
+    return fileInfo.fileName();
 }
 
 
