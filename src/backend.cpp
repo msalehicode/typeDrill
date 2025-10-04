@@ -67,7 +67,7 @@ Backend::Backend(QObject *parent)
     connect(&m_fileManager, &FileManager::uploadFinished, this, &Backend::onUploadFinished);
 }
 
-int Backend::getNextWord(const QString &userText, const bool& isModified)
+void Backend::getNextWord(const QString &userText, const bool& isModified, const QString& status)
 {
     QString correctStatus = "incorrect";
 
@@ -96,6 +96,39 @@ int Backend::getNextWord(const QString &userText, const bool& isModified)
             }
 
             current_word = m_db.searchTable(currentTableName, "id", QString::number(last_id));
+
+            //check word status (possibles: empty, all, starred, archived, 0)
+            //0->not starred, not archived
+            //empty/all -> whole words no filter
+            if(status!="all")
+            {
+                if (!current_word.isEmpty())
+                {
+                    QVariant wordStatus = current_word[0].value("status");
+                    qInfo() << "word status=" << wordStatus.toString();
+                    while(wordStatus.toString()!=status) //get next word
+                    {
+                        if(last_id>=max_id)
+                        {
+                            emit practiceFinished();
+                            break;
+                        }
+                        else
+                        {
+                            last_id++;
+                            current_word = m_db.searchTable(currentTableName, "id", QString::number(last_id));
+                            wordStatus = current_word[0].value("status");
+                        }
+                    }
+
+                }
+                else
+                    qInfo() << "curretn word is empty! cant check word status";
+            }
+            else
+                qInfo() << "all or empty status";
+
+
             if(isModified)
             {
                 qInfo () << "lets check again..";
@@ -123,25 +156,73 @@ int Backend::getNextWord(const QString &userText, const bool& isModified)
             // }
         }
 
-        return max_id;
     }
     else //incorrect value entered.
     {
         emit wordIsIncorrect(correctStatus);
     }
-    return -1;
 }
 
-void Backend::getNextWord()
+bool Backend::setWordStatus(const int &wordId, QString status)
 {
+    bool qResult = m_db.updateTableValue(currentTableName,"id",wordId,"status",status);
+
+    if(!qResult)
+        qInfo() << "failed to update word\'s status to " << status;
+
+    return qResult;
+}
+
+
+void Backend::getNextWordNoInputCheck(const QString& status)
+{
+    qInfo() << "status=" << status;
     if(last_id>=max_id)
         emit practiceFinished();
     else
     {
         last_id++;
         current_word = m_db.searchTable(currentTableName, "id", QString::number(last_id));
+
+
+        //check word status (possibles: empty, all, starred, archived, 0)
+        //0->not starred, not archived
+        //empty/all -> whole words no filter
+        if(status!="all")
+        {
+            if (!current_word.isEmpty())
+            {
+                QVariant wordStatus = current_word[0].value("status");
+                qInfo() << "word status=" << wordStatus.toString();
+                while(wordStatus.toString()!=status) //get next word
+                {
+                    if(last_id>=max_id)
+                    {
+                        emit practiceFinished();
+                        break;
+                    }
+                    else
+                    {
+                        last_id++;
+                        current_word = m_db.searchTable(currentTableName, "id", QString::number(last_id));
+                        wordStatus = current_word[0].value("status");
+                    }
+                }
+
+            }
+            else
+                qInfo() << "curretn word is empty! cant check word status";
+        }
+        else
+            qInfo() << "all or empty status";
+
         emit wordReady(current_word);
     }
+}
+
+int Backend::getMaxIdWordTable()
+{
+    return max_id;
 }
 
 QVariantList Backend::getTableWords()

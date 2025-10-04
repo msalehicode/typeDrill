@@ -15,6 +15,9 @@ Page {
 
     property string practiceMode: "none"
 
+    property bool practiceOnlyStarred:false
+    property bool isWordStared: false
+
     property bool isThisWordModified: false;
 
     property string contentPath;
@@ -63,16 +66,10 @@ Page {
 
             Row
             {
-                width: parent.width
+                width: implicitWidth
                 height: 50
                 spacing: 10
-                Rectangle
-                {
-                    //spacer
-                    color:"transparent"
-                    width:parent.width/4.50
-                    height:parent.height
-                }
+                anchors.horizontalCenter: parent.horizontalCenter
                 CustomButtonWithIcon
                 {
                     id:playButton
@@ -102,11 +99,32 @@ Page {
                     }
                 }
 
+                CustomButtonWithIcon
+                {
+                    id:favoriteWordButton
+                    setWidth:25
+                    setHeight:25
+                    setButtonText:"";
+                    setButtonBorderColor: "transparent";
+                    setButtonFontColor:appColors.c_fontcolor;
+                    setButtonBackColor:"transparent"
+                    setTextMagin: 5
+                    setIconHeight: 20
+                    setIconWidth: 20
+                    setIconSource: isWordStared ? appIcons.icon_filledStar: appIcons.icon_star
+                    onButtonClicked:
+                    {
+                        if(backend.setWordStatus(currentWordId, isWordStared?"0":"starred"))
+                            isWordStared = !isWordStared;
+
+                    }
+                }
+
                 CustomProccessBar
                 {
                     id:proccessBar
                     currentValue:currentWordId-1
-                    setWidth: parent.width/3
+                    setWidth: 150
                     setHeight: 20
                     setSpacing:0
                     setProgressRadius:0
@@ -115,13 +133,6 @@ Page {
                     setFontSize: appFontSizes.f_normal
                     setProgressColor: appColors.c_buttonBgColor
                     setCotinainerRadius: parent.width
-                    // anchors
-                    // {
-                    //     horizontalCenter: parent.horizontalCenter
-                    //     top:parent.top
-                    //     // topMargin: appKeyboardVisible ? appKeyboardHeight : 15
-                    //     topMargin:55
-                    // }
                 }
                 CustomButtonWithIcon
                 {
@@ -135,9 +146,6 @@ Page {
                     setTextMagin: 5
                     setIconHeight: 25
                     setIconWidth: 25
-                    // anchors.top:proccessBar.top
-                    // anchors.right: parent.right
-                    // anchors.rightMargin: 15
                     setIconSource:  appIcons.icon_modify
                     onButtonClicked:
                     {
@@ -458,7 +466,7 @@ Page {
 
         doTiltAnimation(animationVal)
 
-        backend.getNextWord(getValueByKey(currentWord,"text","verb"),isThisWordModified)
+        backend.getNextWordNoInputCheck(practiceOnlyStarred?"starred":"all")
 
         //turn flag off for next word
         isThisWordModified=false
@@ -538,6 +546,7 @@ Page {
             lblText.text=""+getValueByKey(currentWord,"text","text")
             lblMeaning.text="Meaning:\n"+getValueByKey(currentWord,"meaning","meaning")
             lblExample.text="Example:\n"+getValueByKey(currentWord,"example","example")
+            isWordStared = getValueByKey(currentWord,"status","status")==="starred" ? true : false;
         }
         else if(practiceMode==="verb")
         {
@@ -578,7 +587,9 @@ Page {
 
         contentPath = backend.getContentPath()
 
-        maxWordId = backend.getNextWord("firstword")
+        maxWordId = backend.getMaxIdWordTable();
+        backend.getNextWordNoInputCheck(practiceOnlyStarred?"starred":"all")
+
 
         if(maxWordId<=0)//this table doesn't have enough words
             practiceCore.quitMode(false,"this table doesn't have enough words to practice, add some word..")

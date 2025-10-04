@@ -108,6 +108,8 @@ qt_add_qml_module(appTypeDrill
         resourses/lightMode/50x50/signout.png resourses/darkMode/50x50/signout.png
         resourses/lightMode/50x50/play.png resourses/darkMode/50x50/play.png
         resourses/lightMode/50x50/pause.png resourses/darkMode/50x50/pause.png
+        resourses/lightMode/50x50/star.png resourses/darkMode/50x50/star.png
+        resourses/lightMode/50x50/filledStar.png resourses/darkMode/50x50/filledStar.png
 
 )
 

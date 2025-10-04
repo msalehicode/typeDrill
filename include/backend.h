@@ -137,13 +137,17 @@ public:
      * \param entered text from user, modify status(in case when inside practice user decided to modify that word turn this on to add another attemp to receive new word from db and check correction of new word with entered one)
      * \return maxId of that table also emits wordIsIncorrect("incorrect") when word doesn't mactch or wordReady(row of word as list)
      */
-    Q_INVOKABLE int getNextWord(const QString& userText, const bool& isModified=false);
+    Q_INVOKABLE void getNextWord(const QString& userText, const bool& isModified=false, const QString& status="");
+
+
+    Q_INVOKABLE bool setWordStatus(const int& wordId, QString status);
 
     /*!
      * \brief to get next word without checking user input is correct/incorrect.
      * \return emits wordReady with QList of next word
      */
-    Q_INVOKABLE void getNextWord();
+    Q_INVOKABLE void getNextWordNoInputCheck(const QString& status="all");
+    Q_INVOKABLE int getMaxIdWordTable();
 
     QVariantList getTableWords();
 

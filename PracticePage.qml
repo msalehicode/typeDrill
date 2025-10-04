@@ -122,9 +122,32 @@ Page
                 anchors.horizontalCenter: parent.horizontalCenter
                 onButtonClicked:
                 {
-                    // joinMode("practiceModes/typePractice.qml","practiceMode",tableType)
                     joinMode("practiceModes/typePractice.qml", {practiceMode: tableType});
                     headerText.text = "Type Practice"
+                }
+            }
+            CustomButton
+            {
+                setButtonText:"type practice only ⭐"
+                setButtonBorderColor:appColors.c_buttonBorderColor
+                setButtonBackColor: appColors.c_buttonBgColor
+                setButtonFontColor: appColors.c_buttonFontColor
+                setBold: true
+                setButtonFontsize: appFontSizes.f_buttonFontSize
+                setButtonsBorderWidth: 0
+                setRadius: 20
+                setWidth: parent.width
+                setVisible: tableType==="word" || tableType==="verb"
+                setHeight:50
+                anchors.horizontalCenter: parent.horizontalCenter
+                onButtonClicked:
+                {
+                    joinMode("practiceModes/typePractice.qml",
+                             {
+                                 practiceMode: tableType,
+                                 practiceOnlyStarred: true
+                             });
+                    headerText.text = "Type Practice only starred words"
                 }
             }
 
@@ -146,6 +169,31 @@ Page
                 {
                     joinMode("practiceModes/flashcardPractice.qml", {practiceMode: tableType});
                     headerText.text = "Flashcard Practice"
+                }
+            }
+
+            CustomButton
+            {
+                setButtonText:"flashcard practice only ⭐"
+                setButtonBorderColor:appColors.c_buttonBorderColor
+                setButtonBackColor: appColors.c_buttonBgColor
+                setButtonFontColor: appColors.c_buttonFontColor
+                setBold: true
+                setButtonFontsize: appFontSizes.f_buttonFontSize
+                setButtonsBorderWidth: 0
+                setRadius: 20
+                setWidth: parent.width
+                setVisible: tableType==="word"
+                setHeight:50
+                anchors.horizontalCenter: parent.horizontalCenter
+                onButtonClicked:
+                {
+                    joinMode("practiceModes/flashcardPractice.qml",
+                             {
+                                 practiceMode: tableType,
+                                 practiceOnlyStarred: true
+                             });
+                    headerText.text = "Flashcard Practice only starred words"
                 }
             }
 

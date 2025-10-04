@@ -25,6 +25,11 @@ Page
     property string contentPath;
 
 
+
+    property bool practiceOnlyStarred:false
+    property bool isWordStared: false
+
+
     //for practice verb needs to user type whole three inputs to get next word:
     property int passedState:0;
 
@@ -52,17 +57,10 @@ Page
 
             Row
             {
-                width: parent.width
+                width: implicitWidth
                 height: 50
                 spacing: 10
-
-                Rectangle
-                {
-                    //spacer
-                    color:"transparent"
-                    width:parent.width/4.30
-                    height:parent.height
-                }
+                anchors.horizontalCenter: parent.horizontalCenter
                 CustomButtonWithIcon
                 {
                     id:playButton
@@ -91,13 +89,32 @@ Page
                         }
                     }
                 }
+                CustomButtonWithIcon
+                {
+                    id:favoriteWordButton
+                    setWidth:25
+                    setHeight:25
+                    setButtonText:"";
+                    setButtonBorderColor: "transparent";
+                    setButtonFontColor:appColors.c_fontcolor;
+                    setButtonBackColor:"transparent"
+                    setTextMagin: 5
+                    setIconHeight: 20
+                    setIconWidth: 20
+                    setIconSource: isWordStared ? appIcons.icon_filledStar: appIcons.icon_star
+                    onButtonClicked:
+                    {
+                        if(backend.setWordStatus(currentIndex, isWordStared?"0":"starred"))
+                            isWordStared = !isWordStared;
 
+                    }
+                }
                 CustomProccessBar
                 {
                     id:proccessBar
                     currentValue:currentIndex-1
                     totalValue: maxIndex
-                    setWidth: parent.width/3
+                    setWidth: 150
                     setHeight: 20
                     setSpacing:0
                     setProgressRadius:0
@@ -402,7 +419,7 @@ Page
 
     function getNextWord(text)
     {
-        backend.getNextWord(text, isThisWordModified)
+        backend.getNextWord(text, isThisWordModified, practiceOnlyStarred?"starred":"all")
 
         //turn flag off for next word
         isThisWordModified=false
@@ -428,7 +445,8 @@ Page
         contentPath = backend.getContentPath()
 
         //to fetch first word and get maxium number of content on table
-        var totalWords = backend.getNextWord("firstword");
+        var totalWords = backend.getMaxIdWordTable();
+        backend.getNextWordNoInputCheck(practiceOnlyStarred?"starred":"all")
 
 
         if(totalWords<=0)
@@ -516,6 +534,7 @@ Page
         w_example.text=getValueByKey(practiceData,"example","past_perfect")
         w_translate.text=getValueByKey(practiceData,"translate","translate")
         currentIndex=getValueByKey(practiceData,"id","id")
+        isWordStared=getValueByKey(practiceData,"status","status")==="starred" ? true : false;
     }
 
 
@@ -541,7 +560,7 @@ Page
                 w_text.font.bold=true
                 w_meaning.font.bold=false;
                 w_example.font.bold=false;
-            }                
+            }
 
         }
         function onWordIsIncorrect(correctStatus)

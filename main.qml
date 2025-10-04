@@ -207,6 +207,10 @@ Window
         property string icon_signout : appIcons.i_path + "signout.png"
 
 
+        property string icon_star : appIcons.i_path + "star.png"
+        property string icon_filledStar : appIcons.i_path + "filledStar.png"
+
+
     }
     
     

@@ -432,6 +432,8 @@ Page
         }
 
 
+
+
         for (var i = 0; i < repeater.count; i++)
         {
             var item = repeater.itemAt(i);
@@ -602,8 +604,8 @@ Page
         tempData.push(getValueByKey(formData,"meaning","past")) //pass possible keys to get value
         tempData.push(getValueByKey(formData,"example","past_perfect")) //pass possible keys to get value
         tempData.push(getValueByKey(formData,"translate","translate")) //pass possible keys to get value
-        tempData.push(getValueByKey(formData,"source","source")) //pass possible keys to get value
         tempData.push(getValueByKey(formData,"status","status")) //pass possible keys to get value
+        tempData.push(getValueByKey(formData,"source","source")) //pass possible keys to get value
         tempData.push(getValueByKey(formData,"picture","picture")) //pass possible keys to get value
         tempData.push(getValueByKey(formData,"audio","audio")) //pass possible keys to get value
 
