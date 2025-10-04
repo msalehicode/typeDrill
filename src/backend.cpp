@@ -36,6 +36,14 @@ bool Backend::init(QString databaseName)
                      t_status TEXT"
                      );
 
+
+    //custom table headers
+    m_db.createTable("user_ct_headers", "ct_id INTEGER PRIMARY KEY AUTOINCREMENT,\
+                     ct_tid INTEGER,\
+                     ct_headers TEXT,\
+                     FOREIGN KEY(ct_tid) REFERENCES user_tables(t_id)"
+                     );
+
     //create practices result table (to trace practice progress)
     m_db.createTable("trace_practices", "tp_id INTEGER PRIMARY KEY AUTOINCREMENT,\
                      tp_table_id INTEGER,\
@@ -178,7 +186,7 @@ void Backend::setPracticeResult(const QString &mistakeCount, const QString &time
         qWarning() << "failed to insert into table (trace_practice)";
 }
 
-void Backend::getTables(const QString& searchedTitle,const QString& tableType)
+void Backend::getTables(const QString& searchedTitle,const QString& tableType,  bool includePinned)
 {
     // Fetch all rows from the "user_tables" table
     QVariantList allTables = m_db.getAllRowsAsVariantList("user_tables");
@@ -186,21 +194,25 @@ void Backend::getTables(const QString& searchedTitle,const QString& tableType)
 
     //list pinned tables
     QVariantList pinnedTables;
-    for (const QVariant &rowVar : allTables)
+    if(includePinned)
     {
-        QVariantMap row = rowVar.toMap();
+        for (const QVariant &rowVar : allTables)
+        {
+            QVariantMap row = rowVar.toMap();
 
-        //only append pinned ones
-        if(row["t_status"].toString() != "pinned")
-            continue;
+            //only append pinned ones
+            if(row["t_status"].toString() != "pinned")
+                continue;
 
-        // If tableType is "all" or empty, include everything
-        if (tableType.isEmpty() || tableType == "all")
-            pinnedTables.append(row);
-        // Otherwise, filter by t_type (verb,word,etc)
-        else if (row["t_type"].toString() == tableType)
-            pinnedTables.append(row);
+            // If tableType is "all" or empty, include everything
+            if (tableType.isEmpty() || tableType == "all")
+                pinnedTables.append(row);
+            // Otherwise, filter by t_type (verb,word,etc)
+            else if (row["t_type"].toString() == tableType)
+                pinnedTables.append(row);
+        }
     }
+
 
 
     // Filter based on tableType (e.g., "verb", "word", archives, etc.)
@@ -376,12 +388,119 @@ void Backend::createTable(const QString &tableName, const QString &tableType)
         else
             result="error";//: table verb failed to create.
     }
+    else if(tableType=="customTable")
+    {
+        bool qresult = m_db.createTable(tableName, "id INTEGER PRIMARY KEY AUTOINCREMENT,\
+                                        item1 TEXT,\
+                                        item2 TEXT,\
+                                        item3 TEXT,\
+                                        item4 TEXT,\
+                                        item5 TEXT,\
+                                        item6 TEXT,\
+                                        item7 TEXT,\
+                                        item8 TEXT,\
+                                        item9 TEXT,\
+                                        item10 TEXT,\
+                                        translate TEXT,\
+                                        status TEXT"
+                                        );
+        if(qresult)
+        {
+            result="custom table successfully created.";
+
+            QMap<QString, QVariant> rowData;
+            rowData["t_title"] = tableName;
+            rowData["t_type"] = tableType;
+            rowData["t_icon"] = "";
+            rowData["t_status"] = "0";
+
+            qresult = m_db.insertIntoTable("user_tables", rowData);
+            if(qresult)
+                result+= " and added to user_tables.";
+            else
+                result= "error";// but could not add to user_tables this will occure problem.
+        }
+        else
+            result="error";//: table verb failed to create.
+    }
     else
     {
         result="error";//: undefined table type.
     }
 
     emit tableCreationResult(result);
+}
+
+void Backend::setCustomTableHeaders(const int& tableId, const QString &headers, bool update)
+{
+    if(update)
+    {
+        QMap<QString, QVariant> rowData;
+
+        rowData["ct_tid"] = QString::number(tableId);
+        rowData["ct_headers"] = headers;
+
+        bool qresult = m_db.updateTableRow("user_ct_headers", "ct_tid", QString::number(tableId), rowData);
+
+        if(!qresult)
+        {
+            emit setCustomTableHeadersResult("failed to insert into table (user_ct_headers)");
+            qWarning() << "failed to insert into table (user_ct_headers)";
+        }
+        else
+            emit setCustomTableHeadersResult("headers updated fine");
+    }
+    else
+    {
+        QMap<QString, QVariant> rowData;
+
+        rowData["ct_tid"] = QString::number(tableId);
+        rowData["ct_headers"] = headers;
+
+        if(!m_db.insertIntoTable("user_ct_headers", rowData))
+        {
+            emit setCustomTableHeadersResult("failed to insert into table (user_ct_headers)");
+            qWarning() << "failed to insert into table (user_ct_headers)";
+        }
+        else
+            emit setCustomTableHeadersResult("table headers inserted fine.");
+    }
+}
+
+void Backend::getCustomTableHeaders(const int &tableId)
+{
+    emit getCustomTableHeadersResult(m_db.searchTable("user_ct_headers","ct_tid",QString::number(tableId),"ct_headers"));
+}
+
+void Backend::addItemToCustomTable(const QString& tableName, const QStringList &data)
+{
+    if(data.size()>=12)
+    {
+        QMap<QString, QVariant> rowData;
+        rowData["item1"] = data[0];
+        rowData["item2"] = data[1];
+        rowData["item3"] = data[2];
+        rowData["item4"] = data[3];
+        rowData["item5"] = data[4];
+        rowData["item6"] = data[5];
+        rowData["item7"] = data[6];
+        rowData["item8"] = data[7];
+        rowData["item9"] = data[8];
+        rowData["item10"] = data[9];
+        rowData["translate"] = data[10];
+        rowData["status"] = data[11];
+
+        bool qresult = m_db.insertIntoTable(tableName, rowData);
+        if(qresult)
+            emit addItemToCustomTableResult("content added to custom table");
+        else
+            emit addItemToCustomTableResult("failed to add content to custom table");
+    }
+    else
+    {
+        emit addItemToCustomTableResult("failed to add content to custom table not enough data received");
+    }
+
 }
 
 void Backend::switchTable(const QString &tableName, const QString& ttype)

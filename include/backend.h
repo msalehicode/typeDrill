@@ -166,7 +166,7 @@ public:
      * \param searchedTitle(optional to filter table names), tableType (to filter tables type, default:all tables), types can be (all,verb,word,archives) "archives" actually isn't a type but it's a filed inside user_tables.t_status and used to access/list to archived
      * \return emit tablesList(tableList)
      */
-    Q_INVOKABLE void getTables(const QString& searchedTitle, const QString& tableType);
+    Q_INVOKABLE void getTables(const QString& searchedTitle, const QString& tableType, bool includePinned=true);
 
     Q_INVOKABLE void getLessonsList();
 
@@ -176,6 +176,11 @@ public:
      * \return emit tableCreationResult(result), in failure pass "error" else pass message with details
      */
     Q_INVOKABLE void createTable(const QString& tableName, const QString& tableType);
+
+
+    Q_INVOKABLE void setCustomTableHeaders(const int &tableId, const QString& headers, bool update=false);
+    Q_INVOKABLE void getCustomTableHeaders(const int &tableId);
+    Q_INVOKABLE void addItemToCustomTable(const QString& tableName, const QStringList &data);
 
     /*!
      * \brief to switch between tables, will set variables (currentTableName and currentTableType) and call resetPractice() for other functions use later
@@ -338,7 +343,6 @@ public:
     Q_INVOKABLE void renameApiDbFile(const QString& fileId, const QString& newDbName);
     Q_INVOKABLE void deleteApiDbFile(const QString& fileId);
 
-
 signals:
     void wordReady(const QList<QMap<QString, QVariant>>& word);
     void crosswordReady(const QVector<QVector<QString>>& crossword);
@@ -369,7 +373,9 @@ signals:
 
     void signResult(const QString& sessionKeyOrMessage);
 
-
+    void setCustomTableHeadersResult(const QString& result);
+    void getCustomTableHeadersResult(const QString& data);
+    void addItemToCustomTableResult(const QString& result);
 
     void renameApiDbFileResult(const QString& result);
     void changeApiDbFileVisiblityResult(const QString& result);

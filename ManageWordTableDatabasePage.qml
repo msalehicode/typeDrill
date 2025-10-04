@@ -88,7 +88,7 @@ Page
                     {
                         width: parent.width
                         height:80
-                        spacing:50
+                        spacing:10
                         CustomButtonWithIcon
                         {
                             setWidth:80
@@ -112,6 +112,25 @@ Page
                         {
                             setWidth:80
                             setHeight:80
+                            setButtonText:"Add Content \nTo Custom Table";
+                            setButtonFontColor:appColors.c_fontcolor
+                            setButtonBackColor:"transparent"
+                            setTextMagin: 5
+                            setIconHeight: 50
+                            setIconWidth: 50
+                            setButtonsBorderWidth:0
+                            setButtonBorderColor: "transparent"
+                            setIconSource:  appIcons.icon_settings
+                            onButtonClicked:
+                            {
+                                mainStackView.push("./forms/AddContentToCustomTable.qml")
+                            }
+                        }
+
+                        CustomButtonWithIcon
+                        {
+                            setWidth:80
+                            setHeight:80
                             setButtonText:"New Table";
                             setButtonFontColor:appColors.c_fontcolor
                             setButtonBackColor:"transparent"
@@ -124,6 +143,25 @@ Page
                             onButtonClicked:
                             {
                                 mainStackView.push("./forms/AddNewTableForm.qml")
+                            }
+                        }
+
+                        CustomButtonWithIcon
+                        {
+                            setWidth:80
+                            setHeight:80
+                            setButtonText:"Custom\nTable\nHeaders";
+                            setButtonFontColor:appColors.c_fontcolor
+                            setButtonBackColor:"transparent"
+                            setTextMagin: 5
+                            setIconHeight: 50
+                            setIconWidth: 50
+                            setButtonsBorderWidth:0
+                            setButtonBorderColor:"transparent"
+                            setIconSource:  appIcons.icon_settings
+                            onButtonClicked:
+                            {
+                                mainStackView.push("./forms/SetHeaderCustomTable.qml")
                             }
                         }
                     }
@@ -366,6 +404,7 @@ Page
                     }
 
                 }
+
 
             }
 
