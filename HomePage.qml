@@ -206,59 +206,6 @@ Page
                 }
             }
 
-
-            Rectangle
-            {
-                id:selectPracticeOrEtc
-                width:parent.width/1.15
-                height:60
-                color: appColors.c_bg_tableList
-                radius:90
-                anchors
-                {
-                    top:weekReport.bottom
-                    topMargin: 15
-                    horizontalCenter: parent.horizontalCenter
-                }
-                CustomSwitchText
-                {
-                    id:switchLearnPractice
-                    setWidth:parent.width
-                    setHeight:parent.height
-                    setRadius: parent.radius
-                    setBgColor: appColors.c_bg_tableList
-                    setSwitchColor: appColors.c_buttonBgColor
-                    setSwitchOpacity: 0.5
-                    setFontColor:appColors.c_fontcolor
-                    setFontSize: appFontSizes.f_normal
-                    setRighttText:"Learn"
-                    setLeftText: "Practice"
-                    switchStatus: false
-                    anchors.centerIn: parent
-                    onSwitchClicked:
-                    {
-                        console.log("switchClicked");
-                        if(switchStatus)
-                        {
-                            console.log("switch to learn")
-                            //fetch tables/decks
-                            backend.getTables(searchTableTextInput.theText,
-                                              searchTableTypeCombobox.currentItemText);
-                        }
-                        else
-                        {
-                            console.log("switch to practice")
-                            //fetch tables/decks
-                            backend.getTables(searchTableTextInput.theText,
-                                              searchTableTypeCombobox.currentItemText);
-                        }
-
-                    }
-
-                }
-
-            }
-
             Rectangle {
                 id:tableList
                 width:parent.width/1.15
@@ -268,7 +215,7 @@ Page
                 clip:true
                 anchors
                 {
-                    top: selectPracticeOrEtc.bottom
+                    top: weekReport.bottom
                     topMargin: 15
                     horizontalCenter: parent.horizontalCenter
                 }
@@ -322,16 +269,11 @@ Page
                             setIconArrow: appIcons.icon_back_white
                             setWidth: 80
                             height:45
-                            modelData: !switchLearnPractice.switchStatus ?
-                                           [
-                                              {text:"all"},{ text:"word"},
-                                              {text:"verb"},{ text:"archives"}
-                                           ]
-                                         :
-                                           [
-                                               {text:"learn"}
-                                               // ,{text:"archives"}
-                                           ]
+                            modelData:
+                            [
+                                {text:"all"},{ text:"word"}, {text:"customTable"},
+                                {text:"verb"},{text:"learn"},{ text:"archives"}
+                            ]
                             setBgColorCurrentItem: appColors.c_comboboxBgColorCurrentItem
                             onActivated: function(index)
                             {
@@ -398,6 +340,22 @@ Page
                             }
                         }
 
+                        Text
+                        {
+                            id:tableType
+                            width:implicitWidth
+                            height:implicitHeight
+                            wrapMode: Text.WordWrap
+                            text: modelData.t_type
+                            color:appColors.c_fontcolor
+                            font.pixelSize: appFontSizes.f_small
+                            anchors
+                            {
+                                left:baseIconTable.left
+                                top:baseIconTable.bottom
+                            }
+                        }
+
                         Rectangle
                         {
                             id:baseTableTitles
@@ -459,14 +417,10 @@ Page
                             {
                                 backend.switchTable(modelData.t_title, modelData.t_type);
 
-                                if(!switchLearnPractice.switchStatus )
-                                {
-                                    mainStackView.push("PracticePage.qml", { tableType: modelData.t_type, m_stackView: mainStackView});
-                                }
-                                else
-                                {
+                                if(modelData.t_type==="learn")
                                     mainStackView.push("LearnPage.qml");
-                                }
+                                else
+                                    mainStackView.push("PracticePage.qml", { tableType: modelData.t_type, m_stackView: mainStackView});
 
                             }
                             onPressAndHold:

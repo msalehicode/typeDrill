@@ -2,6 +2,30 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 
 Page {
+    header: Rectangle
+    {
+        width: parent.width
+        height: 60
+        color: appColors.c_headerBg
+        Label
+        {
+            id:headerText
+            text:"Learn"
+            horizontalAlignment: Text.AlignHCenter
+            color: appColors.c_fontcolor
+            font.pixelSize: appFontSizes.f_normal
+            font.bold:true
+            anchors
+            {
+                verticalCenter:parent.verticalCenter
+                left:parent.left
+                leftMargin: 50
+            }
+        }
+    }
+
+
+
     // Define your ListModel here
     ListModel {
         id: lessonsModel
@@ -68,6 +92,24 @@ Page {
         }
     }
 
+
+
+
+    Text
+    {
+        id:textCenter
+        text:""
+        visible: text.length>1? true : false
+        color: appColors.c_fontcolor
+        font.pixelSize: appFontSizes.f_title
+        wrapMode: Text.WordWrap
+        width:parent.width/2
+        height:implicitHeight
+        anchors
+        {
+            centerIn:parent
+        }
+    }
     // Connections for backend data
     Connections {
         target: backend
@@ -89,6 +131,7 @@ Page {
                 }
             } else {
                 console.log("No lessons available");
+                textCenter.text="No Lessons available"
             }
         }
     }

@@ -32,9 +32,9 @@ Page
     Rectangle
     {
         id:baseSelectTable
-        color:"transparent"
         anchors.fill: parent
         visible: true
+        color:appColors.c_background
 
         CustomCombobox
         {
@@ -85,61 +85,79 @@ Page
     }
 
 
-    Column
+    Rectangle
     {
         id:baseForm
-        width: parent.width
-        height:parent.height
+        color:appColors.c_background
+        anchors.fill: parent
         visible: false
-        spacing:10
-        CustomTextInput
+        Column
         {
-            id:headers_input
-            setWidth: parent.width/2
-            setHeight: 50
-            setBgColor: appColors.c_bgColor_textinput
-            setBordercolor: appColors.c_borderColor_textinput
-            setBorderWidth:2
-            setFontSize:appFontSizes.f_textInput
-            setFontColor: appColors.c_fontColor_textinput
-            setRadius:10
-            theText:""
-            setErrorPosfix: ""
-            setErrorPrefix: ""
-            setTitleText:"Headers:"
-            onTheTextAccepted:
+            width: parent.width/2
+            height:parent.height
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top:parent.top
+            anchors.topMargin: 10
+            spacing:10
+            Label
             {
-                savebutton.buttonClicked()
+                text:"enter headers 10x separate them by comma ,\ne.g: h1,h2,h3"
+                anchors.horizontalCenter: parent.horizontalCenter
+                color:appColors.c_fontcolor
+                font.pixelSize: appFontSizes.f_normal
             }
-        }
 
-        CustomButton
-        {
-            id:savebutton
-            setButtonText:"save";
-            setButtonBorderColor:appColors.c_buttonBorderColor
-            setButtonBackColor: appColors.c_buttonBgColor
-            setButtonFontColor: appColors.c_buttonFontColor
-            setBold: true
-            setButtonFontsize: appFontSizes.f_buttonFontSize
-            setButtonsBorderWidth: 0
-            setRadius: 20
-            setWidth: 100
-            setHeight: 50
-            onButtonClicked:
+            CustomTextInput
             {
-                //validate theText and selectedTableId
-
-
-                //submit to backen
-                if(isModifingHeader)
-                    backend.setCustomTableHeaders(selectedTableId,headers_input.theText,true);
-                else
-                    backend.setCustomTableHeaders(selectedTableId,headers_input.theText);
+                id:headers_input
+                setWidth: parent.width
+                setHeight: 50
+                setBgColor: appColors.c_bgColor_textinput
+                setBordercolor: appColors.c_borderColor_textinput
+                setBorderWidth:2
+                setFontSize:appFontSizes.f_textInput
+                setFontColor: appColors.c_fontColor_textinput
+                setRadius:10
+                theText:""
+                setErrorPosfix: ""
+                setErrorPrefix: ""
+                setTitleText:"Headers:"
+                onTheTextAccepted:
+                {
+                    savebutton.buttonClicked()
+                }
             }
+
+            CustomButton
+            {
+                id:savebutton
+                setButtonText:"save";
+                setButtonBorderColor:appColors.c_buttonBorderColor
+                setButtonBackColor: appColors.c_buttonBgColor
+                setButtonFontColor: appColors.c_buttonFontColor
+                setBold: true
+                setButtonFontsize: appFontSizes.f_buttonFontSize
+                setButtonsBorderWidth: 0
+                setRadius: 20
+                setWidth: 100
+                setHeight: 50
+                onButtonClicked:
+                {
+                    //validate theText and selectedTableId
+
+
+                    //submit to backen
+                    if(isModifingHeader)
+                        backend.setCustomTableHeaders(selectedTableId,headers_input.theText,true);
+                    else
+                        backend.setCustomTableHeaders(selectedTableId,headers_input.theText);
+                }
+            }
+
         }
 
     }
+
 
     Connections
     {

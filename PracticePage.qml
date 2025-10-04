@@ -183,7 +183,7 @@ Page
                 setButtonsBorderWidth: 0
                 setRadius: 20
                 setWidth: parent.width
-                setVisible: tableType==="word"
+                setVisible: tableType==="word" || tableType==="verb"
                 setHeight:50
                 anchors.horizontalCenter: parent.horizontalCenter
                 onButtonClicked:

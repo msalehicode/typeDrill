@@ -93,7 +93,7 @@ Page
                         {
                             setWidth:80
                             setHeight:80
-                            setButtonText:"Add Word";
+                            setButtonText:"Add Word/Content";
                             setButtonFontColor:appColors.c_fontcolor
                             setButtonBackColor:"transparent"
                             setTextMagin: 5
@@ -112,26 +112,7 @@ Page
                         {
                             setWidth:80
                             setHeight:80
-                            setButtonText:"Add Content \nTo Custom Table";
-                            setButtonFontColor:appColors.c_fontcolor
-                            setButtonBackColor:"transparent"
-                            setTextMagin: 5
-                            setIconHeight: 50
-                            setIconWidth: 50
-                            setButtonsBorderWidth:0
-                            setButtonBorderColor: "transparent"
-                            setIconSource:  appIcons.icon_settings
-                            onButtonClicked:
-                            {
-                                mainStackView.push("./forms/AddContentToCustomTable.qml")
-                            }
-                        }
-
-                        CustomButtonWithIcon
-                        {
-                            setWidth:80
-                            setHeight:80
-                            setButtonText:"New Table";
+                            setButtonText:"New\nTable";
                             setButtonFontColor:appColors.c_fontcolor
                             setButtonBackColor:"transparent"
                             setTextMagin: 5
@@ -150,7 +131,7 @@ Page
                         {
                             setWidth:80
                             setHeight:80
-                            setButtonText:"Custom\nTable\nHeaders";
+                            setButtonText:"Set Custom\nTable\nHeaders";
                             setButtonFontColor:appColors.c_fontcolor
                             setButtonBackColor:"transparent"
                             setTextMagin: 5

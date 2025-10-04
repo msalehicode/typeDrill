@@ -230,6 +230,30 @@ QVariantList Backend::getTableWords()
     return m_db.getAllRowsAsVariantList(currentTableName);
 }
 
+void Backend::addLessonToLearn(const QStringList &data)
+{
+    if(data.size()>=5)
+    {
+        QMap<QString, QVariant> rowData;
+
+        rowData["title"] = data[0];
+        rowData["details"] = data[1];
+        rowData["text"] = data[2];
+        rowData["level"] = data[3];
+        rowData["status"] = data[4];
+
+        bool qresult = m_db.insertIntoTable(currentTableName, rowData);
+        if(qresult)
+            emit addContentToLearnResult("lesson added");
+        else
+            emit addContentToLearnResult("lesson failed to add");
+    }
+    else
+        emit addContentToLearnResult("lesson failed to add not enough parameter");
+
+
+}
+
 
 
 QString Backend::getSetting(const QString &settingKey)
@@ -322,9 +346,6 @@ void Backend::getTables(const QString& searchedTitle,const QString& tableType,  
             // If tableType is "all" or empty, include everything
             if ((tableType.isEmpty() || tableType == "all" ) && tableType!="learn")
             {
-                //avoid learns
-                if(tableType=="learn")
-                    continue;
                 if(searchedTitle.isEmpty()) //searchedTitle didn't provide
                     filteredTables.append(row);
                 else if(!searchedTitle.isEmpty() && searchedTitle==row["t_title"].toString())

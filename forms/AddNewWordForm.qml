@@ -14,9 +14,14 @@ Page
     //verb: verb, past, past perfect, translate, status
     property var wordTitles: ["Enter Word:", "Enter Meaning:", "Enter Example:", "Enter Translate:", "Enter Source:", "Enter Status:"]
     property var verbTitles: ["Enter Verb:","Enter Past:", "Enter Past Participle:", "Enter Translate:","Enter Status:"]
+    property var learnTitles: ["Enter Title:","Enter Details:", "Enter Content:", "Enter Level:","Enter Status:"]
 
     property var fileDialogFilters : ["Images (*.png *.jpg *.jpeg *.bmp *.gif)",
                                       "Audio (*.wav *.mp3 *.ogg *.flac *.m4a *.aiff)"]
+
+
+    property int selectedTableId:-1
+    property string selectedTableName:"";
 
     property bool fileDialogPickingImage: true
     onFileDialogPickingImageChanged:
@@ -39,12 +44,6 @@ Page
         id: titleModel
     }
 
-
-
-    onFormTypeChanged:
-    {
-        refreshFormInputs()
-    }
 
     header: Rectangle
     {
@@ -154,7 +153,13 @@ Page
                         backend.whatIsCurrentTableType();
                         baseForm.visible=true
                         baseSelectTable.visible=false
-                        headerText.text="Add Content To Table ("+selectedItem.text+")"
+
+                        selectedTableName=selectedItem.text
+                        selectedTableId=selectedItem.t_id
+                        headerText.text="Add Content To Table ("+selectedTableName+")"
+                        console.log("selected item text=",selectedItem.text,"id=",selectedItem.t_id,"type=",selectedItem.t_type)
+                        console.log("selectedTableId=",selectedTableId,"selectedTableName=",selectedTableName)
+                        refreshFormInputs()
                     }
                 }
             }
@@ -179,13 +184,14 @@ Page
             {
                 width: parent.width
                 height: parent.height
-                spacing:25
+                spacing: formType==="customTable"?  2:25
                 Row
                 {
                     id:imageControl
                     width:100
                     height:implicitHeight
                     spacing:10
+                    visible: formType==="word"? true:false
                     anchors.horizontalCenter: parent.horizontalCenter
                     Label
                     {
@@ -245,6 +251,7 @@ Page
                     width:100
                     height:implicitHeight
                     spacing:10
+                    visible: formType==="word"? true:false
                     anchors.horizontalCenter: parent.horizontalCenter
                     Label
                     {
@@ -344,6 +351,47 @@ Page
                         setRadius:10
                         theText:""
                         setTitleText: model.title
+                        setVisible: formType==="customTable" && model.title==="?Header?"? false : true
+                    }
+                }
+
+                Column
+                {
+                    id:customTableItems
+                    visible: formType==="customTable"
+                    width:100
+                    height:implicitHeight
+                    spacing:10
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    CustomTextInput
+                    {
+                        id:translateInput
+                        setWidth: parent.width
+                        setHeight: 50
+                        setBgColor: appColors.c_bgColor_textinput
+                        setBordercolor: appColors.c_borderColor_textinput
+                        setBorderWidth:2
+                        setFocus: index === 0
+                        setFontSize:appFontSizes.f_textInput
+                        setFontColor: appColors.c_fontColor_textinput
+                        setRadius:10
+                        theText:""
+                        setTitleText: "Translate"
+                    }
+                    CustomTextInput
+                    {
+                        id:statusInput
+                        setWidth: parent.width
+                        setHeight: 50
+                        setBgColor: appColors.c_bgColor_textinput
+                        setBordercolor: appColors.c_borderColor_textinput
+                        setBorderWidth:2
+                        setFocus: index === 0
+                        setFontSize:appFontSizes.f_textInput
+                        setFontColor: appColors.c_fontColor_textinput
+                        setRadius:10
+                        theText:""
+                        setTitleText: "Status"
                     }
                 }
 
@@ -371,18 +419,42 @@ Page
                                 data.push(item.theText);
                         }
 
-                        //add picture to data:
-                        data.push(selectedImagePath);
+                        if(formType==="customTable")
+                        {
+                            data.push(translateInput.theText);
+                            data.push(statusInput.theText);
+                            backend.addItemToCustomTable(selectedTableName,data);
+                        }
+                        else if(formType==="word")
+                        {
+                            //add picture to data:
+                            data.push(selectedImagePath);
 
-                        //add audio to data:
-                        data.push(selectedAudioPath);
+                            //add audio to data:
+                            data.push(selectedAudioPath);
+
+                            //check empty items
+                            if(data[0]==="" || data[0]===" ")
+                                console.log("you must fill first item atleast")
+                            else
+                                backend.addWordToTable(data);
+                        }
+                        else if(formType==="verb")
+                        {
+                            //check empty items
+                            if(data[0]==="" || data[0]===" ")
+                                console.log("you must fill first item atleast")
+                            else
+                                backend.addWordToTable(data);
+                        }
+                        else if(formType==="learn")
+                        {
+                            backend.addLessonToLearn(data);
+                        }
 
 
-                        //check empty items
-                        if(data[0]==="" || data[0]===" ")
-                            console.log("you must fill first item atleast")
-                        else
-                            backend.addWordToTable(data);
+
+
                     }
                 }
 
@@ -397,26 +469,94 @@ Page
         titleModel.clear()
         var arr = []
         if (formType === "word")
+        {
             arr = wordTitles
+            for (var i = 0; i < arr.length; i++)
+                titleModel.append({"title": arr[i]})
+        }
         else if (formType === "verb")
+        {
             arr = verbTitles
+            for (var j = 0; j < arr.length; j++)
+                titleModel.append({"title": arr[j]})
+        }
+        else if(formType === "customTable")
+        {
+            backend.getCustomTableHeaders(selectedTableId);
+            translateInput.clear()
+            statusInput.clear()
+        }
+        else if(formType==="learn")
+        {
+            arr = learnTitles
+            for (var k = 0; k < arr.length; k++)
+                titleModel.append({"title": arr[k]})
+        }
+
         else
             console.log("formType unkown, formType=",formType)
 
 
-        for (var i = 0; i < arr.length; i++)
-        {
-            titleModel.append({"title": arr[i]})
-        }
+
     }
 
     Connections
     {
         target: backend
+        function onAddContentToLearnResult(result)
+        {
+            if(result==="lesson added")
+                refreshFormInputs()
+            else
+                console.log("failed to add lesson res=",result)
+        }
+
         function onTableTypeIs(currentTableType)
         {
             formType=currentTableType
         }
+        function onGetCustomTableHeadersResult(result)
+        {
+            titleModel.clear()
+            var titles = []
+
+            if(result.length>1)
+            {
+                // Split the string
+                titles = result.split(",").map(item => item.trim());
+
+                // Fill missing items up to 10
+                while (titles.length < 10)
+                {
+                    titles.push("?Header?");
+                }
+            }
+            else
+            {
+                titles=["Header1","Header2","Header3",
+                        "Header4","Header5","Header6",
+                        "Header7","Header8","Header9","Header10"]
+                console.log("no header found")
+            }
+
+
+
+            for (var i = 0; i < titles.length; i++)
+            {
+                titleModel.append({"title": titles[i]})
+            }
+
+            console.log("get customtable header reuslt= ", result)
+        }
+
+        function onAddItemToCustomTableResult(result)
+        {
+            if(result==="content added to custom table")
+                refreshFormInputs()
+            else
+                console.log("add content result=",result)
+        }
+
         function onAddItemtoTableResult(res)
         {
             if (res !== "error")

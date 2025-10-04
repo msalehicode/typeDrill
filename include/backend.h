@@ -152,6 +152,8 @@ public:
     QVariantList getTableWords();
 
 
+    Q_INVOKABLE void addLessonToLearn(const QStringList &data);
+
 
     Q_INVOKABLE QString getSetting(const QString& settingKey);
     Q_INVOKABLE void setSetting(const QString& settingKey,const QString& settingValue);
@@ -384,6 +386,9 @@ signals:
     void renameApiDbFileResult(const QString& result);
     void changeApiDbFileVisiblityResult(const QString& result);
     void deleteApiDbFileResult(const QString& result);
+
+
+    void addContentToLearnResult(const QString& result);
 
 private slots:
     void onUrlListReceived();

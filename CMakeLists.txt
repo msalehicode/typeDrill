@@ -56,9 +56,9 @@ qt_add_qml_module(appTypeDrill
         forms/AddNewTableForm.qml
         forms/AddNewDatabaseForm.qml
         forms/ModifyWordForm.qml
-        forms/AddNewLesson.qml
+
         forms/SetHeaderCustomTable.qml
-        forms/AddContentToCustomTable.qml
+
 
         # practiceModes
         practiceModes/flashcardPractice.qml

@@ -5,6 +5,7 @@ Item
 {
     width:setWidth
     height:setHeight
+    visible: setVisible
 
     property int setWidth: 200
     property int setHeight: 50
@@ -20,6 +21,7 @@ Item
     property string setErrorPrefix: " (Error:"
     property bool setFocus:false
     property string setErrorPosfix: ")"
+    property bool setVisible:true
 
     property bool errorStatus:false
     signal theTextAccepted;
