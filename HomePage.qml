@@ -209,7 +209,7 @@ Page
             Rectangle {
                 id:tableList
                 width:parent.width/1.15
-                height:parent.height/1.75
+                height:parent.height/1.50
                 color: appColors.c_bg_tableList
                 radius:30
                 clip:true
@@ -272,7 +272,7 @@ Page
                             modelData:
                             [
                                 {text:"all"},{ text:"word"}, {text:"customTable"},
-                                {text:"verb"},{text:"learn"},{ text:"archives"}
+                                {text:"learn"},{ text:"archives"}
                             ]
                             setBgColorCurrentItem: appColors.c_comboboxBgColorCurrentItem
                             onActivated: function(index)
@@ -420,7 +420,11 @@ Page
                                 if(modelData.t_type==="learn")
                                     mainStackView.push("LearnPage.qml");
                                 else
-                                    mainStackView.push("PracticePage.qml", { tableType: modelData.t_type, m_stackView: mainStackView});
+                                    mainStackView.push("PracticePage.qml",
+                                                       {
+                                                           tableType: modelData.t_type,
+                                                           m_stackView: mainStackView
+                                                       });
 
                             }
                             onPressAndHold:

@@ -76,7 +76,6 @@ void Backend::getNextWord(const QString &userText, const bool& isModified, const
           ((
                 current_word.isEmpty() //for first time this is empty. to get first word
              || userText == current_word.first().value("text").toString() //check for text
-             || userText == current_word.first().value("verb").toString() //check for verb
             ) || isModified)
         )
     {
@@ -132,8 +131,7 @@ void Backend::getNextWord(const QString &userText, const bool& isModified, const
             if(isModified)
             {
                 qInfo () << "lets check again..";
-                if(userText == current_word.first().value("text").toString()
-                    || userText == current_word.first().value("verb").toString())
+                if(userText == current_word.first().value("text").toString())
                 {
                     qInfo() <<" your right, its match.. lets get new word";
                     current_word = m_db.searchTable(currentTableName, "id", QString::number(++last_id));
@@ -312,7 +310,7 @@ void Backend::getTables(const QString& searchedTitle,const QString& tableType,  
             // If tableType is "all" or empty, include everything
             if (tableType.isEmpty() || tableType == "all")
                 pinnedTables.append(row);
-            // Otherwise, filter by t_type (verb,word,etc)
+            // Otherwise, filter by t_type (word,etc)
             else if (row["t_type"].toString() == tableType)
                 pinnedTables.append(row);
         }
@@ -320,7 +318,7 @@ void Backend::getTables(const QString& searchedTitle,const QString& tableType,  
 
 
 
-    // Filter based on tableType (e.g., "verb", "word", archives, etc.)
+    // Filter based on tableType (e.g., "word", archives, etc.)
     QVariantList filteredTables;
     for (const QVariant &rowVar : allTables)
     {
@@ -352,7 +350,7 @@ void Backend::getTables(const QString& searchedTitle,const QString& tableType,  
                     filteredTables.append(row);
             }
 
-            // Otherwise, filter by t_type (verb,word,etc)
+            // Otherwise, filter by t_type (word,etc)
             else if (row["t_type"].toString() == tableType)
             {
                 if(searchedTitle.isEmpty()) //searchedTitle didn't provide
@@ -434,34 +432,6 @@ void Backend::createTable(const QString &tableName, const QString &tableType)
             else
                 result="error"; //: table word failed to create.
     }
-    else if(tableType=="verb")
-    {
-        bool qresult = m_db.createTable(tableName, "id INTEGER PRIMARY KEY AUTOINCREMENT,\
-                                        verb TEXT,\
-                                        past TEXT,\
-                                        past_perfect TEXT,\
-                                        translate TEXT,\
-                                        status TEXT"
-                                        );
-        if(qresult)
-        {
-            result="verb table successfully created.";
-
-            QMap<QString, QVariant> rowData;
-            rowData["t_title"] = tableName;
-            rowData["t_type"] = tableType;
-            rowData["t_icon"] = "";
-            rowData["t_status"] = "0";
-
-            qresult = m_db.insertIntoTable("user_tables", rowData);
-            if(qresult)
-                result+= " and added to user_tables.";
-            else
-                result= "error";// but could not add to user_tables this will occure problem.
-        }
-        else
-            result="error";//: table verb failed to create.
-    }
     else if(tableType=="learn")
     {
         bool qresult = m_db.createTable(tableName, "id INTEGER PRIMARY KEY AUTOINCREMENT,\
@@ -488,7 +458,7 @@ void Backend::createTable(const QString &tableName, const QString &tableType)
                 result= "error";// but could not add to user_tables this will occure problem.
         }
         else
-            result="error";//: table verb failed to create.
+            result="error";//: table learn failed to create.
     }
     else if(tableType=="customTable")
     {
@@ -523,7 +493,7 @@ void Backend::createTable(const QString &tableName, const QString &tableType)
                 result= "error";// but could not add to user_tables this will occure problem.
         }
         else
-            result="error";//: table verb failed to create.
+            result="error";//: table customTable failed to create.
     }
     else
     {
@@ -737,21 +707,6 @@ void Backend::addWordToTable(const QStringList &data)
         else
             result= "error";//:failed to add word into the table.
     }
-    else if(currentTableType=="verb" && data.size() >=5)
-    {
-        //data order passed by QML for verb: verb, past, past perfect, translate, status
-        QMap<QString, QVariant> rowData;
-        rowData["verb"] = data[0];
-        rowData["past"] = data[1];
-        rowData["past_perfect"] = data[2];
-        rowData["translate"] = data[3];
-        rowData["status"] = data[4];
-        qresult = m_db.insertIntoTable(currentTableName, rowData);
-        if(qresult)
-            result= "verb added to the table.";
-        else
-            result= "error";//failed to add verb into the table.
-    }
     else
     {
         qInfo() << "undefined table type or invalid parameters to add word";
@@ -886,20 +841,6 @@ void Backend::modifyWordOnTable(const int& targetWordId,
         }
         else
             result= "error";//:failed to modify word on the table.
-    }
-    else if(tagetTableType=="verb" && data.size() >=5)
-    {
-        //data order passed by QML for verb: verb, past, past perfect, translate , status
-        rowData["verb"] = data[0];
-        rowData["past"] = data[1];
-        rowData["past_perfect"] = data[2];
-        rowData["translate"] = data[3];
-        rowData["status"] = data[4];
-        qresult = m_db.updateTableRow(currentTableName, "id", targetWordId, rowData);
-        if(qresult)
-            result= "verb modified on the table.";
-        else
-            result= "error";//failed to modify verb on the table.
     }
     else
     {

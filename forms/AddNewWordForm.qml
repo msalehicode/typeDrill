@@ -13,7 +13,6 @@ Page
     //word: text, meaning, example, translate, source, status
     //verb: verb, past, past perfect, translate, status
     property var wordTitles: ["Enter Word:", "Enter Meaning:", "Enter Example:", "Enter Translate:", "Enter Source:", "Enter Status:"]
-    property var verbTitles: ["Enter Verb:","Enter Past:", "Enter Past Participle:", "Enter Translate:","Enter Status:"]
     property var learnTitles: ["Enter Title:","Enter Details:", "Enter Content:", "Enter Level:","Enter Status:"]
 
     property var fileDialogFilters : ["Images (*.png *.jpg *.jpeg *.bmp *.gif)",
@@ -27,13 +26,9 @@ Page
     onFileDialogPickingImageChanged:
     {
         if(fileDialogPickingImage)
-        {
             fileDialog.nameFilters = fileDialogFilters[0]
-        }
         else
-        {
             fileDialog.nameFilters = fileDialogFilters[1]
-        }
     }
 
     property string selectedImagePath : ""
@@ -75,9 +70,7 @@ Page
         onStatusChanged:
         {
             if (audio.status === SoundEffect.Ready)
-            {
                 playButton.setVisible=true
-            }
         }
     }
 
@@ -156,9 +149,7 @@ Page
 
                         selectedTableName=selectedItem.text
                         selectedTableId=selectedItem.t_id
-                        headerText.text="Add Content To Table ("+selectedTableName+")"
-                        console.log("selected item text=",selectedItem.text,"id=",selectedItem.t_id,"type=",selectedItem.t_type)
-                        console.log("selectedTableId=",selectedTableId,"selectedTableName=",selectedTableName)
+                        headerText.text="Add Content To ("+selectedTableName+")"
                         refreshFormInputs()
                     }
                 }
@@ -213,7 +204,7 @@ Page
                         setHeight: 45
                         onButtonClicked:
                         {
-                            //open picture dialog
+                            //open dialog
                             fileDialogPickingImage=true
                             fileDialog.open()
                         }
@@ -273,7 +264,7 @@ Page
                         setHeight: 45
                         onButtonClicked:
                         {
-                            //open picture dialog
+                            //open dialog
                             fileDialogPickingImage=false
                             fileDialog.open()
                         }
@@ -439,14 +430,6 @@ Page
                             else
                                 backend.addWordToTable(data);
                         }
-                        else if(formType==="verb")
-                        {
-                            //check empty items
-                            if(data[0]==="" || data[0]===" ")
-                                console.log("you must fill first item atleast")
-                            else
-                                backend.addWordToTable(data);
-                        }
                         else if(formType==="learn")
                         {
                             backend.addLessonToLearn(data);
@@ -473,12 +456,6 @@ Page
             arr = wordTitles
             for (var i = 0; i < arr.length; i++)
                 titleModel.append({"title": arr[i]})
-        }
-        else if (formType === "verb")
-        {
-            arr = verbTitles
-            for (var j = 0; j < arr.length; j++)
-                titleModel.append({"title": arr[j]})
         }
         else if(formType === "customTable")
         {

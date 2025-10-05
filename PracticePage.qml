@@ -117,7 +117,7 @@ Page
                 setButtonsBorderWidth: 0
                 setRadius: 20
                 setWidth: parent.width
-                setVisible: tableType==="word" || tableType==="verb"
+                setVisible: tableType==="word"
                 setHeight:50
                 anchors.horizontalCenter: parent.horizontalCenter
                 onButtonClicked:
@@ -137,7 +137,7 @@ Page
                 setButtonsBorderWidth: 0
                 setRadius: 20
                 setWidth: parent.width
-                setVisible: tableType==="word" || tableType==="verb"
+                setVisible: tableType==="word"
                 setHeight:50
                 anchors.horizontalCenter: parent.horizontalCenter
                 onButtonClicked:
@@ -162,7 +162,7 @@ Page
                 setButtonsBorderWidth: 0
                 setRadius: 20
                 setWidth: parent.width
-                setVisible: tableType==="word" || tableType==="verb"
+                setVisible: tableType==="word"
                 setHeight:50
                 anchors.horizontalCenter: parent.horizontalCenter
                 onButtonClicked:
@@ -183,7 +183,7 @@ Page
                 setButtonsBorderWidth: 0
                 setRadius: 20
                 setWidth: parent.width
-                setVisible: tableType==="word" || tableType==="verb"
+                setVisible: tableType==="word"
                 setHeight:50
                 anchors.horizontalCenter: parent.horizontalCenter
                 onButtonClicked:

@@ -4,7 +4,8 @@ import QtQuick.Layouts
 import "../CustomComponents"
 import QtMultimedia
 
-Page {
+Page
+{
     id: flashcardPracticeCore
     property bool showInfo:false
 
@@ -13,7 +14,7 @@ Page {
     property int maxWordId: 0
     property int currentWordId:0
 
-    property string practiceMode: "none"
+    property string practiceMode: "none" //e.g: word
 
     property bool practiceOnlyStarred:false
     property bool isWordStared: false
@@ -42,9 +43,7 @@ Page {
         onStatusChanged:
         {
             if (audio.status === SoundEffect.Ready)
-            {
                 playButton.setVisible=true
-            }
         }
     }
 
@@ -116,7 +115,6 @@ Page {
                     {
                         if(backend.setWordStatus(currentWordId, isWordStared?"0":"starred"))
                             isWordStared = !isWordStared;
-
                     }
                 }
 
@@ -160,9 +158,8 @@ Page {
             {
                 id: card
                 width: parent.width * 0.8
-                height: 400//parent.height * 0.5
+                height: 400
                 anchors.horizontalCenter: parent.horizontalCenter
-                // anchors.centerIn: parent
                 color: appColors.c_bg_weekReport
                 radius: 12
                 transformOrigin: Item.Center
@@ -192,7 +189,7 @@ Page {
                         anchors
                         {
                             top:parent.top
-                            topMargin:practiceMode==="verb" ? parent.height/3.50 : 70
+                            topMargin:70
                             horizontalCenter: parent.horizontalCenter
                         }
 
@@ -200,7 +197,7 @@ Page {
                         {
                             id:cardPicture
                             width:150
-                            height: (practiceMode==="verb" ? 0 : (status === Image.Error ? 70: 150))
+                            height: status === Image.Error ? 70: 150
                             anchors.horizontalCenter: parent.horizontalCenter
                         }
 
@@ -226,7 +223,6 @@ Page {
                     id: backFace
                     width:parent.width
                     height:parent.height
-                    // anchors.centerIn: parent
                     visible: showInfo && !flipAnimation.running
                     Column
                     {
@@ -325,10 +321,6 @@ Page {
                     property real startX: 0
                     property bool dragging: false
 
-                    // onClicked:
-                    // {
-                    //     showDetails()
-                    // }
                     onPressAndHold:
                     {
                         showDetails()
@@ -347,16 +339,10 @@ Page {
 
                         if (Math.abs(deltaX) > 100)
                         {
-                            if (deltaX > 0)
-                            {
-                                // console.log("swiped right")
-                                getNextWord()
-                            }
+                            if(deltaX > 0)
+                                getNextWord() //swiped right
                             else
-                            {
-                                // console.log("swiped left")
-                                mistakeMade()
-                            }
+                                mistakeMade() //swiped left
                         }
                     }
                 }
@@ -499,14 +485,12 @@ Page {
         {
             var row = currentWord[i]
             for (var key in row)
-            {
                 console.log("  " + key + ": " + row[key])
-            }
             console.log("---")
         }*/
         practiceTimeCom.resumeTimer()
     }
-    function getValueByKey(dataList, firstKey, secondKey)
+    function getValueByKey(dataList, firstKey)
     {
         if (!dataList || dataList.length === 0)
             return "";
@@ -516,8 +500,6 @@ Page {
             var row = dataList[i];
             if (firstKey in row)
                 return row[firstKey];
-            else if (secondKey in row)
-                return row[secondKey];
         }
         return "";
     }
@@ -525,37 +507,28 @@ Page {
     function updateTextValues()
     {
         var id = getValueByKey(currentWord,"id","id")
-        if(practiceMode==="word")
-        {
-            //image setup
-            var picPath = "file://"+contentPath+getValueByKey(currentWord,"picture","picture");
-            cardPicture.source= picPath;
-            //if picture is animated one play it
-            if (picPath.split('.').pop().toLowerCase() === "gif")
-                cardPicture.playing=true
 
-            //audio setup
-            var audioPath = "file://"+contentPath+getValueByKey(currentWord,"audio","audio");
-            audio.source = audioPath;
-            if(appSettings.autoPlayAudioOnPractice)
-                audio.play()
+        //image setup
+        var picPath = "file://"+contentPath+getValueByKey(currentWord,"picture");
+        cardPicture.source= picPath;
+        //if picture is animated one play it
+        if (picPath.split('.').pop().toLowerCase() === "gif")
+            cardPicture.playing=true
 
+        //audio setup
+        var audioPath = "file://"+contentPath+getValueByKey(currentWord,"audio");
+        audio.source = audioPath;
+        if(appSettings.autoPlayAudioOnPractice)
+            audio.play()
 
 
-            //other data setup
-            lblText.text=""+getValueByKey(currentWord,"text","text")
-            lblMeaning.text="Meaning:\n"+getValueByKey(currentWord,"meaning","meaning")
-            lblExample.text="Example:\n"+getValueByKey(currentWord,"example","example")
-            isWordStared = getValueByKey(currentWord,"status","status")==="starred" ? true : false;
-        }
-        else if(practiceMode==="verb")
-        {
-            lblText.text=""+getValueByKey(currentWord,"verb","verb")
-            lblText.text+="\n\n"+getValueByKey(currentWord,"past","past")
-            lblText.text+="\n\n"+getValueByKey(currentWord,"past_perfect","past_perfect")
-        }
 
-        lblTranslate.text="\nTranslate:\n"+getValueByKey(currentWord,"translate","translate")
+        //other data setup
+        lblText.text=""+getValueByKey(currentWord,"text")
+        lblMeaning.text="Meaning:\n"+getValueByKey(currentWord,"meaning",)
+        lblExample.text="Example:\n"+getValueByKey(currentWord,"example")
+        isWordStared = getValueByKey(currentWord,"status")==="starred" ? true : false;
+        lblTranslate.text="\nTranslate:\n"+getValueByKey(currentWord,"translate")
         currentWordId=id;
     }
 

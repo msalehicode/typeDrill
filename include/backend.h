@@ -169,7 +169,7 @@ public:
 
     /*!
      * \brief to get tables list from sql table (user_tables) those with t_status pinned are in priority and those with t_status=archived won't add
-     * \param searchedTitle(optional to filter table names), tableType (to filter tables type, default:all tables), types can be (all,verb,word,archives) "archives" actually isn't a type but it's a filed inside user_tables.t_status and used to access/list to archived
+     * \param searchedTitle(optional to filter table names), tableType (to filter tables type, default:all tables), types can be (all,word,archives) "archives" actually isn't a type but it's a filed inside user_tables.t_status and used to access/list to archived
      * \return emit tablesList(tableList)
      */
     Q_INVOKABLE void getTables(const QString& searchedTitle, const QString& tableType, bool includePinned=true);
@@ -178,7 +178,7 @@ public:
 
     /*!
      * \brief to create a sql table and add it into (user_tables)
-     * \param table-name and table-type(e.g: verb,word) wants to create
+     * \param table-name and table-type(e.g: word) wants to create
      * \return emit tableCreationResult(result), in failure pass "error" else pass message with details
      */
     Q_INVOKABLE void createTable(const QString& tableName, const QString& tableType);
@@ -190,7 +190,7 @@ public:
 
     /*!
      * \brief to switch between tables, will set variables (currentTableName and currentTableType) and call resetPractice() for other functions use later
-     * \param tableName: table wants to switch, tableType: type of table (e.g: verb/word)
+     * \param tableName: table wants to switch, tableType: type of table (e.g: word)
      */
     Q_INVOKABLE void switchTable(const QString& tableName, const QString& ttype);
 
@@ -225,7 +225,7 @@ public:
 
     /*!
      * \brief to update a word in a table
-     * \param wordId, tableType(e.g: word/verb) and list of word in speicific order indexes depends on tableType
+     * \param wordId, tableType(e.g: word) and list of word in speicific order indexes depends on tableType
      * \return emit modifyWordOnTableResult with result, in failure will return "error" else will return a message
      */
     Q_INVOKABLE void modifyWordOnTable(const int& targetWordId, const QString& tagetTableType, const QStringList& data);

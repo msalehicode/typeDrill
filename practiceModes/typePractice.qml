@@ -7,32 +7,24 @@ Page
 {
     id:typePracticeCore
     //this will set from parent before start.
-    property string practiceMode: "none" //word or verb
-
-    property bool isThisWordModified: false;
+    property string practiceMode: "none" //word
+    property bool practiceOnlyStarred:false
 
 
     //a flag to hide/filter e.g: past,p.p of verb
     property bool hideAllExceptFirstItem: false;
 
-    //private
-    property int mistakesCounter : 0;
+    property int mistakesCounter: 0;
     property int currentIndex: 0;
     property int maxIndex: 100;
 
-    property bool pictureIsAnimated:false;
 
+    property bool pictureIsAnimated:false;
     property string contentPath;
 
 
-
-    property bool practiceOnlyStarred:false
     property bool isWordStared: false
-
-
-    //for practice verb needs to user type whole three inputs to get next word:
-    property int passedState:0;
-
+    property bool isThisWordModified: false;
 
     property var practiceData: []
 
@@ -264,7 +256,7 @@ Page
                         setTitleText:""
                         onTheTextAccepted:
                         {
-                            checkVerbState()
+                            getNextWord()
                         }
                     }
 
@@ -291,7 +283,7 @@ Page
                         }
                         onButtonClicked:
                         {
-                            checkVerbState()
+                            getNextWord()
                         }
                     }
 
@@ -345,82 +337,20 @@ Page
     }
 
 
-    function checkVerbState()
-    {
-        switch(practiceMode)
-        {
-            case "word":
-            {
-                if(text_input.theText.length>=1)
-                    getNextWord(text_input.theText)
-            }break;
-
-            case "verb":
-            {
-                //verb is inside w_text
-                //past is inside w_meaning
-                //past perfect is inside w_example
-                switch(passedState)
-                {
-                    case 0:
-                    {
-                        if(text_input.theText===w_text.text)
-                        {
-                            passedState++;
-                            text_input.clear()
-                            w_text.font.bold=false
-                            w_meaning.font.bold=true;
-                            w_example.font.bold=false;
-                        }
-                        else
-                            mistakeMade();
-                    }break;
-                    case 1:
-                    {
-                        if(text_input.theText===w_meaning.text)
-                        {
-                            passedState++;
-                            text_input.clear()
-                            w_text.font.bold=false
-                            w_meaning.font.bold=false;
-                            w_example.font.bold=true;
-                        }
-                        else
-                            mistakeMade();
-                    }break;
-                    case 2:
-                    {
-                        if(text_input.theText===w_example.text)
-                        {
-                            getNextWord(w_text.text)
-
-                            //reset for next round
-                            text_input.clear()
-                            passedState=0;
-                        }
-                        else
-                            mistakeMade();
-                    }break;
-                    default:
-                        console.log("passedState invalid.")
-                }
-
-            }break;
-        }
-    }
 
 
     function mistakeMade()
     {
         mistakesCounter++;
         text_input.invalidInput("incorrect value");
-
     }
 
-    function getNextWord(text)
+    function getNextWord()
     {
-        backend.getNextWord(text, isThisWordModified, practiceOnlyStarred?"starred":"all")
-
+        if(text_input.theText.length>=1)
+        {
+            backend.getNextWord(text_input.theText, isThisWordModified, practiceOnlyStarred?"starred":"all")
+        }
         //turn flag off for next word
         isThisWordModified=false
     }
@@ -487,16 +417,14 @@ Page
         {
             var row = practiceData[i]
             for (var key in row)
-            {
                 console.log("  " + key + ": " + row[key])
-            }
             console.log("---")
         }*/
 
         practiceTimeCom.resumeTimer()
     }
 
-    function getValueByKey(dataList, firstKey, secondKey)
+    function getValueByKey(dataList, firstKey)
     {
         if (!dataList || dataList.length === 0)
             return "";
@@ -506,8 +434,6 @@ Page
             var row = dataList[i];
             if (firstKey in row)
                 return row[firstKey];
-            else if (secondKey in row)
-                return row[secondKey];
         }
         return "";
     }
@@ -516,25 +442,25 @@ Page
     {
 
         //image setup
-        var picPath = "file://"+contentPath+getValueByKey(practiceData,"picture","picture");
+        var picPath = "file://"+contentPath+getValueByKey(practiceData,"picture");
         wordPicture.source= picPath;
         //if picture is animated one play it
         pictureIsAnimated = picPath.split('.').pop().toLowerCase()==="gif"? true : false
 
 
         //audio setup
-        var audioPath = "file://"+contentPath+getValueByKey(practiceData,"audio","audio");
+        var audioPath = "file://"+contentPath+getValueByKey(practiceData,"audio");
         audio.source = audioPath;
         if(appSettings.autoPlayAudioOnPractice)
             audio.play()
 
         //other data setup
-        w_text.text=getValueByKey(practiceData,"text","verb")
-        w_meaning.text=getValueByKey(practiceData,"meaning","past")
-        w_example.text=getValueByKey(practiceData,"example","past_perfect")
-        w_translate.text=getValueByKey(practiceData,"translate","translate")
-        currentIndex=getValueByKey(practiceData,"id","id")
-        isWordStared=getValueByKey(practiceData,"status","status")==="starred" ? true : false;
+        w_text.text=getValueByKey(practiceData,"text")
+        w_meaning.text=getValueByKey(practiceData,"meaning")
+        w_example.text=getValueByKey(practiceData,"example")
+        w_translate.text=getValueByKey(practiceData,"translate")
+        currentIndex=getValueByKey(practiceData,"id")
+        isWordStared=getValueByKey(practiceData,"status")==="starred" ? true : false;
     }
 
 
@@ -552,22 +478,11 @@ Page
             updateTextValues()
 
             text_input.clear()
-            if(practiceMode==="verb")
-            {
-                //verb is inside w_text
-                //past is inside w_meaning
-                //past perfect is inside w_example
-                w_text.font.bold=true
-                w_meaning.font.bold=false;
-                w_example.font.bold=false;
-            }
-
         }
         function onWordIsIncorrect(correctStatus)
         {
             if(correctStatus==="incorrect")
                 mistakeMade();
-
         }
     }
 
