@@ -351,7 +351,9 @@ public:
 
 signals:
     void wordReady(const QList<QMap<QString, QVariant>>& word);
-    void crosswordReady(const QVector<QVector<QString>>& crossword);
+    void crosswordReady(const QVector<QVector<QString>>& crossword,
+                        const QVector<QString>& horizontalHint,
+                        const QVector<QString>& verticalHint);
     void practiceFinished();
     void wordIsIncorrect(const QString& correctStatus);
     void tablesList(const QVariantList& tableList);

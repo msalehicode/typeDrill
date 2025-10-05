@@ -159,6 +159,9 @@ Window
         property string icon_search_white: i_path_white + "search.png"; //only white
 
 
+        property string icon_arrow: appIcons.i_path + "arrow.png";
+
+
 
         property string icon_archive: appIcons.i_path + "archive.png"
         property string icon_eye: appIcons.i_path + "eye.png"

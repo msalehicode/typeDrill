@@ -209,7 +209,7 @@ Page
             Rectangle {
                 id:tableList
                 width:parent.width/1.15
-                height:parent.height/1.50
+                height:parent.height/1.35
                 color: appColors.c_bg_tableList
                 radius:30
                 clip:true
@@ -267,7 +267,7 @@ Page
                             setFontColor: appColors.c_buttonFontColor
                             setfontSize: appFontSizes.f_normal
                             setIconArrow: appIcons.icon_back_white
-                            setWidth: 80
+                            setWidth: parent.width/3
                             height:45
                             modelData:
                             [

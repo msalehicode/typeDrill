@@ -1218,6 +1218,8 @@ void Backend::makeCrossword()
     // Get the list of words
     QVariantList wordList = getTableWords();
 
+    QVector<QString> verticalHint;
+    QVector<QString> horizontalHint;
 
     //add words and their instruction to the wordText_Instruction
     QMap<QString,QString> wordText_Instruction;
@@ -1270,6 +1272,8 @@ void Backend::makeCrossword()
 
     //place core-word
     insertWordToGrid(gridWords,0, 0, coreWord[1], "h");
+    horizontalHint.append(coreWord[2]);//add instruction/pic
+
     qInfo() << "core-word added:";
     printGrid(gridWords);
 
@@ -1328,7 +1332,7 @@ void Backend::makeCrossword()
             chosenWords.append(bestWord); // Add the word with the highest compatibility
         }
 
-        qDebug() << "-----------------------------";
+        qDebug() << "-------------------------------------------------------";
     }
 
 
@@ -1342,11 +1346,16 @@ void Backend::makeCrossword()
 
     QString w_test = coreWord[1];
     QList<QVector<QString>> addedVertically;
+
+
+    //extend hint vertor to beable call by index
+    verticalHint.resize(coreWord[1].length());
+
     for (const QVector<QString>& item : chosenWords)
     {
         for(int x=0; x<w_test.length(); x++)
         {
-            qInfo() << "char=" << w_test[x] << " index:" << x;
+            // qInfo() << "char=" << w_test[x] << " index:" << x;
             if(item[0][0] == w_test[x])
             {
                 //add item to addedVertically to later know which words are vertically
@@ -1358,6 +1367,8 @@ void Backend::makeCrossword()
 
                 //insert
                 insertWordToGrid(gridWords,0,x,item[0],"v");
+                verticalHint[x] = item[1];//add instruction/pic
+                // qInfo() << "word=" << item[0] << "hint=" << item[1];
             }
 
         }
@@ -1370,7 +1381,7 @@ void Backend::makeCrossword()
 
 
 
-    emit crosswordReady(getGridAs2DArray(gridWords));
+    emit crosswordReady(getGridAs2DArray(gridWords),horizontalHint,verticalHint);
 /*
 
 
