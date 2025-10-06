@@ -10,10 +10,8 @@ Page
     property var parentName: someObject
 
     //data order passed by QML to backend
-    //word: text, meaning, example, translate, source, status
-    //verb: verb, past, past perfect, translate ,status
-    property var wordTitles: ["text", "meaning", "example", "translate", "status", "source"]
-    property var verbTitles: ["verb","past", "past_perfect", "translate","status"]
+    //word: text, meaning, example, translate, source, status, picture, audio
+    property var wordTitles: ["text", "meaning", "example", "translate", "source","status"]
 
     property string contentPath;
 
@@ -22,6 +20,8 @@ Page
     property int wordId: -1
     property var formData : ["data1","data2","data3","data4","data5","data6"]
 
+
+    property var wordStatuses: [{text:"0"},{ text:"starred"}, {text:"archived"}]
 
     property bool pictureChanged : false;
     property bool removePicture: false;
@@ -321,9 +321,27 @@ Page
                         setFontSize:appFontSizes.f_textInput
                         setFontColor: appColors.c_fontColor_textinput
                         setRadius:10
-
+                        setVisible: model.title==="status"? false : true
                         theText: model.text
                         setTitleText: model.title
+                    }
+                }
+
+                CustomCombobox
+                {
+                    id: comboWordStatus
+                    setBgColor: appColors.c_comboboxBgColor
+                    setFontColor: appColors.c_buttonFontColor
+                    setfontSize: appFontSizes.f_normal
+                    setIconArrow: appIcons.icon_back_white
+                    setWidth: parent.width/2
+                    height:45
+                    setPositionPopup:"top"
+                    modelData: wordStatuses
+                    setBgColorCurrentItem: appColors.c_comboboxBgColorCurrentItem
+                    onActivated: function(index)
+                    {
+                        currentIndex = index
                     }
                 }
 
@@ -394,14 +412,12 @@ Page
         var arr = []
         if (formType === "word")
             arr = wordTitles
-        else if (formType === "verb")
-            arr = verbTitles
         else
             console.log("formType unkown, formType=",formType)
 
-
+        // console.log("refreshFormInputs data=")
         // for(var x=0; x< formData.length; x++)
-        //     console.log("formdata[i]=",formData[x])
+        //     console.log("formdata[",x,"]=",formData[x])
 
 
 
@@ -414,8 +430,28 @@ Page
                               })
         }
 
+
+        var index = wordStatuses.findIndex(function(item)
+        {
+            return item.text === formData[5];
+        })
+        comboWordStatus.currentIndex=index
+
+
         picture.source = "file://"+contentPath+formData[6];
         audio.source = "file://"+contentPath+formData[7];
+
+
+    }
+
+    function modifyWordValue(data,key,value)
+    {
+        for (var i = 0; i < data.length; ++i)
+        {
+            var row = data[i];
+            if (key in row)
+                row[key]=value;
+        }
     }
 
     function readDataFromRepeater(wihtId=false,dataForBackend=false)
@@ -454,7 +490,19 @@ Page
         }
 
 
-        //check is picture modified?
+
+        //modify word status which hold by combobox
+        let wordStatus = comboWordStatus.currentItemText
+        if(dataForBackend)
+            data[5]=wordStatus
+        else
+        {
+            // data["status"]=wordStatus
+            modifyWordValue(data,"status",wordStatus)
+        }
+
+
+        //check is picture modified/removed?
         var obj2 = {};
         if(pictureChanged)
         {
@@ -494,7 +542,7 @@ Page
             //data for practice included same picture path
             if(dataForBackend)
             {
-                data.push("")//picture didn't change at all
+                data.push("nochange")//picture didn't change at all
                 data.push(formData[6])//old pic
             }
             else
@@ -505,7 +553,7 @@ Page
         }
 
 
-        //check audio modifed?
+        //check audio modifed/removed?
         if(audioChanged)
         {
             // Extract the file name from the selected file path
@@ -544,7 +592,7 @@ Page
             //data for practice included same audio path
             if(dataForBackend)
             {
-                data.push("")//audio didn't change at all
+                data.push("nochange")//audio didn't change at all
                 data.push(formData[7])//old audio
             }
             else
@@ -564,7 +612,7 @@ Page
     }
 
 
-    function getValueByKey(dataList, firstKey, secondKey) {
+    function getValueByKey(dataList, firstKey) {
         if (!dataList || dataList.length === 0)
             return "";
 
@@ -580,16 +628,12 @@ Page
             // Now mergedData is a single object with all keys
             if (firstKey in mergedData)
                 return mergedData[firstKey];
-            else if (secondKey in mergedData)
-                return mergedData[secondKey];
         }
         else {
             // Assuming dataList is a single object
             var row = dataList[0]; // First object in the list
             if (firstKey in row)
                 return row[firstKey];
-            else if (secondKey in row)
-                return row[secondKey];
         }
 
         return "";
@@ -600,14 +644,14 @@ Page
     function updateTextValues()
     {
         var tempData = []
-        tempData.push(getValueByKey(formData,"text","verb")) //pass possible keys to get value
-        tempData.push(getValueByKey(formData,"meaning","past")) //pass possible keys to get value
-        tempData.push(getValueByKey(formData,"example","past_perfect")) //pass possible keys to get value
-        tempData.push(getValueByKey(formData,"translate","translate")) //pass possible keys to get value
-        tempData.push(getValueByKey(formData,"status","status")) //pass possible keys to get value
-        tempData.push(getValueByKey(formData,"source","source")) //pass possible keys to get value
-        tempData.push(getValueByKey(formData,"picture","picture")) //pass possible keys to get value
-        tempData.push(getValueByKey(formData,"audio","audio")) //pass possible keys to get value
+        tempData.push(getValueByKey(formData,"text"))
+        tempData.push(getValueByKey(formData,"meaning"))
+        tempData.push(getValueByKey(formData,"example"))
+        tempData.push(getValueByKey(formData,"translate"))
+        tempData.push(getValueByKey(formData,"source"))
+        tempData.push(getValueByKey(formData,"status"))
+        tempData.push(getValueByKey(formData,"picture"))
+        tempData.push(getValueByKey(formData,"audio"))
 
         formData=tempData
     }
