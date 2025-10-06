@@ -719,7 +719,7 @@ void Backend::addWordToTable(const QStringList &data)
 void Backend::modifyWordOnTable(const int& targetWordId,
                                 const QString& tagetTableType, const QStringList &data)
 {
-    // qInfo() << "modifyWordOnTable received id=" << targetWordId << ",data=" << data;
+    // qInfo() << "backend modifyWordOnTable received id=" << targetWordId << ",data=" << data;
     QString result;
     bool qresult;
     QMap<QString, QVariant> rowData;
@@ -729,10 +729,20 @@ void Backend::modifyWordOnTable(const int& targetWordId,
     QString audio = data[8];
     QString oldAudio = data[9];
 
-
     qInfo() << "modify data stringlist=" << data;
-    QString imageFileName = localFileManager.extractFileName(picture);
-    QString audioFileName = localFileManager.extractFileName(audio);
+
+    //to fillup path of picture/audio and avoid empty when its removed/no changed
+    QString imageFileName ,audioFileName;
+    if(picture=="nochange") //save same
+        imageFileName = oldPicture;
+    else //removed or changed
+        imageFileName = localFileManager.extractFileName(picture);
+
+
+    if(audio=="nochange") //save same
+        audioFileName = oldAudio;
+    else //removed or changed
+        audioFileName = localFileManager.extractFileName(audio);
 
 
     if(tagetTableType=="word" && data.size() >=6)
@@ -762,9 +772,9 @@ void Backend::modifyWordOnTable(const int& targetWordId,
                 else
                     result += " , couldn't remove picture";
             }
-            else if(picture=="") //picture didn't change at all
+            else if(picture=="nochange") //picture didn't change at all
             {
-                result= " , picture didn't change.";
+                result+= " , picture didn't change.";
             }
             else //remove old one and copy new one
             {
@@ -805,9 +815,9 @@ void Backend::modifyWordOnTable(const int& targetWordId,
                 else
                     result += " , couldn't remove audio";
             }
-            else if(audio=="")
+            else if(audio=="nochange")
             {
-                result= " ,audio didn't change.";
+                result+= " ,audio didn't change.";
             }
             else //remove old one and copy new one
             {
