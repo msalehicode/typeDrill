@@ -16,6 +16,7 @@ Item {
     property int setMaxHeightItemsList: 300
     property string setIconArrow: ""
 
+    property string setPositionPopup: "bottom"
     property string currentItemText:modelData[currentIndex].text
     property bool pathFromComponentDire:true
 
@@ -95,7 +96,9 @@ Item {
     Popup {
         id: popup
         x: baseCombobox.x -5
-        y: baseCombobox.y + baseCombobox.height -5
+        y: (setPositionPopup==="center"? baseCombobox.y - baseCombobox.height -5
+                                      : (setPositionPopup==="bottom"? baseCombobox.y + baseCombobox.height -5
+                                                                    : baseCombobox.y - baseCombobox.height *3.50 ))
         width: baseCombobox.width
         height: Math.min(modelData.length * setHeight, setMaxHeightItemsList) // max height
         modal: true
