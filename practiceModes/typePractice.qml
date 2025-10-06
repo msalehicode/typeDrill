@@ -11,7 +11,7 @@ Page
     property bool practiceOnlyStarred:false
 
 
-    //a flag to hide/filter e.g: past,p.p of verb
+    //a flag to hide meaining/example/... except word
     property bool hideAllExceptFirstItem: false;
 
     property int mistakesCounter: 0;
@@ -96,8 +96,13 @@ Page
                     setIconSource: isWordStared ? appIcons.icon_filledStar: appIcons.icon_star
                     onButtonClicked:
                     {
-                        if(backend.setWordStatus(currentIndex, isWordStared?"0":"starred"))
+                        let newStatus = isWordStared?"0":"starred"
+                        if(backend.setWordStatus(currentIndex, newStatus))
+                        {
                             isWordStared = !isWordStared;
+                            modifyWordValue(practiceData,"status",newStatus)
+                        }
+
 
                     }
                 }
@@ -436,6 +441,16 @@ Page
                 return row[firstKey];
         }
         return "";
+    }
+
+    function modifyWordValue(data,key,value)
+    {
+        for (var i = 0; i < data.length; ++i)
+        {
+            var row = data[i];
+            if (key in row)
+                row[key]=value;
+        }
     }
 
     function updateTextValues()

@@ -113,8 +113,12 @@ Page
                     setIconSource: isWordStared ? appIcons.icon_filledStar: appIcons.icon_star
                     onButtonClicked:
                     {
-                        if(backend.setWordStatus(currentWordId, isWordStared?"0":"starred"))
+                        let newStatus = isWordStared?"0":"starred"
+                        if(backend.setWordStatus(currentWordId, newStatus))
+                        {
                             isWordStared = !isWordStared;
+                            modifyWordValue(currentWord,"status",newStatus)
+                        }
                     }
                 }
 
@@ -417,6 +421,15 @@ Page
         }
     }
 
+    function modifyWordValue(data,key,value)
+    {
+        for (var i = 0; i < data.length; ++i)
+        {
+            var row = data[i];
+            if (key in row)
+                row[key]=value;
+        }
+    }
 
     function doTiltAnimation(val)
     {
