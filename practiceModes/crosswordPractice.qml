@@ -11,6 +11,7 @@ Page {
         ["", "", "", "", "","R","","",""],
         ["", "", "", "", "","B","","",""]
     ]
+    property var crossword2: []
 
 
     property bool movingReleased:false
@@ -31,6 +32,12 @@ Page {
     ListModel
     {
         id:verticalInstructionsList
+    }
+
+    //combine of vertical and horizontal
+    ListModel
+    {
+        id: hintPoolModel
     }
 
 
@@ -79,7 +86,7 @@ Page {
                             setIconWidth: 15
                             setIconHeight: 15
                             setButtonsBorderWidth: 0
-                            setVisible: model.value === "" ? false : true
+                            setVisible: model.index>-1 ? true : false
                             setRadius: 15
                             setIconRotation: 90
                             setWidth: 15
@@ -99,7 +106,7 @@ Page {
                             anchors.fill: parent
                             onClicked:
                             {
-                                console.log(model.value)
+                                showHintDialog(model.value,"v",model.index+1)
                             }
                         }
                     }
@@ -160,7 +167,7 @@ Page {
                             anchors.fill: parent
                             onClicked:
                             {
-                                console.log(model.value)
+                                showHintDialog(model.value,"h",model.index+1)
                             }
                         }
                     }
@@ -206,88 +213,296 @@ Page {
 
                     DropArea {
                             anchors.fill: parent
-                            onExited:
-                            {
-                                if(movingReleased)
-                                {
+                            onExited: {
+                                if (movingLetterText === model.value && movingReleased) {
+                                    movingItem.visible = false
+                                    text.visible = true
+                                    parent.color = "lime"
 
-                                    // console.log("drropped item text=",movingLetterText)
-                                    // console.log("parrent pos x=",parent.x, "y=",parent.y)
+                                    let coords = model.address.split(",").map(Number)
+                                    let x = coords[0]
+                                    let y = coords[1]
+                                    crossword2[x][y] = movingLetterText
 
-                                    if (movingLetterText === model.value)
-                                    {
-                                        // movingItem.color="green"
-                                        movingItem.visible=false
-                                        text.visible=true
-                                        parent.color= "green"
+                                    // --- Check horizontal line (row x)
+                                    var horizontalMatch = true
+                                    for (var col = 0; col < crossword[x].length; col++) {
+                                        if (crossword[x][col] !== "") {
+                                            if (crossword2[x][col] !== crossword[x][col]) {
+                                                horizontalMatch = false
+                                                break
+                                            }
+                                        }
                                     }
-                                    // else
-                                    // {
-                                    //     movingItem.color="red"
-                                    // }
+                                    if (horizontalMatch)
+                                    {
+                                        console.log("✅ Horizontal word completed at row:", x + 1)
+
+                                        // Remove corresponding hint from hintPoolModel
+                                        for (var i = 0; i < hintPoolModel.count; i++) {
+                                            var item = hintPoolModel.get(i)
+                                            if (item.direction === "h" && item.order === x) {
+                                                hintPoolModel.remove(i)
+                                                break
+                                            }
+                                        }
+                                    }
+
+                                    // --- Check vertical line (column y)
+                                    var verticalMatch = true
+                                    for (var row = 0; row < crossword.length; row++) {
+                                        if (crossword[row][y] !== "") {
+                                            if (crossword2[row][y] !== crossword[row][y]) {
+                                                verticalMatch = false
+                                                break
+                                            }
+                                        }
+                                    }
+                                    if (verticalMatch) {
+                                        console.log("✅ Vertical word completed at column:", y + 1)
+
+                                        // Remove corresponding hint from hintPoolModel
+                                        for (var j = 0; j < hintPoolModel.count; j++) {
+                                            var item2 = hintPoolModel.get(j)
+                                            if (item2.direction === "v" && item2.order === y) {
+                                                hintPoolModel.remove(j)
+                                                break
+                                            }
+                                        }
+                                    }
+
                                 }
                             }
-                        }
+
+                    }
                 }
             }
         }
     }
 
-
     Flow {
-        id: tilePool
+        id: hintPool
+        width: parent.width
+        height: 100
+        spacing: 10
+        anchors.bottom: baseTilePool.top
+        anchors.bottomMargin: 10
+        anchors.left: parent.left
+        anchors.margins: 15
+        clip: true
+
+        Repeater {
+            model: hintPoolModel
+
+            delegate: Rectangle
+            {
+                width:parent.width
+                visible: model.value.length>0
+                height:50
+                color:appColors.c_comboboxBgColorCurrentItem
+                Row
+                {
+                    width: parent.width
+                    height:parent.height
+                    spacing:10
+                    Text {
+                        text: model.order+1
+                        width: 5
+                        height: implicitHeight
+                        color:appColors.c_fontcolor
+                        font.pixelSize: appFontSizes.f_large
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                    CustomButtonWithIcon
+                    {
+                        setButtonText:"";
+                        setIconSource: appIcons.icon_arrow
+                        setButtonBorderColor: "transparent"
+                        setButtonBackColor: "transparent"
+                        setButtonFontColor: "transparent"
+                        setIconWidth: 25
+                        setIconHeight: 25
+                        setButtonsBorderWidth: 0
+                        setRadius: 30
+                        setIconRotation: model.direction==="h" ? 0 : 90
+                        setWidth: 30
+                        setHeight:30
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                    Text {
+                        text: model.value.length>0 ? model.value : "sorry, hint is empty"
+                        width: implicitWidth>parent.width/1.50? parent.width/1.50: implicitWidth
+                        height: implicitHeight
+                        wrapMode: Text.WordWrap
+                        color:appColors.c_fontcolor
+                        font.pixelSize: appFontSizes.f_normal
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                }
+
+
+            }
+        }
+    }
+
+
+
+    Rectangle
+    {
+        id:baseTilePool
         width: parent.width
         height: 150
-        spacing: 10
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.margins: 10
-
-        Repeater {
-            model: tilePoolModel
-
-            delegate: Rectangle {
-                width: 30
-                height: 30
-                radius: 4
-                color: "#f5f5f5"
-                border.color: "black"
-
-                property string letter: model.letter
-
-                Text {
-                    anchors.centerIn: parent
-                    text: letter
-                    font.pointSize: 14
-                    color: "black"
-                }
-
-                Drag.active: dragArea.pressed
-                Drag.hotSpot.x: width / 2
-                Drag.hotSpot.y: height / 2
+        color:"grey"
+        Flow {
+            id: tilePool
+            anchors.fill: parent
+            spacing: 10
 
 
-                // Drag.dragType: Drag.Automatic
-                Drag.source: parent
-                MouseArea {
-                    id: dragArea
-                    anchors.fill: parent
-                    drag.target: parent
-                    onPressed: {
-                        movingLetterText=letter
-                        movingReleased=false
-                        movingItem=parent
+            Repeater {
+                model: tilePoolModel
+
+                delegate: Rectangle {
+                    width: 30
+                    height: 30
+                    radius: 4
+                    color: "#f5f5f5"
+                    border.color: "black"
+
+                    property string letter: model.letter
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: letter
+                        font.pointSize: appFontSizes.f_normal
+                        font.bold: true
+                        color: "black"
                     }
-                    onReleased:
-                    {
-                        movingReleased=true
+
+                    Drag.active: dragArea.pressed
+                    Drag.hotSpot.x: width / 2
+                    Drag.hotSpot.y: height / 2
+
+
+                    // Drag.dragType: Drag.Automatic
+                    Drag.source: parent
+                    MouseArea {
+                        id: dragArea
+                        anchors.fill: parent
+                        drag.target: parent
+                        onPressed: {
+                            movingLetterText=letter
+                            movingReleased=false
+                            movingItem=parent
+                        }
+                        onReleased:
+                        {
+                            movingReleased=true
+                        }
                     }
                 }
+            }
+        }
+
+    }
+
+
+
+    CustomPopupMessage
+    {
+        id:popupMessage
+        setDefaultText: ""
+        setFailColor: appColors.c_bgPopupContentFailed
+        setSuccessColor:appColors.c_bgPopupContentSuccess
+        setBgContent: appColors.c_bgPopupContentDefault
+        setTextFontSize: appFontSizes.f_normal
+        setTextColor:  appColors.c_fontcolor
+        setBgColorPopup: appColors.c_background
+        setBgOpacityPopup: 0.5
+        setWidth: parent.width/1.50
+        setHeight: 250
+
+        Row
+        {
+            width: parent.width
+            height:parent.height/2
+            spacing:15
+            anchors
+            {
+                top:parent.top
+                topMargin:parent.height/5
+            }
+
+            Text
+            {
+                id:indexHint
+                width: 80
+                height:50
+                anchors.horizontalCenter:parent.horizontalCenter
+                color:appColors.c_fontcolor
+                font.pixelSize: appFontSizes.f_title
+            }
+            CustomButtonWithIcon
+            {
+                id:directionHint
+                setButtonText:"";
+                setIconSource: appIcons.icon_arrow
+                setButtonBorderColor: "transparent"
+                setButtonBackColor: "transparent"
+                setButtonFontColor: "transparent"
+                setIconWidth: 30
+                setIconHeight: 30
+                setButtonsBorderWidth: 0
+                setRadius: 30
+                setWidth: 30
+                setHeight:30
+                anchors.horizontalCenter:parent.horizontalCenter
+            }
+
+        }
+
+
+
+        CustomButton
+        {
+            id:buttonOkPopup
+            setButtonText:"Ok got it";
+            setButtonBorderColor:appColors.c_buttonBorderColor
+            setButtonBackColor: appColors.c_buttonBgColor
+            setButtonFontColor: appColors.c_buttonFontColor
+            setBold: true
+            setButtonFontsize: appFontSizes.f_buttonFontSize
+            setButtonsBorderWidth: 0
+            setRadius: 20
+            setWidth: 70
+            setHeight:50
+            anchors
+            {
+                bottom:parent.bottom
+                horizontalCenter: parent.horizontalCenter
+            }
+            onButtonClicked:
+            {
+                popupMessage.close()
             }
         }
     }
 
 
+    function showHintDialog(value,direction,index)
+    {
+        if(value.length<=0)
+            popupMessage.open("sorry, hint is empty")
+        else
+            popupMessage.open(value)
+
+        directionHint.setIconRotation= direction==="v"? 90 : 0
+        indexHint.text= index
+
+    }
 
     Connections
     {
@@ -296,34 +511,56 @@ Page {
         {
             console.log("recived crosswordGrid data=",crosswordGrid)
             crossword=crosswordGrid;
-            const charCount = {};
 
+
+            var i,j;
 
             listmodel.clear()
 
             //add received data and build tiles
-            for (var i = 0; i < crossword.length; i++) {
-                for (var j = 0; j < crossword[i].length; j++) {
+            for (i = 0; i < crossword.length; i++)
+            {
+                for (j = 0; j < crossword[i].length; j++)
+                {
                     const letter = crossword[i][j];
 
                     // Build crossword model
-                    listmodel.append({ row: i, col: j, value: letter });
+                    listmodel.append({ row: i, col: j, value: letter, address:(i)+","+(j)});
 
                     // Add to tile pool if it's a non-empty letter
-                    if (letter !== "") {
+                    if (letter !== "")
+                    {
                         tilePoolModel.append({ letter: letter });
                     }
                 }
             }
 
+
+            //make an empty instance of crosswrod to crosswrod1
+            for (var i = 0; i < crossword.length; i++) {
+                var row = []
+                for (var j = 0; j < crossword[i].length; j++) {
+                    row.push("")
+                }
+                crossword2.push(row)
+            }
+
+
             //add instructions
             // console.log("instruction vertical=",verticalHint)
             horizontalInstructionsList.clear()
             verticalInstructionsList.clear()
-            for (var i = 0; i < horizontalHint.length; i++)
-                horizontalInstructionsList.append( { value: horizontalHint[i]} );
-            for (var i = 0; i < verticalHint.length; i++)
-                verticalInstructionsList.append( { value: verticalHint[i]} );
+            for (i = 0; i < horizontalHint.length; i++)
+                horizontalInstructionsList.append( { value: horizontalHint[i], direction: "h", order:i} );
+            for (i = 0; i < verticalHint.length; i++)
+                verticalInstructionsList.append( { value: verticalHint[i], direction: "v", order:i});
+
+
+            //combine vertical and horizontal hints for hintPoolModel
+            for (i = 0; i < horizontalInstructionsList.count; ++i)
+                hintPoolModel.append(horizontalInstructionsList.get(i))
+            for (j = 0; j < verticalInstructionsList.count; ++j)
+                hintPoolModel.append(verticalInstructionsList.get(j))
         }
     }
 
