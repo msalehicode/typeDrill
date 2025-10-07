@@ -18,6 +18,7 @@ Item {
     property color setSuccessColor:"green"
     property color setBgColorPopup: "black"
     property color setBgContent: "grey"
+    property real setBgOpacityPopup:1.0
 
     property int setRadius: 10
 
@@ -53,6 +54,7 @@ Item {
 
     function close()
     {
+        setDefaultText=""
         popup.close()
     }
 
@@ -70,6 +72,15 @@ Item {
         background: Rectangle
         {
             color: setBgColorPopup
+            opacity: setBgOpacityPopup
+            MouseArea
+            {
+                anchors.fill: parent
+                onClicked:
+                {
+                    close()
+                }
+            }
         }
         onClosed:
         {
