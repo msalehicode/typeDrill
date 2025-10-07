@@ -406,9 +406,6 @@ function removeFile($fileId,$sessionKey)
 
 function getDbListNew($visibilityType, $sessionKey)
 {
-    // Define admin user IDs as an array (not a constant)
-    $adminIdList = [1, 2, 3];  // Replace with actual admin IDs
-
     // Get user ID from session
     $userId = getUserIdFromSession($sessionKey);
 
@@ -437,8 +434,7 @@ function getDbListNew($visibilityType, $sessionKey)
             $query .= "WHERE f.visibility = 'public'";
             break;
         case 'officials':
-            // Use implode() to correctly build the list of admin IDs
-            $query .= "WHERE f.user_id IN (" . implode(",", $adminIdList) . ") AND f.visibility = 'public'";
+            $query .= "WHERE u.isAdmin = 1 AND f.visibility = 'public'";
             break;
         default:
             sendResponse(['error' => 'Invalid visibility type'], 400);

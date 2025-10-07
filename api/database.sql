@@ -8,6 +8,8 @@ CREATE TABLE users (
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,    -- Date when the user was created
     updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- Timestamp of last update
     verification_code VARCHAR(32) NOT NULL,
+    isAdmin BOOLEAN DEFAULT 0,
+    isPremium BOOLEAN DEFAULT 0,
     is_verified BOOLEAN DEFAULT 0
 );
 
