@@ -22,6 +22,7 @@ Page
 
 
     property var wordStatuses: [{text:"0"},{ text:"starred"}, {text:"archived"}]
+    property var wordTypes: [{text:"n"},{ text:"v"}, {text:"adj"}, {text:"adv"}, {text:"pron"},{text:"prep"}, {text:"conj"}, {text:"interj"}]
 
     property bool pictureChanged : false;
     property bool removePicture: false;
@@ -327,23 +328,49 @@ Page
                     }
                 }
 
-                CustomCombobox
+
+                Row
                 {
-                    id: comboWordStatus
-                    setBgColor: appColors.c_comboboxBgColor
-                    setFontColor: appColors.c_buttonFontColor
-                    setfontSize: appFontSizes.f_normal
-                    setIconArrow: appIcons.icon_back_white
-                    setWidth: parent.width/2
+                    id:rowWordStatusAndTypeCombo
+                    width: parent.width
                     height:45
-                    setPositionPopup:"top"
-                    modelData: wordStatuses
-                    setBgColorCurrentItem: appColors.c_comboboxBgColorCurrentItem
-                    onActivated: function(index)
+                    spacing:10
+                    CustomCombobox
                     {
-                        currentIndex = index
+                        id: comboWordStatus
+                        setBgColor: appColors.c_comboboxBgColor
+                        setFontColor: appColors.c_buttonFontColor
+                        setfontSize: appFontSizes.f_normal
+                        setIconArrow: appIcons.icon_back_white
+                        setWidth: parent.width/2
+                        height:45
+                        setPositionPopup:"top"
+                        modelData: wordStatuses
+                        setBgColorCurrentItem: appColors.c_comboboxBgColorCurrentItem
+                        onActivated: function(index)
+                        {
+                            currentIndex = index
+                        }
+                    }
+                    CustomCombobox
+                    {
+                        id: comboWordType
+                        setBgColor: appColors.c_comboboxBgColor
+                        setFontColor: appColors.c_buttonFontColor
+                        setfontSize: appFontSizes.f_normal
+                        setIconArrow: appIcons.icon_back_white
+                        setWidth: parent.width/2
+                        height:45
+                        setPositionPopup:"top"
+                        modelData: wordTypes
+                        setBgColorCurrentItem: appColors.c_comboboxBgColorCurrentItem
+                        onActivated: function(index)
+                        {
+                            currentIndex = index
+                        }
                     }
                 }
+
 
                 Row
                 {
@@ -441,6 +468,12 @@ Page
         picture.source = "file://"+contentPath+formData[6];
         audio.source = "file://"+contentPath+formData[7];
 
+
+        index = wordTypes.findIndex(function(item)
+        {
+            return item.text === formData[8];
+        })
+        comboWordType.currentIndex=index
 
     }
 
@@ -603,10 +636,21 @@ Page
         }
 
 
+        //modify word type which hold by combobox
+        let wordType = comboWordType.currentItemText
+        if(dataForBackend)
+            data[10]=wordType
+        else
+        {
+            var obj3 = {};
+            obj3["type"] = wordType;
+            data.push(obj3);
+        }
 
-        // for (var x = 0; x < data.length; x++) {
-        //     console.log("data[" + x + "] = " + JSON.stringify(data[x]));
-        // }
+
+        for (var x = 0; x < data.length; x++) {
+            console.log("data[" + x + "] = " + JSON.stringify(data[x]));
+        }
 
         return data
     }
@@ -652,7 +696,7 @@ Page
         tempData.push(getValueByKey(formData,"status"))
         tempData.push(getValueByKey(formData,"picture"))
         tempData.push(getValueByKey(formData,"audio"))
-
+        tempData.push(getValueByKey(formData,"type"))
         formData=tempData
     }
 

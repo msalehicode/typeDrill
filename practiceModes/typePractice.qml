@@ -192,7 +192,6 @@ Page
                 horizontalAlignment: Text.AlignHCenter
             }
 
-
             Column
             {
                 id:columnPractice
@@ -200,6 +199,18 @@ Page
                 height: parent.height-100
                 spacing:25
 
+                Text
+                {
+                    id:w_type
+                    text:"[type]"
+                    width: parent.width
+                    height:implicitHeight
+                    visible: hideAllExceptFirstItem ? false : text.length>0 ? true : false;
+                    font.pixelSize:appFontSizes.f_normal
+                    color:appColors.c_fontcolor
+                    horizontalAlignment: Text.AlignHCenter
+                    wrapMode: Text.WordWrap
+                }
                 Label
                 {
                     id:w_meaning
@@ -299,6 +310,8 @@ Page
 
 
         }
+
+
 
 
         CustomTimer
@@ -471,6 +484,7 @@ Page
 
         //other data setup
         w_text.text=getValueByKey(practiceData,"text")
+        w_type.text= "["+getValueByKey(practiceData,"type")+"]"
         w_meaning.text=getValueByKey(practiceData,"meaning")
         w_example.text=getValueByKey(practiceData,"example")
         w_translate.text=getValueByKey(practiceData,"translate")
@@ -490,6 +504,8 @@ Page
         function onWordReady(word)
         {
             practiceData=word
+            // console.log("onWordRead =", JSON.stringify(practiceData));
+
             updateTextValues()
 
             text_input.clear()

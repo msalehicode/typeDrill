@@ -405,6 +405,7 @@ void Backend::createTable(const QString &tableName, const QString &tableType)
                              status TEXT,\
                              picture TEXT,\
                              audio TEXT,\
+                             type TEXT,\
                              source TEXT"
                              );
             if(qresult)
@@ -673,8 +674,9 @@ void Backend::addWordToTable(const QStringList &data)
         rowData["translate"] = data[3];
         rowData["source"] = data[4];
         rowData["status"] = data[5];
-        rowData["picture"] = ImagefileName;
-        rowData["audio"] = AudioFileName;
+        rowData["picture"] = ImagefileName;//6
+        rowData["audio"] = AudioFileName;//7
+        rowData["type"] = data[8];
 
         qresult = m_db.insertIntoTable(currentTableName, rowData);
         if(qresult)
@@ -745,7 +747,7 @@ void Backend::modifyWordOnTable(const int& targetWordId,
         audioFileName = localFileManager.extractFileName(audio);
 
 
-    if(tagetTableType=="word" && data.size() >=6)
+    if(tagetTableType=="word" && data.size() >=10)
     {
         //data order passed by QML for word: text, meaning, example, translate, source, status
         rowData["text"] = data[0];
@@ -754,8 +756,9 @@ void Backend::modifyWordOnTable(const int& targetWordId,
         rowData["translate"] = data[3];
         rowData["source"] = data[4];
         rowData["status"] = data[5];
-        rowData["picture"] = imageFileName;
-        rowData["audio"] = audioFileName;
+        rowData["picture"] = imageFileName;//[6,7]
+        rowData["audio"] = audioFileName;//[8,9]
+        rowData["type"] = data[10];
 
         qresult = m_db.updateTableRow(currentTableName, "id", targetWordId, rowData);
         if(qresult)

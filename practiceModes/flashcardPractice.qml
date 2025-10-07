@@ -217,6 +217,18 @@ Page
                             anchors.horizontalCenter: parent.horizontalCenter
                             horizontalAlignment: Text.AlignHCenter
                         }
+                        Text
+                        {
+                            id:lblType
+                            text:"[type]"
+                            width: parent.width
+                            height:implicitHeight
+                            visible: hideAllExceptFirstItem ? false : text.length>0 ? true : false;
+                            font.pixelSize:appFontSizes.f_normal
+                            color:appColors.c_fontcolor
+                            horizontalAlignment: Text.AlignHCenter
+                            wrapMode: Text.WordWrap
+                        }
                     }
 
 
@@ -538,6 +550,7 @@ Page
 
         //other data setup
         lblText.text=""+getValueByKey(currentWord,"text")
+        lblType.text="["+getValueByKey(currentWord,"type")+"]"
         lblMeaning.text="Meaning:\n"+getValueByKey(currentWord,"meaning",)
         lblExample.text="Example:\n"+getValueByKey(currentWord,"example")
         isWordStared = getValueByKey(currentWord,"status")==="starred" ? true : false;

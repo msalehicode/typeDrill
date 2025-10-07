@@ -12,11 +12,15 @@ Page
     //data order passed by QML to backend
     //word: text, meaning, example, translate, source, status
     //verb: verb, past, past perfect, translate, status
-    property var wordTitles: ["Enter Word:", "Enter Meaning:", "Enter Example:", "Enter Translate:", "Enter Source:", "Enter Status:"]
+    property var wordTitles: ["Enter Word:", "Enter Meaning:", "Enter Example:", "Enter Translate:", "Enter Source:"]
     property var learnTitles: ["Enter Title:","Enter Details:", "Enter Content:", "Enter Level:","Enter Status:"]
 
     property var fileDialogFilters : ["Images (*.png *.jpg *.jpeg *.bmp *.gif)",
                                       "Audio (*.wav *.mp3 *.ogg *.flac *.m4a *.aiff)"]
+
+
+    property var wordStatuses: [{text:"0"},{ text:"starred"}, {text:"archived"}]
+    property var wordTypes: [{text:"n"},{ text:"v"}, {text:"adj"}, {text:"adv"}, {text:"pron"},{text:"prep"}, {text:"conj"}, {text:"interj"}]
 
 
     property int selectedTableId:-1
@@ -342,9 +346,55 @@ Page
                         setRadius:10
                         theText:""
                         setTitleText: model.title
-                        setVisible: formType==="customTable" && model.title==="?Header?"? false : true
+                        setVisible: formType==="customTable" && model.title==="?Header?"? false :
+                                    (model.title==="status")? false : true
                     }
                 }
+
+                Row
+                {
+                    id:rowWordStatusAndTypeCombo
+                    width: parent.width
+                    height:45
+                    spacing:10
+                    visible: formType==="word"
+                    CustomCombobox
+                    {
+                        id: comboWordStatus
+                        setBgColor: appColors.c_comboboxBgColor
+                        setFontColor: appColors.c_buttonFontColor
+                        setfontSize: appFontSizes.f_normal
+                        setIconArrow: appIcons.icon_back_white
+                        setWidth: parent.width/2
+                        height:45
+                        setPositionPopup:"top"
+                        modelData: wordStatuses
+                        setBgColorCurrentItem: appColors.c_comboboxBgColorCurrentItem
+                        onActivated: function(index)
+                        {
+                            currentIndex = index
+                        }
+                    }
+                    CustomCombobox
+                    {
+                        id: comboWordType
+                        setBgColor: appColors.c_comboboxBgColor
+                        setFontColor: appColors.c_buttonFontColor
+                        setfontSize: appFontSizes.f_normal
+                        setIconArrow: appIcons.icon_back_white
+                        setWidth: parent.width/2
+                        height:45
+                        setPositionPopup:"top"
+                        modelData: wordTypes
+                        setBgColorCurrentItem: appColors.c_comboboxBgColorCurrentItem
+                        onActivated: function(index)
+                        {
+                            currentIndex = index
+                        }
+                    }
+                }
+
+
 
                 Column
                 {
@@ -418,11 +468,15 @@ Page
                         }
                         else if(formType==="word")
                         {
+                            data.push(comboWordStatus.currentItemText)
+
                             //add picture to data:
                             data.push(selectedImagePath);
 
                             //add audio to data:
                             data.push(selectedAudioPath);
+
+                            data.push(comboWordType.currentItemText)
 
                             //check empty items
                             if(data[0]==="" || data[0]===" ")
@@ -540,6 +594,8 @@ Page
             {
                 //reset form for next word
                 refreshFormInputs()
+                comboWordStatus.currentIndex=0
+                comboWordType.currentIndex=0
                 console.log("word added into the table. res="+res)
                 //go to homePage
                 // mainStackView.pop();
