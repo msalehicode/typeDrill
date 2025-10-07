@@ -24,7 +24,33 @@ Page
                 leftMargin: 50
             }
         }
+
+        CustomButtonWithIcon
+        {
+            setButtonText:"";
+            setIconSource: appIcons.icon_turn
+            setButtonBorderColor: "transparent"
+            setButtonBackColor: "transparent"
+            setButtonFontColor: "transparent"
+            setIconWidth: 25
+            setIconHeight: 25
+            setButtonsBorderWidth: 0
+            setRadius: 30
+            setWidth: 30
+            setHeight:30
+            anchors
+            {
+                right: parent.right
+                rightMargin:15
+                verticalCenter:parent.verticalCenter
+            }
+            onButtonClicked:
+            {
+                theLoader.item.reloadItems()
+            }
+        }
     }
+    property string myUserName;
 
     Loader
     {
@@ -53,6 +79,12 @@ Page
             property alias popup: popupMessage
 
 
+            function reloadItems()
+            {
+                changeLoaderContent("list",visibilityFilter.currentItemText);
+                urlModel.clear()
+            }
+
             Rectangle
             {
                 color: appColors.c_background
@@ -75,8 +107,7 @@ Page
                     onActivated: function(index)
                     {
                         currentIndex = index
-                        changeLoaderContent("list",currentItemText);
-                        urlModel.clear()
+                        reloadItems()
                     }
                 }
 
@@ -168,8 +199,7 @@ Page
                                 }
                                 Label
                                 {
-                                    text:(visibilityFilter.currentItemText==="community"||visibilityFilter.currentItemText==="officials")
-                                         ? " by: "+model.d_owner : " by you"
+                                    text: model.d_owner===myUserName ? " by you" : " by: "+ model.d_owner
                                     color:appColors.c_fontcolor
                                 }
                                 Image
@@ -188,9 +218,7 @@ Page
                             {
 
                                 //add items into the menu
-                                if(visibilityFilter.currentItemText==="all mine" ||
-                                   visibilityFilter.currentItemText==="my privates" ||
-                                   visibilityFilter.currentItemText==="my publics")
+                                if(model.d_owner===myUserName)
                                 {
                                     popupMenu.openWhereOnClicked(mAreaItem,listView)
 
@@ -872,5 +900,6 @@ Page
     Component.onCompleted:
     {
         changeLoaderContent("list")//,visibilityFilter.currentItemText);
+        myUserName = backend.getUsername();
     }
 }
