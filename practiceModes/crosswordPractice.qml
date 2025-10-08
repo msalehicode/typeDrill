@@ -566,7 +566,7 @@ Page {
 
     Component.onCompleted:
     {
-        console.log("grid size="+crossword[0].length, "x", crossword.length)
         backend.makeCrossword();
+        console.log("grid size="+crossword[0].length, "x", crossword.length)
     }
 }
