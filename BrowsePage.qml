@@ -139,6 +139,7 @@ Page
                             horizontalCenter: parent.horizontalCenter
                         }
 
+
                         Rectangle
                         {
                             id:baseIconTable
@@ -163,6 +164,44 @@ Page
                                     {
                                         console.warn("Image failed to load:", source);
                                         source=appIcons.icon_question
+                                    }
+                                    else
+                                        if(status !== Image.Loading)
+                                        {
+                                            loadingAnimationItem.visible=false
+                                            animationLoadingImage.running=false
+                                        }
+                                }
+
+                            }
+                            Item {
+                                id: loadingAnimationItem
+                                anchors.centerIn: parent
+                                width: 100
+                                height: 100
+
+                                Rectangle
+                                {
+                                    id: spinner
+                                    width: 40
+                                    height: 40
+                                    color: "transparent"
+                                    border.color: "#3498db"
+                                    border.width: 4
+                                    radius: 40
+                                    anchors.centerIn: parent
+                                    antialiasing: true
+                                    layer.enabled: true
+                                    layer.smooth: true
+                                    scale: 1.0
+
+                                    // Animate scale (pulsing effect)
+                                    SequentialAnimation on scale
+                                    {
+                                        id:animationLoadingImage
+                                        loops: Animation.Infinite
+                                        NumberAnimation { to: 1.3; duration: 500; easing.type: Easing.InOutQuad }
+                                        NumberAnimation { to: 0.3; duration: 500; easing.type: Easing.InOutQuad }
                                     }
                                 }
                             }
