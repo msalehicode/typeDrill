@@ -146,7 +146,7 @@ public:
      * \brief to get next word without checking user input is correct/incorrect.
      * \return emits wordReady with QList of next word
      */
-    Q_INVOKABLE void getNextWordNoInputCheck(const QString& status="all");
+    Q_INVOKABLE void getWordNoInputCheck(const QString& status, const bool& isForward);
     Q_INVOKABLE int getMaxIdWordTable();
 
     QVariantList getTableWords();

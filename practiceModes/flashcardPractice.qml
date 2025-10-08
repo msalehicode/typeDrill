@@ -220,10 +220,10 @@ Page
                         Text
                         {
                             id:lblType
-                            text:"[type]"
+                            text:""
                             width: parent.width
                             height:implicitHeight
-                            visible: hideAllExceptFirstItem ? false : text.length>0 ? true : false;
+                            visible: text.length>0 ? true : false
                             font.pixelSize:appFontSizes.f_normal
                             color:appColors.c_fontcolor
                             horizontalAlignment: Text.AlignHCenter
@@ -356,9 +356,9 @@ Page
                         if (Math.abs(deltaX) > 100)
                         {
                             if(deltaX > 0)
-                                getNextWord() //swiped right
+                                getNextWord(true) //swiped right
                             else
-                                mistakeMade() //swiped left
+                                getNextWord(false) //swiped left
                         }
                     }
                 }
@@ -388,7 +388,7 @@ Page
                     setHeight:50
                     onButtonClicked:
                     {
-                        mistakeMade()
+                        getNextWord(false)
                     }
                 }
 
@@ -426,7 +426,7 @@ Page
                     setHeight:50
                     onButtonClicked:
                     {
-                        getNextWord()
+                        getNextWord(true)
                     }
                 }
             }
@@ -452,11 +452,11 @@ Page
         }
     }
 
-    function mistakeMade()
-    {
-        mistakesCounter++
-        getNextWord(-50)
-    }
+    // function mistakeMade()
+    // {
+    //     mistakesCounter++
+    //     getNextWord(-50)
+    // }
 
     function showDetails()
     {
@@ -467,8 +467,17 @@ Page
         }
     }
 
-    function getNextWord(animationVal=50)
+    function getNextWord(isForward)
     {
+        var animationVal;
+        if(isForward)
+        {
+            animationVal=50
+        }
+        else
+        {
+            animationVal=-50
+        }
 
         //reset by fliping card to frontFace(word)
         if(showInfo)
@@ -477,7 +486,8 @@ Page
 
         doTiltAnimation(animationVal)
 
-        backend.getNextWordNoInputCheck(practiceOnlyStarred?"starred":"all")
+        backend.getWordNoInputCheck(practiceOnlyStarred?"starred":"all",
+                                    isForward);
 
         //turn flag off for next word
         isThisWordModified=false
@@ -587,7 +597,10 @@ Page
         contentPath = backend.getContentPath()
 
         maxWordId = backend.getMaxIdWordTable();
-        backend.getNextWordNoInputCheck(practiceOnlyStarred?"starred":"all")
+
+
+        backend.getWordNoInputCheck(practiceOnlyStarred?"starred":"all",
+                                    true);
 
 
         if(maxWordId<=0)//this table doesn't have enough words

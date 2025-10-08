@@ -172,50 +172,65 @@ bool Backend::setWordStatus(const int &wordId, QString status)
 }
 
 
-void Backend::getNextWordNoInputCheck(const QString& status)
+void Backend::getWordNoInputCheck(const QString& status,const bool& isForward)
 {
     qInfo() << "status=" << status;
-    if(last_id>=max_id)
-        emit practiceFinished();
-    else
+    if(isForward)
     {
-        last_id++;
-        current_word = m_db.searchTable(currentTableName, "id", QString::number(last_id));
+        if(last_id>=max_id)
+            emit practiceFinished();
+        else
+            last_id++;
+    }
+    else//backward
+    {
+        qInfo()<<"lastid= backwr=d"<<last_id;
+        if(last_id==1)
+            emit practiceFinished();
+        else
+            last_id--;
+    }
 
 
-        //check word status (possibles: empty, all, starred, archived, 0)
-        //0->not starred, not archived
-        //empty/all -> whole words no filter
-        if(status!="all")
+    current_word = m_db.searchTable(currentTableName, "id", QString::number(last_id));
+
+
+    //check word status (possibles: empty, all, starred, archived, 0)
+    //0->not starred, not archived
+    //empty/all -> whole words no filter
+    if(status!="all")
+    {
+        if (!current_word.isEmpty())
         {
-            if (!current_word.isEmpty())
+            QVariant wordStatus = current_word[0].value("status");
+            qInfo() << "word status=" << wordStatus.toString();
+            while(wordStatus.toString()!=status) //get next word
             {
-                QVariant wordStatus = current_word[0].value("status");
-                qInfo() << "word status=" << wordStatus.toString();
-                while(wordStatus.toString()!=status) //get next word
+                if(last_id>=max_id)
                 {
-                    if(last_id>=max_id)
-                    {
-                        emit practiceFinished();
-                        break;
-                    }
-                    else
-                    {
-                        last_id++;
-                        current_word = m_db.searchTable(currentTableName, "id", QString::number(last_id));
-                        wordStatus = current_word[0].value("status");
-                    }
+                    emit practiceFinished();
+                    break;
                 }
-
+                else
+                {
+                    last_id++;
+                    current_word = m_db.searchTable(currentTableName, "id", QString::number(last_id));
+                    wordStatus = current_word[0].value("status");
+                }
             }
-            else
-                qInfo() << "curretn word is empty! cant check word status";
+
         }
         else
-            qInfo() << "all or empty status";
-
-        emit wordReady(current_word);
+            qInfo() << "curretn word is empty! cant check word status";
     }
+    // else
+        // qInfo() << "all or empty status";
+
+    emit wordReady(current_word);
+
+
+
+
 }
 
 int Backend::getMaxIdWordTable()

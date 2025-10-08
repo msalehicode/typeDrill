@@ -394,7 +394,9 @@ Page
 
         //to fetch first word and get maxium number of content on table
         var totalWords = backend.getMaxIdWordTable();
-        backend.getNextWordNoInputCheck(practiceOnlyStarred?"starred":"all")
+
+        backend.getWordNoInputCheck(practiceOnlyStarred?"starred":"all",
+                                    true);
 
 
         if(totalWords<=0)
