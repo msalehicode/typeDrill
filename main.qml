@@ -214,6 +214,12 @@ Window
         property string icon_filledStar : appIcons.i_path + "filledStar.png"
 
 
+
+        property string icon_zoomin : appIcons.i_path + "zoomin.png"
+        property string icon_zoomout : appIcons.i_path + "zoomout.png"
+
+        property string icon_zoomin_white : i_path_white + "zoomin.png"
+        property string icon_zoomout_white : i_path_white + "zoomout.png"
     }
     
     
