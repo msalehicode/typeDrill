@@ -54,6 +54,7 @@ class Backend : public QObject
     int min_id;
     int max_id;
     int last_id;
+    QVector<int> previousId; //in case when ids are not series [1,4,20,...] to hold last item id
     QSqlQuery* m_query;
     QList<QMap<QString, QVariant>> current_word;
 
@@ -98,6 +99,12 @@ class Backend : public QObject
     QVector<QVector<QString>> getGridAs2DArray(const QVector<QVector<QString>>& gridWords);
     QList<QVector<QString>> whatAreCompatible(const QMap<QString,QString>& wordlist, QString beginOrEnds, QString targetWord);
     QList<QList<QVector<QString>>> sortedsortWordsBy(const QString& beginOrEnd, const QList<QVector<QString>>& list);
+
+
+
+    //get word filtered by status
+    bool getNextMatchingWord(const QString& status);
+
 public:
 
     /*!
@@ -140,6 +147,7 @@ public:
     Q_INVOKABLE void getNextWord(const QString& userText, const bool& isModified=false, const QString& status="");
 
 
+
     Q_INVOKABLE bool setWordStatus(const int& wordId, QString status);
 
     /*!
@@ -148,6 +156,7 @@ public:
      */
     Q_INVOKABLE void getWordNoInputCheck(const QString& status, const bool& isForward);
     Q_INVOKABLE int getMaxIdWordTable();
+    Q_INVOKABLE int getCountOfWordsStatusTable(const QString& status);
 
     QVariantList getTableWords();
 

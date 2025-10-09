@@ -175,67 +175,61 @@ bool Backend::setWordStatus(const int &wordId, QString status)
 void Backend::getWordNoInputCheck(const QString& status,const bool& isForward)
 {
     qInfo() << "status=" << status;
+    qInfo() << "Before logic, previousId size:" << previousId.size();
+
     if(isForward)
     {
-        if(last_id>=max_id)
+        if(status!="all")
+            previousId.push_back(last_id); //save last random id from word
+
+        if (!getNextMatchingWord(status))
+        {
             emit practiceFinished();
-        else
-            last_id++;
+            return;
+        }
     }
     else//backward
     {
-        qInfo()<<"lastid= backwr=d"<<last_id;
-        if(last_id==1)
-            emit practiceFinished();
-        else
-            last_id--;
-    }
-
-
-    current_word = m_db.searchTable(currentTableName, "id", QString::number(last_id));
-
-
-    //check word status (possibles: empty, all, starred, archived, 0)
-    //0->not starred, not archived
-    //empty/all -> whole words no filter
-    if(status!="all")
-    {
-        if (!current_word.isEmpty())
+        if (last_id <= 1)
         {
-            QVariant wordStatus = current_word[0].value("status");
-            qInfo() << "word status=" << wordStatus.toString();
-            while(wordStatus.toString()!=status) //get next word
-            {
-                if(last_id>=max_id)
-                {
-                    emit practiceFinished();
-                    break;
-                }
-                else
-                {
-                    last_id++;
-                    current_word = m_db.searchTable(currentTableName, "id", QString::number(last_id));
-                    wordStatus = current_word[0].value("status");
-                }
-            }
-
+            emit practiceFinished();
+            return;
         }
         else
-            qInfo() << "curretn word is empty! cant check word status";
+        {
+            if(status!="all")
+            {
+                if(!previousId.isEmpty())
+                    last_id = previousId.takeLast();
+            }
+            else
+            {
+                last_id--;
+            }
+
+
+            if(last_id<=0)
+            {
+                emit practiceFinished();
+                return;
+            }
+        }
+
+        current_word = m_db.searchTable(currentTableName, "id", QString::number(last_id));
     }
-    // else
-        // qInfo() << "all or empty status";
 
     emit wordReady(current_word);
-
-
-
-
 }
 
 int Backend::getMaxIdWordTable()
 {
     return max_id;
+}
+
+int Backend::getCountOfWordsStatusTable(const QString &status)
+{
+    int count = m_db.countRowsWhere(currentTableName,"status",status);
+    return count;
 }
 
 QVariantList Backend::getTableWords()
@@ -883,6 +877,7 @@ void Backend::resetPractice()
 {
     last_id=min_id;
     current_word.clear();
+    previousId.clear();
     // qInfo() << "practice reseted.";
 }
 
@@ -1784,6 +1779,25 @@ QList<QList<QVector<QString>>> Backend::sortedsortWordsBy(const QString &beginOr
     }
 
     return result;
+}
+
+bool Backend::getNextMatchingWord(const QString& status)
+{
+    while (last_id < max_id)
+    {
+        last_id++;
+        current_word = m_db.searchTable(currentTableName, "id", QString::number(last_id));
+
+        if (current_word.isEmpty()) continue;
+
+        QString wordStatus = current_word[0].value("status").toString();
+        if (status == "all" || wordStatus == status)
+        {
+            return true; // found valid word
+        }
+    }
+
+    return false; // no valid word found
 }
 
 

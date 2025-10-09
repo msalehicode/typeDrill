@@ -13,6 +13,8 @@ Page
 
     property int maxWordId: 0
     property int currentWordId:0
+    property int currentWordCount: 0 //for modes like practiceOnlyStarred (word id will be random so need a logical number for processbar)
+
 
     property string practiceMode: "none" //e.g: word
 
@@ -125,7 +127,7 @@ Page
                 CustomProccessBar
                 {
                     id:proccessBar
-                    currentValue:currentWordId-1
+                    currentValue: practiceOnlyStarred? currentWordCount:currentWordId-1
                     setWidth: 150
                     setHeight: 20
                     setSpacing:0
@@ -473,10 +475,16 @@ Page
         if(isForward)
         {
             animationVal=50
+            currentWordCount++;
         }
-        else
+        else//backward
         {
             animationVal=-50
+            if(currentWordCount>0)
+                currentWordCount--;
+            else
+                currentWordCount=0
+
         }
 
         //reset by fliping card to frontFace(word)
@@ -596,7 +604,11 @@ Page
 
         contentPath = backend.getContentPath()
 
-        maxWordId = backend.getMaxIdWordTable();
+        //to fetch first word and get maxium number of content on table
+        if(practiceOnlyStarred)
+            maxWordId = backend.getCountOfWordsStatusTable("starred");
+        else
+            maxWordId = backend.getMaxIdWordTable();
 
 
         backend.getWordNoInputCheck(practiceOnlyStarred?"starred":"all",

@@ -314,6 +314,34 @@ int DataBase::countRows(const QString& tableName)
     return 0;
 }
 
+int DataBase::countRowsWhere(const QString &tableName, const QString &key, const QString &value)
+{
+    if (!m_db.isOpen()) {
+        qInfo() << "Database is not open!";
+        return -1;
+    }
+
+    QSqlQuery query(m_db);
+
+    // Construct the query with placeholders
+    QString sql = QString("SELECT COUNT(*) FROM %1 WHERE %2 = :value")
+                      .arg(tableName, key);
+    query.prepare(sql);
+    query.bindValue(":value", value);
+
+    if (!query.exec()) {
+        qWarning() << "Count query failed:" << query.lastError().text();
+        return -1;
+    }
+
+    if (query.next()) {
+        return query.value(0).toInt();
+    }
+
+    return 0;
+}
+
+
 bool DataBase::removeRow(const QString &tableName, const QString &rowKey, const QString &rowValue)
 {
     QSqlQuery query(m_db);

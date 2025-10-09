@@ -58,6 +58,7 @@ public:
     QVariantList getAllRowsAsVariantList(const QString& tableName);
 
     int countRows(const QString& tableName);
+    int countRowsWhere(const QString& tableName, const QString& key, const QString& value);
 
     bool removeRow(const QString& tableName, const QString& rowKey, const QString& rowValue);
 

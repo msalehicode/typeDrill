@@ -16,6 +16,7 @@ Page
 
     property int mistakesCounter: 0;
     property int currentIndex: 0;
+    property int currentWordCount: 0 //for modes like practiceOnlyStarred (word id will be random so need a logical number for processbar)
     property int maxIndex: 100;
 
 
@@ -109,7 +110,7 @@ Page
                 CustomProccessBar
                 {
                     id:proccessBar
-                    currentValue:currentIndex-1
+                    currentValue: practiceOnlyStarred? currentWordCount:currentIndex-1
                     totalValue: maxIndex
                     setWidth: 150
                     setHeight: 20
@@ -368,9 +369,11 @@ Page
         if(text_input.theText.length>=1)
         {
             backend.getNextWord(text_input.theText, isThisWordModified, practiceOnlyStarred?"starred":"all")
+            currentWordCount++;
+
+            //turn flag off for next word
+            isThisWordModified=false
         }
-        //turn flag off for next word
-        isThisWordModified=false
     }
 
     function quitPractice()
@@ -392,8 +395,14 @@ Page
         practiceTimeCom.startTimer()
         contentPath = backend.getContentPath()
 
+
+        var totalWords;
         //to fetch first word and get maxium number of content on table
-        var totalWords = backend.getMaxIdWordTable();
+        if(practiceOnlyStarred)
+            totalWords = backend.getCountOfWordsStatusTable("starred");
+        else
+            totalWords = backend.getMaxIdWordTable();
+
 
         backend.getWordNoInputCheck(practiceOnlyStarred?"starred":"all",
                                     true);
@@ -405,7 +414,7 @@ Page
             practiceCore.quitMode(false,"this table doesn't have enough words to practice, add some word..")
         }
         else
-            maxIndex = totalWords //because first id of word is 1
+            maxIndex = totalWords
     }
 
     function routeToModifyPage()
