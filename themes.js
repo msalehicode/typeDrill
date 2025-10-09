@@ -110,5 +110,5 @@ const fontSizes =
     "small": 12,
 
     "Textinput": 17,
-    "buttonsfontSize": 15
+    "buttonsfontSize": 12
 }

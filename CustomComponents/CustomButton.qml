@@ -71,6 +71,7 @@ Item
                     text:setButtonText;
                     anchors.centerIn:parent;
                     color:setButtonFontColor;
+                    font.pixelSize: setButtonFontsize
                     font.bold: setBold
                 }
                 MouseArea
