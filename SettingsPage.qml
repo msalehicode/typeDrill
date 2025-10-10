@@ -175,6 +175,41 @@ Page
                     }
 
 
+
+                    Row
+                    {
+                        width:parent.width
+                        height:parent.height
+                        spacing:5
+                        Label
+                        {
+                            text:"save Text To Speech:"
+                            color:appColors.c_fontcolor
+                            font.pixelSize: appFontSizes.f_normal
+                        }
+                        CustomSwitch
+                        {
+                            setWidth:50
+                            setHeight:30
+                            setBgColorActivated: appColors.c_buttonBgColor
+                            switchStatus:appSettings.saveTTSvoice
+                            // setStatusBorder:false;
+                            onSwitchClicked:
+                            {
+                                 if(switchStatus)
+                                 {
+                                    appSettings.saveTTSvoice=true
+                                    backend.setSetting("saveTTSvoice","true");
+                                 }
+                                 else
+                                 {
+                                    appSettings.saveTTSvoice=false
+                                    backend.setSetting("saveTTSvoice","false");
+                                 }
+                            }
+                        }
+                    }
+
                 }
 
 

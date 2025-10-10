@@ -161,6 +161,30 @@ void Backend::getNextWord(const QString &userText, const bool& isModified, const
     }
 }
 
+void Backend::googleTTS(const QString &text)
+{
+    if(settings.getValue("saveTTSvoice").toString()=="true")
+    {
+        QString fname = text+".mp3";
+        if(localFileManager.isFileExist(m_contentPath,fname))
+        {
+            qInfo()<< "voice exists, no need to load from googleTTS";
+            emit ttsDone(true,fname);
+        }
+        else
+        {
+            gtts.downloadTTS(text,m_contentPath,text);
+            connect(&gtts, &GoogleTTS::ttsResult, this, &Backend::onTTSResult);
+        }
+    }
+    else
+    {
+        //no download just play
+        //gtts.playTTS(text);
+        qInfo() <<"setting save TTS is off!";
+    }
+}
+
 bool Backend::setWordStatus(const int &wordId, QString status)
 {
     bool qResult = m_db.updateTableValue(currentTableName,"id",wordId,"status",status);
@@ -595,6 +619,11 @@ void Backend::switchTable(const QString &tableName, const QString& ttype)
     m_contentPath = m_dbPath + "/" +
                         whatIsCurrentDatabase()+"_"
                           +currentTableName+"/";
+
+    //make sure directory content exists for this table
+    if(localFileManager.makeDirectory(whatIsCurrentDatabase()+"_"+currentTableName))
+        qInfo() << "directory doesnt exists so made one while switching table";
+
 
     max_id=m_db.countRows(currentTableName);
 
@@ -2066,7 +2095,6 @@ void Backend::onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 void Backend::onDownloadFinished(bool success, const QString &filePath)
 {
     emit downloadFinished(success, filePath);
-
 }
 
 void Backend::onUploadFinished(bool success, const QString &result)
@@ -2143,6 +2171,11 @@ void Backend::onSignResult()
     } else {
         emit signResult(resultMessage.isEmpty() ? resultKey : resultMessage);  // Pass the message or sessionKey
     }
+}
+
+void Backend::onTTSResult(const bool &result, const QString fname)
+{
+    emit ttsDone(result,fname);
 }
 
 void Backend::onRenameApiDbFile()

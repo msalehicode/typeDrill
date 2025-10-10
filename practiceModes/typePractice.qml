@@ -70,16 +70,17 @@ Page
                     setIconSource:  appIcons.icon_play
                     onButtonClicked:
                     {
-                        if(audio.playing)
-                        {
-                            audio.play()
-                            playButton.setIconSource= appIcons.icon_pause
-                        }
-                        else
-                        {
-                            audio.stop()
-                            playButton.setIconSource= appIcons.icon_play
-                        }
+                        player.play()
+                        // if(audio.playing)
+                        // {
+                        //     audio.play()
+                        //     playButton.setIconSource= appIcons.icon_pause
+                        // }
+                        // else
+                        // {
+                        //     audio.stop()
+                        //     playButton.setIconSource= appIcons.icon_play
+                        // }
                     }
                 }
                 CustomButtonWithIcon
@@ -352,6 +353,13 @@ Page
         }
 
 
+        MediaPlayer
+        {
+            id: player
+        }
+
+
+
 
     }
 
@@ -501,6 +509,11 @@ Page
         w_translate.text=getValueByKey(practiceData,"translate")
         currentIndex=getValueByKey(practiceData,"id")
         isWordStared=getValueByKey(practiceData,"status")==="starred" ? true : false;
+
+
+
+        //check for play/dl tts depend to settings
+        backend.googleTTS(w_text.text);
     }
 
 
@@ -525,6 +538,20 @@ Page
         {
             if(correctStatus==="incorrect")
                 mistakeMade();
+        }
+        function onTtsDone(result,fileName)
+        {
+            console.log("tts result=",result)
+            if(result)
+            {
+                player.source="file://"+contentPath+fileName;
+                console.log("playersource=",player.source)
+                player.play()
+                playButton.setVisible=true
+            }
+            else
+                playButton.setVisible=false
+
         }
     }
 

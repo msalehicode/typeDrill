@@ -26,11 +26,13 @@ qt_add_qml_module(appTypeDrill
         include/filemanager.h
         include/settingsmanager.h
         include/localfilemanager.h
+        include/googletts.h
         src/filemanager.cpp
         src/database.cpp
         src/backend.cpp
         src/settingsmanager.cpp
         src/localfilemanager.cpp
+        src/googletts.cpp
 
     QML_FILES
         main.qml
@@ -113,6 +115,7 @@ qt_add_qml_module(appTypeDrill
         resourses/lightMode/50x50/arrow.png resourses/darkMode/50x50/arrow.png
         resourses/lightMode/50x50/zoomin.png resourses/darkMode/50x50/zoomin.png
         resourses/lightMode/50x50/zoomout.png resourses/darkMode/50x50/zoomout.png
+
 
 )
 

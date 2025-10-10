@@ -20,6 +20,7 @@
 
 #include "localfilemanager.h"
 
+#include "googletts.h"
 /*!
  * \class Backend
  * \brief This class contains the core backend logic and acts as a bridge between QML and various backend components.
@@ -62,6 +63,7 @@ class Backend : public QObject
     LocalFileManager localFileManager;
 
 
+    GoogleTTS gtts;
 
     int calculateStreakDays(QDate& currentDate);
     QDate getLastActivityDate();
@@ -147,6 +149,7 @@ public:
     Q_INVOKABLE void getNextWord(const QString& userText, const bool& isModified=false, const QString& status="");
 
 
+    Q_INVOKABLE void googleTTS(const QString& text);
 
     Q_INVOKABLE bool setWordStatus(const int& wordId, QString status);
 
@@ -401,12 +404,15 @@ signals:
 
     void addContentToLearnResult(const QString& result);
 
+    void ttsDone(const bool& result, const QString fileName);
+
 private slots:
     void onUrlListReceived();
     void onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal);
     void onDownloadFinished(bool success, const QString &filePath);
     void onUploadFinished(bool success, const QString& result);
     void onSignResult();
+    void onTTSResult(const bool& result, const QString fname);
 
 
 

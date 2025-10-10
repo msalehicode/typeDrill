@@ -155,6 +155,15 @@ bool LocalFileManager::isFileExist(QString filename)
     return false;
 }
 
+bool LocalFileManager::isFileExist(QString fpath, QString filename)
+{
+    fpath = fpath + filename;
+    QFile file(filename);
+    if (file.exists())
+        return true;
+    return false;
+}
+
 QDateTime LocalFileManager::getLastModified(const QString &filePath)
 {
     QFileInfo fileInfo(filePath);

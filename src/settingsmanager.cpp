@@ -45,4 +45,7 @@ void SettingsManager::initSettings()
 
     if (!settings.contains("autoPlayAudioOnPractice"))
         settings.setValue("autoPlayAudioOnPractice", "true");
+
+    if (!settings.contains("saveTTSvoice"))
+        settings.setValue("saveTTSvoice", "true");
 }
