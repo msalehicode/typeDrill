@@ -9,6 +9,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     QCoreApplication::setOrganizationName("orgTypeDrill");
     QCoreApplication::setApplicationName("appTypeDrill");
+    QCoreApplication::setApplicationVersion(QString::fromUtf8(APP_VERSION)); //reading it from cmake
 
     QQmlApplicationEngine engine;
 

@@ -143,7 +143,7 @@ target_link_libraries(appTypeDrill PRIVATE
 )
 
 
-# define version macro for backend.getVersion()
+# define version macro for backend.getVersion() and QCoreApplication::setApplicationVersion
 target_compile_definitions(appTypeDrill PRIVATE APP_VERSION="${PROJECT_VERSION}")
 
 
