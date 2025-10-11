@@ -25,9 +25,16 @@ public:
     bool isFileExist(QString fpath, QString filename);
     QDateTime getLastModified(const QString& filePath);
 
+    bool removeDirectoryAndContains(const QString &path,bool mpath=true);
+    bool removeDirectoriesWithPrefix(const QString& prefix);
+
+    bool renameDirectory(const QString& sourcePath, const QString& targetPath);
+
     qint64 getFileSize(const QString &fileName);
     QString getFilename(const QString& filePath);
     void setPath(const QString &newPath);
+
+
 
 signals:
     // Signal to indicate success or failure of the copy operation

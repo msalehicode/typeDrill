@@ -182,6 +182,98 @@ QDateTime LocalFileManager::getLastModified(const QString &filePath)
     }
 }
 
+bool LocalFileManager::removeDirectoryAndContains(const QString &path, bool mpath)
+{
+    QString ppath;
+    if(mpath)
+        ppath = m_path+path;
+    else
+        ppath = path;
+
+    QDir dir(ppath);
+
+    if (!dir.exists()) {
+        qWarning() << "Directory does not exist:" << ppath;
+        return false;
+    }
+
+    // Recursively remove all files and subdirectories
+    const QFileInfoList files = dir.entryInfoList(QDir::NoDotAndDotDot | QDir::AllEntries);
+    for (const QFileInfo &info : files) {
+        if (info.isDir()) {
+            if (!removeDirectoryAndContains(info.absoluteFilePath()))
+                return false;
+        } else {
+            if (!QFile::remove(info.absoluteFilePath())) {
+                qWarning() << "Failed to remove file:" << info.absoluteFilePath();
+                return false;
+            }
+        }
+    }
+
+    // Remove the now-empty directory itself
+    if (!dir.rmdir(ppath)) {
+        qWarning() << "Failed to remove directory:" << ppath;
+        return false;
+    }
+
+    return true;
+}
+
+bool LocalFileManager::removeDirectoriesWithPrefix(const QString &prefix)
+{
+    QDir dir(m_path);
+
+    if (!dir.exists())
+    {
+        qWarning() << "Base directory does not exist:" << m_path;
+        return false;
+    }
+
+    const QFileInfoList entries = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
+    for (const QFileInfo &entry : entries)
+    {
+        QString dirName = entry.fileName();
+        if (dirName.startsWith(prefix))
+        {
+            if (!removeDirectoryAndContains(entry.absoluteFilePath(),false))
+            {
+                qWarning() << "Failed to remove directory with prefix:" << entry.absoluteFilePath();
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+bool LocalFileManager::renameDirectory(const QString &sourcePath, const QString &targetPath)
+{
+    QDir dir;
+
+    // Check if the source exists and is a directory
+    if (!dir.exists(m_path+sourcePath))
+    {
+        qWarning() << "Source directory does not exist:" << m_path+sourcePath;
+        return false;
+    }
+
+    // Check if the target already exists
+    if (dir.exists(m_path+targetPath)) {
+        qWarning() << "Target directory already exists:" << m_path+targetPath;
+        return false;
+    }
+
+    // Perform the rename
+    bool success = dir.rename(m_path+sourcePath, m_path+targetPath);
+    if (!success)
+    {
+        qWarning() << "Failed to rename directory from" << m_path+sourcePath << "to" << m_path+targetPath;
+    }
+
+    return success;
+}
+
 
 qint64 LocalFileManager::getFileSize(const QString &fileName)
 {

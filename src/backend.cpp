@@ -677,8 +677,18 @@ void Backend::removeDatabase(const QString &databaseName)
 
     if(allowedToRemove)
     {
-        QString filePath = m_dbPath +"/"+ databaseName;
-        allowedToRemove = removeFile(filePath);
+        allowedToRemove = localFileManager.removeFile(databaseName);
+        if(allowedToRemove)
+        {
+            //remove content of tabels on this database
+            if(localFileManager.removeDirectoriesWithPrefix(databaseName+"_"))
+            {
+                qInfo() <<"database contents removed fine";
+            }
+            else
+                qInfo() <<"failed to remove database contents";
+        }
+
     }
 
     emit databaseRemoveResult(allowedToRemove);
@@ -1547,28 +1557,6 @@ int Backend::countActivitiesOfDate(QDate &date)
     return 0;
 }
 
-bool Backend::removeFile(const QString &filepath)
-{
-    qDebug() << "filepath to remove: " << filepath;
-    if (QFile::exists(filepath))
-    {
-        if (QFile::remove(filepath))
-        {
-            qDebug() << "File removed successfully:" << filepath;
-            return true;
-        }
-        else
-        {
-            qWarning() << "Failed to remove file:" << filepath;
-        }
-    }
-    else
-    {
-        qDebug() << "File does not exist:" << filepath;
-    }
-    return false;
-}
-
 
 QList<QString> Backend::whatIsMostCompatible(const QMap<QString, QString>& wordText_Instruction)
 {
@@ -1915,6 +1903,13 @@ void Backend::deleteTable(const QString& tableName)
     if(status)
     {
         status = m_db.removeTable(tableName);
+
+        //remove content of table
+        bool removeDirStatus = localFileManager.removeDirectoryAndContains(whatIsCurrentDatabase()+"_"+tableName);
+        if(removeDirStatus)
+            qInfo() << "table data removed.";
+        else
+            qInfo() <<"failed to remove table data";
     }
 
     //delete table by sql
@@ -1954,7 +1949,16 @@ void Backend::renameTable(const QString &tableName, const QString &newName)
         result = "succeed to rename table";
         qResult = m_db.updateTableValue("user_tables","t_title",tableName,"t_title",newName);
         if(qResult)
+        {
             result += " and succeed to rename table on uesr_tables";
+            QString dbn = whatIsCurrentDatabase() + "_";
+            bool renameDirRes = localFileManager.renameDirectory(dbn+tableName,dbn+newName);
+            if(renameDirRes)
+                result += " and content directory renamed";
+            else
+                result += " and couldnt rename content directory";
+        }
+
         else
             result += " but failed to rename table on user_tables";
     }

@@ -84,13 +84,6 @@ class Backend : public QObject
     int countActivitiesOfDate(QDate& date);
 
 
-    bool removeFile(const QString& filepath);
-
-
-
-
-
-
 
 
     //crossword
