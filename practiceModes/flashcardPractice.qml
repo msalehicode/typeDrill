@@ -38,16 +38,6 @@ Page
     {
         id:practiceTimeCom
     }
-    SoundEffect
-    {
-        id: audio
-        volume: 1.0
-        onStatusChanged:
-        {
-            if (audio.status === SoundEffect.Ready)
-                playButton.setVisible=true
-        }
-    }
 
     Rectangle
     {
@@ -87,15 +77,13 @@ Page
                     setIconSource:  appIcons.icon_play
                     onButtonClicked:
                     {
-                        if(audio.playing)
+                        if(player.playing)
                         {
-                            audio.play()
-                            playButton.setIconSource= appIcons.icon_pause
+                            player.stop()
                         }
                         else
                         {
-                            audio.stop()
-                            playButton.setIconSource= appIcons.icon_play
+                            player.play()
                         }
                     }
                 }
@@ -435,6 +423,30 @@ Page
         }
     }
 
+
+    MediaPlayer
+    {
+        id: player
+        audioOutput: audioOut
+        onPlayingChanged:
+        {
+            if(player.playing)
+            {
+                playButton.setIconSource= appIcons.icon_play
+            }
+            else
+            {
+                playButton.setIconSource= appIcons.icon_pause
+            }
+        }
+    }
+
+    AudioOutput {
+        id: audioOut
+        volume: 1.0  // Max volume
+    }
+
+
     function modifyWordValue(data,key,value)
     {
         for (var i = 0; i < data.length; ++i)
@@ -549,7 +561,16 @@ Page
 
     function updateTextValues()
     {
+        //data setup
         var id = getValueByKey(currentWord,"id","id")
+        lblText.text=""+getValueByKey(currentWord,"text")
+        lblType.text="["+getValueByKey(currentWord,"type")+"]"
+        lblMeaning.text="Meaning:\n"+getValueByKey(currentWord,"meaning",)
+        lblExample.text="Example:\n"+getValueByKey(currentWord,"example")
+        isWordStared = getValueByKey(currentWord,"status")==="starred" ? true : false;
+        lblTranslate.text="\nTranslate:\n"+getValueByKey(currentWord,"translate")
+        currentWordId=id;
+
 
         //image setup
         var picPath = "file://"+contentPath+getValueByKey(currentWord,"picture");
@@ -558,22 +579,33 @@ Page
         if (picPath.split('.').pop().toLowerCase() === "gif")
             cardPicture.playing=true
 
+
         //audio setup
-        var audioPath = "file://"+contentPath+getValueByKey(currentWord,"audio");
-        audio.source = audioPath;
-        if(appSettings.autoPlayAudioOnPractice)
-            audio.play()
+        var audioName = getValueByKey(currentWord,"audio");
+        var audioPath = "file://"+contentPath+audioName;
+        if(audioName.length>1)
+        {
+            player.source = audioPath;
+            if(appSettings.autoPlayAudioOnPractice)
+                player.play()
+        }
+        else
+        {
+            if(appSettings.wheterLocalVoiceNotExistsGetFromTTS)
+            {
+                if(appSettings.saveTTSvoice)
+                {
+                    backend.googleTTS(lblText.text,currentWordId);
+                }
+                else
+                    console.log("just play from online TTS")
+            }
+            else
+                console.log("wheterLocalVoiceNotExistsGetFromTTS is off.");
+        }
 
 
 
-        //other data setup
-        lblText.text=""+getValueByKey(currentWord,"text")
-        lblType.text="["+getValueByKey(currentWord,"type")+"]"
-        lblMeaning.text="Meaning:\n"+getValueByKey(currentWord,"meaning",)
-        lblExample.text="Example:\n"+getValueByKey(currentWord,"example")
-        isWordStared = getValueByKey(currentWord,"status")==="starred" ? true : false;
-        lblTranslate.text="\nTranslate:\n"+getValueByKey(currentWord,"translate")
-        currentWordId=id;
     }
 
 
@@ -595,6 +627,22 @@ Page
                                            "timeSpent":practiceTimeCom.timerString,
                                            "practiceTypeId":appPracticeTypesList["flashcardPractice"]}
             practiceCore.quitMode()
+        }
+        function onTtsDone(result,fileName)
+        {
+            if(result)
+            {
+                player.source="file://"+contentPath+fileName;
+                if(appSettings.autoPlayAudioOnPractice)
+                    player.play()
+
+                playButton.setVisible=true
+            }
+            else
+            {
+                console.log("faild to load from tts")
+                playButton.setVisible=false
+            }
         }
     }
 

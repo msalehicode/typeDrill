@@ -48,4 +48,7 @@ void SettingsManager::initSettings()
 
     if (!settings.contains("saveTTSvoice"))
         settings.setValue("saveTTSvoice", "true");
+
+    if (!settings.contains("wheterLocalVoiceNotExistsGetFromTTS"))
+        settings.setValue("wheterLocalVoiceNotExistsGetFromTTS", "true");
 }

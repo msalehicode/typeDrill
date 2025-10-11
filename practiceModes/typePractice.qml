@@ -70,17 +70,14 @@ Page
                     setIconSource:  appIcons.icon_play
                     onButtonClicked:
                     {
-                        player.play()
-                        // if(audio.playing)
-                        // {
-                        //     audio.play()
-                        //     playButton.setIconSource= appIcons.icon_pause
-                        // }
-                        // else
-                        // {
-                        //     audio.stop()
-                        //     playButton.setIconSource= appIcons.icon_play
-                        // }
+                        if(player.playing)
+                        {
+                            player.stop()
+                        }
+                        else
+                        {
+                            player.play()
+                        }
                     }
                 }
                 CustomButtonWithIcon
@@ -339,23 +336,27 @@ Page
             }
         }
 
-        SoundEffect
-        {
-            id: audio
-            volume: 1.0
-            onStatusChanged:
-            {
-                if (audio.status === SoundEffect.Ready)
-                {
-                    playButton.setVisible=true
-                }
-            }
-        }
-
 
         MediaPlayer
         {
             id: player
+            audioOutput: audioOut
+            onPlayingChanged:
+            {
+                if(player.playing)
+                {
+                    playButton.setIconSource= appIcons.icon_play
+                }
+                else
+                {
+                    playButton.setIconSource= appIcons.icon_pause
+                }
+            }
+        }
+
+        AudioOutput {
+            id: audioOut
+            volume: 1.0  // Max volume
         }
 
 
@@ -414,7 +415,6 @@ Page
 
         backend.getWordNoInputCheck(practiceOnlyStarred?"starred":"all",
                                     true);
-
 
         if(totalWords<=0)
         {
@@ -487,21 +487,7 @@ Page
 
     function updateTextValues()
     {
-
-        //image setup
-        var picPath = "file://"+contentPath+getValueByKey(practiceData,"picture");
-        wordPicture.source= picPath;
-        //if picture is animated one play it
-        pictureIsAnimated = picPath.split('.').pop().toLowerCase()==="gif"? true : false
-
-
-        //audio setup
-        var audioPath = "file://"+contentPath+getValueByKey(practiceData,"audio");
-        audio.source = audioPath;
-        if(appSettings.autoPlayAudioOnPractice)
-            audio.play()
-
-        //other data setup
+        //practice data setup
         w_text.text=getValueByKey(practiceData,"text")
         w_type.text= "["+getValueByKey(practiceData,"type")+"]"
         w_meaning.text=getValueByKey(practiceData,"meaning")
@@ -511,9 +497,39 @@ Page
         isWordStared=getValueByKey(practiceData,"status")==="starred" ? true : false;
 
 
+        //image setup
+        var picPath = "file://"+contentPath+getValueByKey(practiceData,"picture");
+        wordPicture.source= picPath;
+        //if picture is animated one play it
+        pictureIsAnimated = picPath.split('.').pop().toLowerCase()==="gif"? true : false
 
-        //check for play/dl tts depend to settings
-        backend.googleTTS(w_text.text);
+
+        //audio setup
+        var audioName = getValueByKey(practiceData,"audio");
+        var audioPath = "file://"+contentPath+audioName;
+        if(audioName.length>1)
+        {
+            player.source = audioPath;
+            console.log("audiopath local found path=", audioPath)
+            if(appSettings.autoPlayAudioOnPractice)
+                player.play()
+        }
+        else
+        {
+            if(appSettings.wheterLocalVoiceNotExistsGetFromTTS)
+            {
+                if(appSettings.saveTTSvoice)
+                {
+                    backend.googleTTS(w_text.text,currentIndex);
+                }
+                else
+                    console.log("just play from online TTS")
+            }
+            else
+                console.log("wheterLocalVoiceNotExistsGetFromTTS is off.");
+        }
+
+
     }
 
 
@@ -541,17 +557,19 @@ Page
         }
         function onTtsDone(result,fileName)
         {
-            console.log("tts result=",result)
             if(result)
             {
                 player.source="file://"+contentPath+fileName;
-                console.log("playersource=",player.source)
-                player.play()
+                if(appSettings.autoPlayAudioOnPractice)
+                    player.play()
+
                 playButton.setVisible=true
             }
             else
+            {
+                console.log("faild to load from tts")
                 playButton.setVisible=false
-
+            }
         }
     }
 

@@ -149,7 +149,7 @@ public:
     Q_INVOKABLE void getNextWord(const QString& userText, const bool& isModified=false, const QString& status="");
 
 
-    Q_INVOKABLE void googleTTS(const QString& text);
+    Q_INVOKABLE void googleTTS(const QString& text, const QString &saveAs);
 
     Q_INVOKABLE bool setWordStatus(const int& wordId, QString status);
 

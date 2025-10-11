@@ -158,9 +158,10 @@ bool LocalFileManager::isFileExist(QString filename)
 bool LocalFileManager::isFileExist(QString fpath, QString filename)
 {
     fpath = fpath + filename;
-    QFile file(filename);
+    QFile file(fpath);
     if (file.exists())
         return true;
+
     return false;
 }
 

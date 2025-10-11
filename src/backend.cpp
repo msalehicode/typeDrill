@@ -161,19 +161,19 @@ void Backend::getNextWord(const QString &userText, const bool& isModified, const
     }
 }
 
-void Backend::googleTTS(const QString &text)
+void Backend::googleTTS(const QString &text,const QString& saveAs)
 {
     if(settings.getValue("saveTTSvoice").toString()=="true")
     {
-        QString fname = text+".mp3";
-        if(localFileManager.isFileExist(m_contentPath,fname))
+        if(localFileManager.isFileExist(m_contentPath,saveAs+".mp3"))
         {
             qInfo()<< "voice exists, no need to load from googleTTS";
-            emit ttsDone(true,fname);
+            emit ttsDone(true,saveAs+".mp3");
         }
         else
         {
-            gtts.downloadTTS(text,m_contentPath,text);
+            qInfo () <<"voice not exists lets get from google tts";
+            gtts.downloadTTS(text,m_contentPath,saveAs);
             connect(&gtts, &GoogleTTS::ttsResult, this, &Backend::onTTSResult);
         }
     }
@@ -198,9 +198,6 @@ bool Backend::setWordStatus(const int &wordId, QString status)
 
 void Backend::getWordNoInputCheck(const QString& status,const bool& isForward)
 {
-    qInfo() << "status=" << status;
-    qInfo() << "Before logic, previousId size:" << previousId.size();
-
     if(isForward)
     {
         if(status!="all")

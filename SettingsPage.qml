@@ -138,77 +138,118 @@ Page
                 Item
                 {
                     width:parent.width/2
-                    height:50
+                    height:200
                     anchors.horizontalCenter: parent.horizontalCenter
-                    Row
+
+                    Column
                     {
                         width:parent.width
-                        height:parent.height
-                        spacing:5
-                        Label
+                        height: parent.height
+                        spacing: 5
+                        Row
                         {
-                            text:"auto play audio\n on practice:"
-                            color:appColors.c_fontcolor
-                            font.pixelSize: appFontSizes.f_normal
-                        }
-                        CustomSwitch
-                        {
-                            setWidth:50
-                            setHeight:30
-                            setBgColorActivated: appColors.c_buttonBgColor
-                            switchStatus:appSettings.autoPlayAudioOnPractice
-                            // setStatusBorder:false;
-                            onSwitchClicked:
+                            width:parent.width
+                            height:50
+                            spacing:5
+                            Label
                             {
-                                 if(switchStatus)
-                                 {
-                                    appSettings.autoPlayAudioOnPractice=true
-                                    backend.setSetting("autoPlayAudioOnPractice","true");
-                                 }
-                                 else
-                                 {
-                                    appSettings.autoPlayAudioOnPractice=false
-                                    backend.setSetting("autoPlayAudioOnPractice","false");
-                                 }
+                                text:"auto play audio\n on practice:"
+                                color:appColors.c_fontcolor
+                                font.pixelSize: appFontSizes.f_normal
+                            }
+                            CustomSwitch
+                            {
+                                setWidth:50
+                                setHeight:30
+                                setBgColorActivated: appColors.c_buttonBgColor
+                                switchStatus:appSettings.autoPlayAudioOnPractice
+                                // setStatusBorder:false;
+                                onSwitchClicked:
+                                {
+                                     if(switchStatus)
+                                     {
+                                        appSettings.autoPlayAudioOnPractice=true
+                                        backend.setSetting("autoPlayAudioOnPractice","true");
+                                     }
+                                     else
+                                     {
+                                        appSettings.autoPlayAudioOnPractice=false
+                                        backend.setSetting("autoPlayAudioOnPractice","false");
+                                     }
+                                }
                             }
                         }
-                    }
 
-
-
-                    Row
-                    {
-                        width:parent.width
-                        height:parent.height
-                        spacing:5
-                        Label
+                        Row
                         {
-                            text:"save Text To Speech:"
-                            color:appColors.c_fontcolor
-                            font.pixelSize: appFontSizes.f_normal
-                        }
-                        CustomSwitch
-                        {
-                            setWidth:50
-                            setHeight:30
-                            setBgColorActivated: appColors.c_buttonBgColor
-                            switchStatus:appSettings.saveTTSvoice
-                            // setStatusBorder:false;
-                            onSwitchClicked:
+                            width:parent.width
+                            height:50
+                            spacing:5
+                            Label
                             {
-                                 if(switchStatus)
-                                 {
-                                    appSettings.saveTTSvoice=true
-                                    backend.setSetting("saveTTSvoice","true");
-                                 }
-                                 else
-                                 {
-                                    appSettings.saveTTSvoice=false
-                                    backend.setSetting("saveTTSvoice","false");
-                                 }
+                                text:"wheter local voice not exists\nget from online TTS"
+                                color:appColors.c_fontcolor
+                                font.pixelSize: appFontSizes.f_normal
+                            }
+                            CustomSwitch
+                            {
+                                setWidth:50
+                                setHeight:30
+                                setBgColorActivated: appColors.c_buttonBgColor
+                                switchStatus:appSettings.wheterLocalVoiceNotExistsGetFromTTS
+                                // setStatusBorder:false;
+                                onSwitchClicked:
+                                {
+                                     if(switchStatus)
+                                     {
+                                        appSettings.wheterLocalVoiceNotExistsGetFromTTS=true
+                                        backend.setSetting("wheterLocalVoiceNotExistsGetFromTTS","true");
+                                     }
+                                     else
+                                     {
+                                        appSettings.wheterLocalVoiceNotExistsGetFromTTS=false
+                                        backend.setSetting("wheterLocalVoiceNotExistsGetFromTTS","false");
+                                     }
+                                }
                             }
                         }
+
+                        Row
+                        {
+                            width:parent.width
+                            height:50
+                            spacing:5
+                            Label
+                            {
+                                text:"save Text To Speech:"
+                                color:appColors.c_fontcolor
+                                font.pixelSize: appFontSizes.f_normal
+                            }
+                            CustomSwitch
+                            {
+                                setWidth:50
+                                setHeight:30
+                                setBgColorActivated: appColors.c_buttonBgColor
+                                switchStatus:appSettings.saveTTSvoice
+                                // setStatusBorder:false;
+                                onSwitchClicked:
+                                {
+                                     if(switchStatus)
+                                     {
+                                        appSettings.saveTTSvoice=true
+                                        backend.setSetting("saveTTSvoice","true");
+                                     }
+                                     else
+                                     {
+                                        appSettings.saveTTSvoice=false
+                                        backend.setSetting("saveTTSvoice","false");
+                                     }
+                                }
+                            }
+                        }
+
                     }
+
 
                 }
 

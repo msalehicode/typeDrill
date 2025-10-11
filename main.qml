@@ -139,6 +139,7 @@ Window
         id:appSettings;
         property bool autoPlayAudioOnPractice:true;
         property bool saveTTSvoice:true;
+        property bool wheterLocalVoiceNotExistsGetFromTTS:true;
     }
     
     QtObject
@@ -499,5 +500,6 @@ Window
         //get settings
         appSettings.autoPlayAudioOnPractice = backend.getSetting("autoPlayAudioOnPractice")==="true" ? true : false;
         appSettings.saveTTSvoice = backend.getSetting("saveTTSvoice")==="true" ? true : false;
+        appSettings.wheterLocalVoiceNotExistsGetFromTTS = backend.getSetting("wheterLocalVoiceNotExistsGetFromTTS")==="true" ? true : false;
     }
 }
