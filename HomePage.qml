@@ -423,6 +423,7 @@ Page
                                     mainStackView.push("PracticePage.qml",
                                                        {
                                                            tableType: modelData.t_type,
+                                                           tableId: modelData.t_id,
                                                            m_stackView: mainStackView
                                                        });
 

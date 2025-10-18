@@ -161,6 +161,7 @@ void Backend::getNextWord(const QString &userText, const bool& isModified, const
     }
 }
 
+
 void Backend::googleTTS(const QString &text,const QString& saveAs)
 {
     if(settings.getValue("saveTTSvoice").toString()=="true")

@@ -66,6 +66,7 @@ qt_add_qml_module(appTypeDrill
         practiceModes/flashcardPractice.qml
         practiceModes/typePractice.qml
         practiceModes/crosswordPractice.qml
+        practiceModes/typePracticeCustomTable.qml
 
         # components
         CustomComponents/qmldir

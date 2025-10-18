@@ -10,6 +10,7 @@ Page
 
     //fill up outside/before pushing to mainStackView
     property string tableType: "none"
+    property int tableId:-1
 
 
     //each practice can fill these values to report their result
@@ -118,7 +119,7 @@ Page
                 setRadius: 20
                 setWidth: parent.width
                 setVisible: tableType==="word"
-                setHeight:50
+                setHeight: tableType==="word" ? 50 : 0
                 anchors.horizontalCenter: parent.horizontalCenter
                 onButtonClicked:
                 {
@@ -138,7 +139,7 @@ Page
                 setRadius: 20
                 setWidth: parent.width
                 setVisible: tableType==="word"
-                setHeight:50
+                setHeight: tableType==="word" ? 50 : 0
                 anchors.horizontalCenter: parent.horizontalCenter
                 onButtonClicked:
                 {
@@ -163,7 +164,7 @@ Page
                 setRadius: 20
                 setWidth: parent.width
                 setVisible: tableType==="word"
-                setHeight:50
+                setHeight: tableType==="word" ? 50 : 0
                 anchors.horizontalCenter: parent.horizontalCenter
                 onButtonClicked:
                 {
@@ -184,7 +185,7 @@ Page
                 setRadius: 20
                 setWidth: parent.width
                 setVisible: tableType==="word"
-                setHeight:50
+                setHeight: tableType==="word" ? 50 : 0
                 anchors.horizontalCenter: parent.horizontalCenter
                 onButtonClicked:
                 {
@@ -209,12 +210,33 @@ Page
                 setRadius: 20
                 setWidth: parent.width
                 setVisible: tableType==="word"
-                setHeight:50
+                setHeight: tableType==="word" ? 50 : 0
                 anchors.horizontalCenter: parent.horizontalCenter
                 onButtonClicked:
                 {
                     joinMode("practiceModes/crosswordPractice.qml");
                     headerText.text = "Crossword Practice"
+                }
+            }
+
+            CustomButton
+            {
+                setButtonText:"type practice customTable"
+                setButtonBorderColor:appColors.c_buttonBorderColor
+                setButtonBackColor: appColors.c_buttonBgColor
+                setButtonFontColor: appColors.c_buttonFontColor
+                setBold: true
+                setButtonFontsize: appFontSizes.f_buttonFontSize
+                setButtonsBorderWidth: 0
+                setRadius: 20
+                setWidth: parent.width
+                setVisible: tableType==="customTable"
+                setHeight: tableType==="customTable" ? 50 : 0
+                anchors.horizontalCenter: parent.horizontalCenter
+                onButtonClicked:
+                {
+                    joinMode("practiceModes/typePracticeCustomTable.qml", {selectedTableId:tableId});
+                    headerText.text = "Type Practice CustomTable"
                 }
             }
         }
