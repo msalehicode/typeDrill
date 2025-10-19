@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import "../CustomComponents"
 import QtMultimedia
+import "../interfaceScripts.js" as IFS
 
 Page
 {
@@ -119,7 +120,7 @@ Page
                     setTextMagin: 5
                     setIconHeight: 25
                     setIconWidth: 25
-                    setIconSource:  appIcons.icon_modify
+                    setIconSource:  appIcons.icon_eye
                     onButtonClicked:
                     {
                         popupMessage.open()
@@ -278,12 +279,15 @@ Page
                 setHeightBox: 25
                 setCheckBoxText:"Only Starred?"
                 setBoxBorderWidth:3
-                // anchors.horizontalCenter: parent.horizontalCenter
                 setBoxIconSource: appIcons.icon_check
                 setStatus: practiceOnlyStarred
                 onButtonClicked:
                 {
                     practiceOnlyStarred=setStatus
+                    if(practiceOnlyStarred)
+                        maxIndex = backend.getCountOfWordsStatusTable("starred")*tableHeaders.length;
+                    else
+                        maxIndex = backend.getMaxIdWordTable();
                 }
             }
 
@@ -301,14 +305,13 @@ Page
                 setHeightBox: 25
                 setCheckBoxText:"Blur Item?"
                 setBoxBorderWidth:3
-                // anchors.horizontalCenter: parent.horizontalCenter
                 setBoxIconSource: appIcons.icon_check
                 setStatus: blurSomeCharectersOfItem
                 onButtonClicked:
                 {
                     blurSomeCharectersOfItem=setStatus
                     if(blurSomeCharectersOfItem)
-                        w_text.text= blurRandomChars(tableItems[currentTypingItem],blurFraction)
+                        w_text.text= IFS.blurRandomChars(tableItems[currentTypingItem],blurFraction)
                     else
                         w_text.text= tableItems[currentTypingItem]
                 }
@@ -327,7 +330,6 @@ Page
                 setHeightBox: 25
                 setCheckBoxText:"Show Header?"
                 setBoxBorderWidth:3
-                // anchors.horizontalCenter: parent.horizontalCenter
                 setBoxIconSource: appIcons.icon_check
                 setStatus: showHeader
                 onButtonClicked:
@@ -349,7 +351,6 @@ Page
                 setHeightBox: 25
                 setCheckBoxText:"Show Item?"
                 setBoxBorderWidth:3
-                // anchors.horizontalCenter: parent.horizontalCenter
                 setBoxIconSource: appIcons.icon_check
                 setStatus: showItem
                 onButtonClicked:
@@ -371,7 +372,6 @@ Page
                 setHeightBox: 25
                 setCheckBoxText:"Show Translate?"
                 setBoxBorderWidth:3
-                // anchors.horizontalCenter: parent.horizontalCenter
                 setBoxIconSource: appIcons.icon_check
                 setStatus: showTranslate
                 onButtonClicked:
@@ -393,7 +393,6 @@ Page
                 setHeightBox: 25
                 setCheckBoxText:"Show index?"
                 setBoxBorderWidth:3
-                // anchors.horizontalCenter: parent.horizontalCenter
                 setBoxIconSource: appIcons.icon_check
                 setStatus: showIndex
                 onButtonClicked:
@@ -416,10 +415,6 @@ Page
                 setErrorPosfix: ""
                 setErrorPrefix: ""
                 setTitleText:"postfix index:"
-                // anchors
-                // {
-                //     horizontalCenter:parent.horizontalCenter
-                // }
                 onTheTextAccepted:
                 {
                     postfixIndex=theText
@@ -503,7 +498,7 @@ Page
         //get count words
         var totalWords;
         if(practiceOnlyStarred)
-            totalWords = backend.getCountOfWordsStatusTable("starred");
+            totalWords = backend.getCountOfWordsStatusTable("starred")*tableHeaders.length;
         else
             totalWords = backend.getMaxIdWordTable();
 
@@ -520,61 +515,14 @@ Page
             maxIndex = totalWords
     }
 
-    function getValueByKey(dataList, firstKey)
-    {
-        if (!dataList || dataList.length === 0)
-            return "";
-
-        for (var i = 0; i < dataList.length; ++i)
-        {
-            var row = dataList[i];
-            if (firstKey in row)
-                return row[firstKey];
-        }
-        return "";
-    }
-    function blurRandomChars(input, fractionStr) {
-        if (!input || input.length === 0) return ""
-
-        // Parse the fraction like "1/2" → numerator: 1, denominator: 2
-        var parts = fractionStr.split("/")
-        var numerator = parseInt(parts[0])
-        var denominator = parseInt(parts[1])
-
-        if (isNaN(numerator) || isNaN(denominator) || denominator === 0) {
-            console.warn("Invalid fraction:", fractionStr)
-            return input
-        }
-
-        // Calculate how many characters to blur
-        var blurCount = Math.ceil(input.length * (numerator / denominator))
-
-        var chars = input.split("")
-        var indices = []
-
-        while (indices.length < blurCount && indices.length < input.length) {
-            var randIndex = Math.floor(Math.random() * input.length)
-            if (!indices.includes(randIndex)) {
-                indices.push(randIndex)
-            }
-        }
-
-        for (var i = 0; i < indices.length; i++) {
-            chars[indices[i]] = "*"
-        }
-
-        return chars.join("")
-    }
-
-
 
     function updateTextValues()
     {
         //practice data setup
-        currentIndex=getValueByKey(practiceData,"id")
+        currentIndex=IFS.getValueByKey(practiceData,"id")
         for(var i=0; i<=9; i++)
         {
-            var value=getValueByKey(practiceData,"item"+(i+1))
+            var value=IFS.getValueByKey(practiceData,"item"+(i+1))
 
             if(i<tableHeaders.length)
             {
@@ -596,9 +544,9 @@ Page
         var prefix = showIndex ? ""+(currentIndex+indexIncrease) + ""+postfixIndex : ""
         w_header.text = prefix + tableHeaders[currentTypingItem]
 
-        w_translate.text=getValueByKey(practiceData,"translate")
+        w_translate.text=IFS.getValueByKey(practiceData,"translate")
 
-        isWordStared=getValueByKey(practiceData,"status")==="starred" ? true : false;
+        isWordStared=IFS.getValueByKey(practiceData,"status")==="starred" ? true : false;
     }
 
 
@@ -617,7 +565,7 @@ Page
             tableItems=[]
 
             practiceData=word
-            console.log("onWordReady =", JSON.stringify(practiceData));
+            // console.log("onWordReady =", JSON.stringify(practiceData));
 
             updateTextValues()
 
@@ -642,7 +590,7 @@ Page
                     return item.trim() !== ""
                 })
 
-                console.log("Table headers:", tableHeaders)
+                // console.log("Table headers:", tableHeaders)
             }
             else
             {
@@ -650,7 +598,7 @@ Page
 
             }
 
-            console.log("get customtable header reuslt= ", result)
+            // console.log("get customtable header reuslt= ", result)
         }
     }
 

@@ -107,100 +107,110 @@ Page
             height:parent.height/2
             anchors.centerIn: parent
             spacing:25
-            CustomButton
+            Row
             {
-                setButtonText:"type practice"
-                setButtonBorderColor:appColors.c_buttonBorderColor
-                setButtonBackColor: appColors.c_buttonBgColor
-                setButtonFontColor: appColors.c_buttonFontColor
-                setBold: true
-                setButtonFontsize: appFontSizes.f_buttonFontSize
-                setButtonsBorderWidth: 0
-                setRadius: 20
-                setWidth: parent.width
-                setVisible: tableType==="word"
-                setHeight: tableType==="word" ? 50 : 0
-                anchors.horizontalCenter: parent.horizontalCenter
-                onButtonClicked:
+                width:parent.width
+                height: tableType==="word"? 50 : 0
+                visible: tableType==="word"
+                spacing: 10
+                CustomButton
                 {
-                    joinMode("practiceModes/typePractice.qml", {practiceMode: tableType});
-                    headerText.text = "Type Practice"
+                    setButtonText:"Type Practice"
+                    setButtonBorderColor:appColors.c_buttonBorderColor
+                    setButtonBackColor: appColors.c_buttonBgColor
+                    setButtonFontColor: appColors.c_buttonFontColor
+                    setBold: true
+                    setButtonFontsize: appFontSizes.f_buttonFontSize
+                    setButtonsBorderWidth: 0
+                    setRadius: 20
+                    setWidth: parent.width-70
+                    setHeight: parent.height
+                    onButtonClicked:
+                    {
+                        joinMode("practiceModes/typePractice.qml", {practiceMode: tableType});
+                        headerText.text = "Type Practice"
+                    }
                 }
+                CustomButton
+                {
+                    setButtonText:"only ⭐"
+                    setButtonBorderColor:appColors.c_buttonBorderColor
+                    setButtonBackColor: appColors.c_buttonBgColor
+                    setButtonFontColor: appColors.c_buttonFontColor
+                    setBold: true
+                    setButtonFontsize: appFontSizes.f_buttonFontSize
+                    setButtonsBorderWidth: 0
+                    setRadius: 20
+                    setWidth: 50
+                    setHeight:parent.height
+                    onButtonClicked:
+                    {
+                        joinMode("practiceModes/typePractice.qml",
+                                 {
+                                     practiceMode: tableType,
+                                     practiceOnlyStarred: true
+                                 });
+                        headerText.text = "Type Practice only starred words"
+                    }
+                }
+
             }
-            CustomButton
+
+
+            Row
             {
-                setButtonText:"type practice only ⭐"
-                setButtonBorderColor:appColors.c_buttonBorderColor
-                setButtonBackColor: appColors.c_buttonBgColor
-                setButtonFontColor: appColors.c_buttonFontColor
-                setBold: true
-                setButtonFontsize: appFontSizes.f_buttonFontSize
-                setButtonsBorderWidth: 0
-                setRadius: 20
-                setWidth: parent.width
-                setVisible: tableType==="word"
-                setHeight: tableType==="word" ? 50 : 0
-                anchors.horizontalCenter: parent.horizontalCenter
-                onButtonClicked:
+                width:parent.width
+                height: tableType==="word"? 50 : 0
+                visible: tableType==="word"
+                spacing: 10
+                CustomButton
                 {
-                    joinMode("practiceModes/typePractice.qml",
-                             {
-                                 practiceMode: tableType,
-                                 practiceOnlyStarred: true
-                             });
-                    headerText.text = "Type Practice only starred words"
+                    setButtonText:"Flashcard Practice"
+                    setButtonBorderColor:appColors.c_buttonBorderColor
+                    setButtonBackColor: appColors.c_buttonBgColor
+                    setButtonFontColor: appColors.c_buttonFontColor
+                    setBold: true
+                    setButtonFontsize: appFontSizes.f_buttonFontSize
+                    setButtonsBorderWidth: 0
+                    setRadius: 20
+                    setWidth: parent.width-70
+                    setHeight:parent.height
+                    onButtonClicked:
+                    {
+                        joinMode("practiceModes/flashcardPractice.qml", {practiceMode: tableType});
+                        headerText.text = "Flashcard Practice"
+                    }
                 }
+                CustomButton
+                {
+                    setButtonText:"only ⭐"
+                    setButtonBorderColor:appColors.c_buttonBorderColor
+                    setButtonBackColor: appColors.c_buttonBgColor
+                    setButtonFontColor: appColors.c_buttonFontColor
+                    setBold: true
+                    setButtonFontsize: appFontSizes.f_buttonFontSize
+                    setButtonsBorderWidth: 0
+                    setRadius: 20
+                    setWidth: 50
+                    setHeight:parent.height
+                    onButtonClicked:
+                    {
+                        joinMode("practiceModes/flashcardPractice.qml",
+                                 {
+                                     practiceMode: tableType,
+                                     practiceOnlyStarred: true
+                                 });
+                        headerText.text = "Flashcard Practice only starred words"
+                    }
+                }
+
             }
+
+
 
             CustomButton
             {
-                setButtonText:"flashcard practice"
-                setButtonBorderColor:appColors.c_buttonBorderColor
-                setButtonBackColor: appColors.c_buttonBgColor
-                setButtonFontColor: appColors.c_buttonFontColor
-                setBold: true
-                setButtonFontsize: appFontSizes.f_buttonFontSize
-                setButtonsBorderWidth: 0
-                setRadius: 20
-                setWidth: parent.width
-                setVisible: tableType==="word"
-                setHeight: tableType==="word" ? 50 : 0
-                anchors.horizontalCenter: parent.horizontalCenter
-                onButtonClicked:
-                {
-                    joinMode("practiceModes/flashcardPractice.qml", {practiceMode: tableType});
-                    headerText.text = "Flashcard Practice"
-                }
-            }
-
-            CustomButton
-            {
-                setButtonText:"flashcard practice only ⭐"
-                setButtonBorderColor:appColors.c_buttonBorderColor
-                setButtonBackColor: appColors.c_buttonBgColor
-                setButtonFontColor: appColors.c_buttonFontColor
-                setBold: true
-                setButtonFontsize: appFontSizes.f_buttonFontSize
-                setButtonsBorderWidth: 0
-                setRadius: 20
-                setWidth: parent.width
-                setVisible: tableType==="word"
-                setHeight: tableType==="word" ? 50 : 0
-                anchors.horizontalCenter: parent.horizontalCenter
-                onButtonClicked:
-                {
-                    joinMode("practiceModes/flashcardPractice.qml",
-                             {
-                                 practiceMode: tableType,
-                                 practiceOnlyStarred: true
-                             });
-                    headerText.text = "Flashcard Practice only starred words"
-                }
-            }
-
-            CustomButton
-            {
-                setButtonText:"crossword practice"
+                setButtonText:"Crossword Practice"
                 setButtonBorderColor:appColors.c_buttonBorderColor
                 setButtonBackColor: appColors.c_buttonBgColor
                 setButtonFontColor: appColors.c_buttonFontColor
@@ -221,7 +231,7 @@ Page
 
             CustomButton
             {
-                setButtonText:"type practice customTable"
+                setButtonText:"Type Practice"
                 setButtonBorderColor:appColors.c_buttonBorderColor
                 setButtonBackColor: appColors.c_buttonBgColor
                 setButtonFontColor: appColors.c_buttonFontColor

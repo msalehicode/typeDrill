@@ -3,6 +3,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import "../CustomComponents"
 import QtMultimedia
+import "../interfaceScripts.js" as IFS
 
 Page
 {
@@ -107,7 +108,7 @@ Page
                         if(backend.setWordStatus(currentWordId, newStatus))
                         {
                             isWordStared = !isWordStared;
-                            modifyWordValue(currentWord,"status",newStatus)
+                            IFS.modifyWordValue(currentWord,"status",newStatus)
                         }
                     }
                 }
@@ -447,16 +448,6 @@ Page
     }
 
 
-    function modifyWordValue(data,key,value)
-    {
-        for (var i = 0; i < data.length; ++i)
-        {
-            var row = data[i];
-            if (key in row)
-                row[key]=value;
-        }
-    }
-
     function doTiltAnimation(val)
     {
         if (!tiltAnimation.running)
@@ -545,35 +536,23 @@ Page
         }*/
         practiceTimeCom.resumeTimer()
     }
-    function getValueByKey(dataList, firstKey)
-    {
-        if (!dataList || dataList.length === 0)
-            return "";
 
-        for (var i = 0; i < dataList.length; ++i)
-        {
-            var row = dataList[i];
-            if (firstKey in row)
-                return row[firstKey];
-        }
-        return "";
-    }
 
     function updateTextValues()
     {
         //data setup
-        var id = getValueByKey(currentWord,"id","id")
-        lblText.text=""+getValueByKey(currentWord,"text")
-        lblType.text="["+getValueByKey(currentWord,"type")+"]"
-        lblMeaning.text="Meaning:\n"+getValueByKey(currentWord,"meaning",)
-        lblExample.text="Example:\n"+getValueByKey(currentWord,"example")
-        isWordStared = getValueByKey(currentWord,"status")==="starred" ? true : false;
-        lblTranslate.text="\nTranslate:\n"+getValueByKey(currentWord,"translate")
+        var id = IFS.getValueByKey(currentWord,"id","id")
+        lblText.text=""+IFS.getValueByKey(currentWord,"text")
+        lblType.text="["+IFS.getValueByKey(currentWord,"type")+"]"
+        lblMeaning.text="Meaning:\n"+IFS.getValueByKey(currentWord,"meaning",)
+        lblExample.text="Example:\n"+IFS.getValueByKey(currentWord,"example")
+        isWordStared = IFS.getValueByKey(currentWord,"status")==="starred" ? true : false;
+        lblTranslate.text="\nTranslate:\n"+IFS.getValueByKey(currentWord,"translate")
         currentWordId=id;
 
 
         //image setup
-        var picPath = "file://"+contentPath+getValueByKey(currentWord,"picture");
+        var picPath = "file://"+contentPath+IFS.getValueByKey(currentWord,"picture");
         cardPicture.source= picPath;
         //if picture is animated one play it
         if (picPath.split('.').pop().toLowerCase() === "gif")
@@ -581,7 +560,7 @@ Page
 
 
         //audio setup
-        var audioName = getValueByKey(currentWord,"audio");
+        var audioName = IFS.getValueByKey(currentWord,"audio");
         var audioPath = "file://"+contentPath+audioName;
         if(audioName.length>1)
         {

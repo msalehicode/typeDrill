@@ -116,6 +116,7 @@ qt_add_qml_module(appTypeDrill
         resourses/lightMode/50x50/arrow.png resourses/darkMode/50x50/arrow.png
         resourses/lightMode/50x50/zoomin.png resourses/darkMode/50x50/zoomin.png
         resourses/lightMode/50x50/zoomout.png resourses/darkMode/50x50/zoomout.png
+        QML_FILES interfaceScripts.js
 
 
 )

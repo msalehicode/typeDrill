@@ -2,21 +2,36 @@ import QtQuick
 import QtQuick.Controls
 import "../CustomComponents"
 import QtMultimedia
+import "../interfaceScripts.js" as IFS
 
 Page
 {
     id:typePracticeCore
     //this will set from parent before start.
     property string practiceMode: "none" //word
+
+
+    //settings
     property bool practiceOnlyStarred:false
+    property bool showTranslate:true
+    property bool blurSomeCharectersOfItem:false
+    property string blurFraction: "1/2"
+    property bool showType:true;
+    property bool showItem:true;
+    property bool showExample:true
+    property bool showMeaning:true
+    property bool showImage:true
+    property real voiceVolume:1.0
+    property bool autoPlayVoice:appSettings.autoPlayAudioOnPractice
 
 
-    //a flag to hide meaining/example/... except word
-    property bool hideAllExceptFirstItem: false;
+
+
+
 
     property int mistakesCounter: 0;
     property int currentIndex: 0;
-    property int currentWordCount: 0 //for modes like practiceOnlyStarred (word id will be random so need a logical number for processbar)
+    property int currentWordCount: -1 //for modes like practiceOnlyStarred (word id will be random so need a logical number for processbar)
     property int maxIndex: 100;
 
 
@@ -99,7 +114,7 @@ Page
                         if(backend.setWordStatus(currentIndex, newStatus))
                         {
                             isWordStared = !isWordStared;
-                            modifyWordValue(practiceData,"status",newStatus)
+                            IFS.modifyWordValue(practiceData,"status",newStatus)
                         }
 
 
@@ -123,7 +138,7 @@ Page
 
                 CustomButtonWithIcon
                 {
-                    id:hideAllExceptFirstItemButton
+                    id:openLocalSettings
                     setWidth:30
                     setHeight:30
                     setButtonText:"";
@@ -133,10 +148,10 @@ Page
                     setTextMagin: 5
                     setIconHeight: 25
                     setIconWidth: 25
-                    setIconSource: hideAllExceptFirstItem ? appIcons.icon_hide : appIcons.icon_eye
+                    setIconSource:appIcons.icon_eye
                     onButtonClicked:
                     {
-                        hideAllExceptFirstItem = !hideAllExceptFirstItem;
+                        popupMessage.open()
                     }
                 }
 
@@ -166,6 +181,7 @@ Page
                 width:150
                 height:150
                 playing: pictureIsAnimated;
+                visible: showImage
                 anchors.horizontalCenter: parent.horizontalCenter
                 onStatusChanged:
                 {
@@ -187,6 +203,7 @@ Page
                 font.pixelSize:appFontSizes.f_title
                 font.bold: true
                 color:appColors.c_fontcolor
+                visible: showItem
                 wrapMode: Text.WordWrap
                 horizontalAlignment: Text.AlignHCenter
             }
@@ -201,10 +218,10 @@ Page
                 Text
                 {
                     id:w_type
-                    text:"[type]"
+                    text:""
                     width: parent.width
                     height:implicitHeight
-                    visible: hideAllExceptFirstItem ? false : text.length>0 ? true : false;
+                    visible: showType
                     font.pixelSize:appFontSizes.f_normal
                     color:appColors.c_fontcolor
                     horizontalAlignment: Text.AlignHCenter
@@ -216,7 +233,7 @@ Page
                     text:""
                     width: parent.width
                     height:implicitHeight
-                    visible: hideAllExceptFirstItem ? false : text.length>0 ? true : false;
+                    visible: showMeaning
                     font.pixelSize:appFontSizes.f_large
                     color:appColors.c_fontcolor
                     horizontalAlignment: Text.AlignHCenter
@@ -226,7 +243,7 @@ Page
                 {
                     id:w_example
                     text:""
-                    visible: hideAllExceptFirstItem ? false : text.length>0 ? true : false;
+                    visible: showExample
                     width: parent.width
                     height: implicitHeight
                     font.pixelSize:appFontSizes.f_large
@@ -239,7 +256,7 @@ Page
                 {
                     id:w_translate
                     text:""
-                    visible: hideAllExceptFirstItem ? false : text.length>0 ? true : false;
+                    visible: showTranslate
                     width: parent.width
                     height: implicitHeight
                     font.pixelSize:appFontSizes.f_large
@@ -356,12 +373,259 @@ Page
 
         AudioOutput {
             id: audioOut
-            volume: 1.0  // Max volume
+            volume: voiceVolume
         }
 
 
 
 
+    }
+
+
+    CustomPopupMessage
+    {
+        id:popupMessage
+        setDefaultText: ""
+        setFailColor: appColors.c_bgPopupContentFailed
+        setSuccessColor:appColors.c_bgPopupContentSuccess
+        setBgContent: appColors.c_bgPopupContentDefault
+        setTextFontSize: appFontSizes.f_normal
+        setTextColor:  appColors.c_fontcolor
+        setBgColorPopup: appColors.c_background
+        setBgOpacityPopup: 0.5
+        setWidth: parent.width/1.50
+        setHeight: 550
+        Column
+        {
+            anchors.fill: parent
+            spacing:5
+            CustomCheckBox
+            {
+                setWidth: parent.width/2
+                setHeight: 50
+                setBoxCheckedBorderColor:appColors.c_buttonBgColor
+                setBoxUncheckedBorderColor:appColors.c_buttonBgColor
+                setBoxCheckedBackColor:appColors.c_buttonBgColor
+                setCheckBoxFontColor:appColors.c_fontcolor
+                setCheckBoxFontsize:appFontSizes.f_normal
+                setBold:true
+                setWidthBox:25
+                setHeightBox: 25
+                setCheckBoxText:"Only Starred?"
+                setBoxBorderWidth:3
+                setBoxIconSource: appIcons.icon_check
+                setStatus: practiceOnlyStarred
+                onButtonClicked:
+                {
+                    practiceOnlyStarred=setStatus
+                    if(practiceOnlyStarred)
+                        maxIndex = backend.getCountOfWordsStatusTable("starred");
+                    else
+                        maxIndex = backend.getMaxIdWordTable();
+                }
+            }
+
+            CustomCheckBox
+            {
+                setWidth: parent.width/2
+                setHeight: 50
+                setBoxCheckedBorderColor:appColors.c_buttonBgColor
+                setBoxUncheckedBorderColor:appColors.c_buttonBgColor
+                setBoxCheckedBackColor:appColors.c_buttonBgColor
+                setCheckBoxFontColor:appColors.c_fontcolor
+                setCheckBoxFontsize:appFontSizes.f_normal
+                setBold:true
+                setWidthBox:25
+                setHeightBox: 25
+                setCheckBoxText:"Blur Item?"
+                setBoxBorderWidth:3
+                // anchors.horizontalCenter: parent.horizontalCenter
+                setBoxIconSource: appIcons.icon_check
+                setStatus: blurSomeCharectersOfItem
+                onButtonClicked:
+                {
+                    blurSomeCharectersOfItem=setStatus
+                    if(blurSomeCharectersOfItem)
+                        w_text.text= IFS.blurRandomChars(IFS.getValueByKey(practiceData,"text"),blurFraction)
+
+                    else
+                        w_text.text= IFS.getValueByKey(practiceData,"text")
+                }
+            }
+            CustomCheckBox
+            {
+                setWidth: parent.width/2
+                setHeight: 50
+                setBoxCheckedBorderColor:appColors.c_buttonBgColor
+                setBoxUncheckedBorderColor:appColors.c_buttonBgColor
+                setBoxCheckedBackColor:appColors.c_buttonBgColor
+                setCheckBoxFontColor:appColors.c_fontcolor
+                setCheckBoxFontsize:appFontSizes.f_normal
+                setBold:true
+                setWidthBox:25
+                setHeightBox: 25
+                setCheckBoxText:"Show Type? [v].."
+                setBoxBorderWidth:3
+                // anchors.horizontalCenter: parent.horizontalCenter
+                setBoxIconSource: appIcons.icon_check
+                setStatus: showType
+                onButtonClicked:
+                {
+                    showType=setStatus
+                    console.log("showType=",showType)
+                }
+            }
+            CustomCheckBox
+            {
+                setWidth: parent.width/2
+                setHeight: 50
+                setBoxCheckedBorderColor:appColors.c_buttonBgColor
+                setBoxUncheckedBorderColor:appColors.c_buttonBgColor
+                setBoxCheckedBackColor:appColors.c_buttonBgColor
+                setCheckBoxFontColor:appColors.c_fontcolor
+                setCheckBoxFontsize:appFontSizes.f_normal
+                setBold:true
+                setWidthBox:25
+                setHeightBox: 25
+                setCheckBoxText:"Show Item?"
+                setBoxBorderWidth:3
+                // anchors.horizontalCenter: parent.horizontalCenter
+                setBoxIconSource: appIcons.icon_check
+                setStatus: showItem
+                onButtonClicked:
+                {
+                    showItem=setStatus
+                }
+            }
+            CustomCheckBox
+            {
+                setWidth: parent.width/2
+                setHeight: 50
+                setBoxCheckedBorderColor:appColors.c_buttonBgColor
+                setBoxUncheckedBorderColor:appColors.c_buttonBgColor
+                setBoxCheckedBackColor:appColors.c_buttonBgColor
+                setCheckBoxFontColor:appColors.c_fontcolor
+                setCheckBoxFontsize:appFontSizes.f_normal
+                setBold:true
+                setWidthBox:25
+                setHeightBox: 25
+                setCheckBoxText:"Show Translate?"
+                setBoxBorderWidth:3
+                // anchors.horizontalCenter: parent.horizontalCenter
+                setBoxIconSource: appIcons.icon_check
+                setStatus: showTranslate
+                onButtonClicked:
+                {
+                    showTranslate=setStatus
+                }
+            }
+            CustomCheckBox
+            {
+                setWidth: parent.width/2
+                setHeight: 50
+                setBoxCheckedBorderColor:appColors.c_buttonBgColor
+                setBoxUncheckedBorderColor:appColors.c_buttonBgColor
+                setBoxCheckedBackColor:appColors.c_buttonBgColor
+                setCheckBoxFontColor:appColors.c_fontcolor
+                setCheckBoxFontsize:appFontSizes.f_normal
+                setBold:true
+                setWidthBox:25
+                setHeightBox: 25
+                setCheckBoxText:"Show Example?"
+                setBoxBorderWidth:3
+                // anchors.horizontalCenter: parent.horizontalCenter
+                setBoxIconSource: appIcons.icon_check
+                setStatus: showExample
+                onButtonClicked:
+                {
+                    showExample=setStatus
+                }
+            }
+            CustomCheckBox
+            {
+                setWidth: parent.width/2
+                setHeight: 50
+                setBoxCheckedBorderColor:appColors.c_buttonBgColor
+                setBoxUncheckedBorderColor:appColors.c_buttonBgColor
+                setBoxCheckedBackColor:appColors.c_buttonBgColor
+                setCheckBoxFontColor:appColors.c_fontcolor
+                setCheckBoxFontsize:appFontSizes.f_normal
+                setBold:true
+                setWidthBox:25
+                setHeightBox: 25
+                setCheckBoxText:"Show Meaning?"
+                setBoxBorderWidth:3
+                // anchors.horizontalCenter: parent.horizontalCenter
+                setBoxIconSource: appIcons.icon_check
+                setStatus: showMeaning
+                onButtonClicked:
+                {
+                    showMeaning=setStatus
+                }
+            }
+            CustomCheckBox
+            {
+                setWidth: parent.width/2
+                setHeight: 50
+                setBoxCheckedBorderColor:appColors.c_buttonBgColor
+                setBoxUncheckedBorderColor:appColors.c_buttonBgColor
+                setBoxCheckedBackColor:appColors.c_buttonBgColor
+                setCheckBoxFontColor:appColors.c_fontcolor
+                setCheckBoxFontsize:appFontSizes.f_normal
+                setBold:true
+                setWidthBox:25
+                setHeightBox: 25
+                setCheckBoxText:"Play Voice?"
+                setBoxBorderWidth:3
+                // anchors.horizontalCenter: parent.horizontalCenter
+                setBoxIconSource: appIcons.icon_check
+                setStatus: autoPlayVoice
+                onButtonClicked:
+                {
+                    autoPlayVoice=setStatus
+                }
+            }
+            CustomCheckBox
+            {
+                setWidth: parent.width/2
+                setHeight: 50
+                setBoxCheckedBorderColor:appColors.c_buttonBgColor
+                setBoxUncheckedBorderColor:appColors.c_buttonBgColor
+                setBoxCheckedBackColor:appColors.c_buttonBgColor
+                setCheckBoxFontColor:appColors.c_fontcolor
+                setCheckBoxFontsize:appFontSizes.f_normal
+                setBold:true
+                setWidthBox:25
+                setHeightBox: 25
+                setCheckBoxText:"Show Image?"
+                setBoxBorderWidth:3
+                // anchors.horizontalCenter: parent.horizontalCenter
+                setBoxIconSource: appIcons.icon_check
+                setStatus: showImage
+                onButtonClicked:
+                {
+                    showImage=setStatus
+                }
+            }
+            CustomButton
+            {
+                id:buttonOkPopup
+                setButtonText:"done";
+                setButtonBorderColor:appColors.c_buttonBorderColor
+                setButtonBackColor: appColors.c_buttonBgColor
+                setButtonFontColor: appColors.c_buttonFontColor
+                setBold: true
+                setButtonFontsize: appFontSizes.f_buttonFontSize
+                setButtonsBorderWidth: 0
+                setRadius: 20
+                setWidth: 70
+                setHeight:50
+                onButtonClicked:
+                {
+                    popupMessage.close()
+                }
+            }
+        }
     }
 
 
@@ -378,7 +642,6 @@ Page
         if(text_input.theText.length>=1)
         {
             backend.getNextWord(text_input.theText, isThisWordModified, practiceOnlyStarred?"starred":"all")
-            currentWordCount++;
 
             //turn flag off for next word
             isThisWordModified=false
@@ -461,57 +724,34 @@ Page
         practiceTimeCom.resumeTimer()
     }
 
-    function getValueByKey(dataList, firstKey)
-    {
-        if (!dataList || dataList.length === 0)
-            return "";
-
-        for (var i = 0; i < dataList.length; ++i)
-        {
-            var row = dataList[i];
-            if (firstKey in row)
-                return row[firstKey];
-        }
-        return "";
-    }
-
-    function modifyWordValue(data,key,value)
-    {
-        for (var i = 0; i < data.length; ++i)
-        {
-            var row = data[i];
-            if (key in row)
-                row[key]=value;
-        }
-    }
 
     function updateTextValues()
     {
         //practice data setup
-        w_text.text=getValueByKey(practiceData,"text")
-        w_type.text= "["+getValueByKey(practiceData,"type")+"]"
-        w_meaning.text=getValueByKey(practiceData,"meaning")
-        w_example.text=getValueByKey(practiceData,"example")
-        w_translate.text=getValueByKey(practiceData,"translate")
-        currentIndex=getValueByKey(practiceData,"id")
-        isWordStared=getValueByKey(practiceData,"status")==="starred" ? true : false;
+        w_text.text=IFS.getValueByKey(practiceData,"text")
+        w_type.text= "["+IFS.getValueByKey(practiceData,"type")+"]"
+        w_meaning.text=IFS.getValueByKey(practiceData,"meaning")
+        w_example.text=IFS.getValueByKey(practiceData,"example")
+        w_translate.text=IFS.getValueByKey(practiceData,"translate")
+        currentIndex=IFS.getValueByKey(practiceData,"id")
+        isWordStared=IFS.getValueByKey(practiceData,"status")==="starred" ? true : false;
 
 
         //image setup
-        var picPath = "file://"+contentPath+getValueByKey(practiceData,"picture");
+        var picPath = "file://"+contentPath+IFS.getValueByKey(practiceData,"picture");
         wordPicture.source= picPath;
         //if picture is animated one play it
         pictureIsAnimated = picPath.split('.').pop().toLowerCase()==="gif"? true : false
 
 
         //audio setup
-        var audioName = getValueByKey(practiceData,"audio");
+        var audioName = IFS.getValueByKey(practiceData,"audio");
         var audioPath = "file://"+contentPath+audioName;
         if(audioName.length>1)
         {
             player.source = audioPath;
             console.log("audiopath local found path=", audioPath)
-            if(appSettings.autoPlayAudioOnPractice)
+            if(autoPlayVoice)
                 player.play()
         }
         else
@@ -547,7 +787,7 @@ Page
             // console.log("onWordRead =", JSON.stringify(practiceData));
 
             updateTextValues()
-
+            currentWordCount++;
             text_input.clear()
         }
         function onWordIsIncorrect(correctStatus)
@@ -560,7 +800,7 @@ Page
             if(result)
             {
                 player.source="file://"+contentPath+fileName;
-                if(appSettings.autoPlayAudioOnPractice)
+                if(autoPlayVoice)
                     player.play()
 
                 playButton.setVisible=true
