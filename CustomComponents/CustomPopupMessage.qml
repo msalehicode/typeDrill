@@ -112,12 +112,25 @@ Item {
                 wrapMode: Text.WordWrap
             }
 
+            //to avoid close when clicked on content (this rectangle)
+            MouseArea
+            {
+                anchors.fill: parent
+                onClicked:
+                {
+                    popup.focus=true
+                }
+            }
+
             //to beable add content/other Components inside this component. like buttons,...
             Item
             {
                 id: contentArea
                 anchors.fill: parent
             }
+
+
+
         }
 
 
