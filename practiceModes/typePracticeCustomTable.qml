@@ -260,7 +260,7 @@ Page
         setTextColor:  appColors.c_fontcolor
         setBgColorPopup: appColors.c_background
         setWidth: parent.width/1.50
-        setHeight: 400
+        setHeight: 450
         Column
         {
             anchors.fill: parent
@@ -418,6 +418,24 @@ Page
                 onTheTextAccepted:
                 {
                     postfixIndex=theText
+                }
+            }
+            CustomButton
+            {
+                id:buttonOkPopup
+                setButtonText:"done";
+                setButtonBorderColor:appColors.c_buttonBorderColor
+                setButtonBackColor: appColors.c_buttonBgColor
+                setButtonFontColor: appColors.c_buttonFontColor
+                setBold: true
+                setButtonFontsize: appFontSizes.f_buttonFontSize
+                setButtonsBorderWidth: 0
+                setRadius: 20
+                setWidth: 70
+                setHeight:50
+                onButtonClicked:
+                {
+                    popupMessage.close()
                 }
             }
         }
