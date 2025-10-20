@@ -48,6 +48,8 @@ public:
                         const QVariant& keyValue,
                         const QMap<QString, QVariant>& updateValues);
 
+    bool updateTableAllRows(const QString& tableName, const QString& col, const QString& val);
+
     QList<QMap<QString, QVariant>> searchTable(const QString& tableName,
                                                const QString& columnName,
                                                const QVariant& searchValue);

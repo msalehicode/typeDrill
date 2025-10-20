@@ -112,6 +112,7 @@ public:
     Q_INVOKABLE void makeCrossword();
 
 
+    Q_INVOKABLE void setTableAllRows(const QString& key, const QString& value);
 
     /*!
      * \brief to calculate activity of month (mistaksCount, timeSpent as hour) from trace_practices

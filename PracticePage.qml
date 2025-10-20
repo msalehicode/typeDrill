@@ -11,6 +11,7 @@ Page
     //fill up outside/before pushing to mainStackView
     property string tableType: "none"
     property int tableId:-1
+    property string tableName: ""
 
 
     //each practice can fill these values to report their result
@@ -101,6 +102,51 @@ Page
         id:selectPracticeBase
         anchors.fill: parent
         color:appColors.c_background
+        Row
+        {
+            id:resetPartOfTableRow
+            width:parent.width
+            height:50
+            CustomCombobox
+            {
+                id: resetTypeCombobox
+                setBgColor: appColors.c_comboboxBgColor
+                setFontColor: appColors.c_buttonFontColor
+                setfontSize: appFontSizes.f_normal
+                setIconArrow: appIcons.icon_back_white
+                setWidth: 120
+                height:50
+                modelData: tableType==="word"?
+                    [ {text:"status"},{ text:"translate"}, {text:"example"}, {text:"meaning"},{ text:"source"},{ text:"type"} ]
+                    : [ {text:"status"}, {text:"translate"} ]
+                setBgColorCurrentItem: appColors.c_comboboxBgColorCurrentItem
+                onActivated: function(index)
+                {
+                    currentIndex = index
+                }
+            }
+
+            CustomButton
+            {
+                setButtonText:"Reset"
+                setButtonBorderColor:appColors.c_buttonBorderColor
+                setButtonBackColor: appColors.c_buttonBgColor
+                setButtonFontColor: appColors.c_buttonFontColor
+                setBold: true
+                setButtonFontsize: appFontSizes.f_buttonFontSize
+                setButtonsBorderWidth: 0
+                setRadius: 20
+                setWidth: 70
+                setHeight: 50
+                onButtonClicked:
+                {
+                    backend.setTableAllRows(resetTypeCombobox.currentItemText,"");
+                }
+            }
+
+        }
+
+
         Column
         {
             width:parent.width/2
@@ -303,10 +349,6 @@ Page
             }
         }
     }
-
-
-
-
 
 
 

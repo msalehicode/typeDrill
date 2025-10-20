@@ -221,6 +221,26 @@ bool DataBase::updateTableRow(const QString& tableName,
     return true;
 }
 
+bool DataBase::updateTableAllRows(const QString &tableName, const QString &col, const QString &val)
+{
+    if (!m_db.isOpen()) return false;
+
+    QString sql = QString("UPDATE %1 SET %2 = :updateVal;")
+                      .arg(tableName, col);
+
+    QSqlQuery query(m_db);
+    query.prepare(sql);
+
+    query.bindValue(":updateVal", val);
+
+    if (!query.exec())
+    {
+        // qWarning() << "Update failed:" << query.lastError().text();
+        return false;
+    }
+    return true;
+}
+
 
 // Search table where columnName matches searchValue, returns list of maps with column-value pairs
 QList<QMap<QString, QVariant>> DataBase::searchTable(const QString& tableName, const QString& columnName,

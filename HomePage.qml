@@ -424,6 +424,7 @@ Page
                                                        {
                                                            tableType: modelData.t_type,
                                                            tableId: modelData.t_id,
+                                                           tableName: modelData.t_title,
                                                            m_stackView: mainStackView
                                                        });
 

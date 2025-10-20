@@ -1461,6 +1461,10 @@ void Backend::makeCrossword()
 */
 }
 
+void Backend::setTableAllRows(const QString &key, const QString &value)
+{
+    m_db.updateTableAllRows(currentTableName,key,value);
+}
 
 
 
