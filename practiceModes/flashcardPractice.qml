@@ -17,6 +17,11 @@ Page
     property int currentWordCount: 0 //for modes like practiceOnlyStarred (word id will be random so need a logical number for processbar)
 
 
+    //smart timer
+    property int idleTimeCounter: 0
+    property int maxIdleTime: 7
+
+
     property string practiceMode: "none" //e.g: word
 
     property bool practiceOnlyStarred:false
@@ -38,6 +43,16 @@ Page
     CustomTimer
     {
         id:practiceTimeCom
+        onEachTrigger:
+        {
+            if(idleTimeCounter<=maxIdleTime)
+            {
+                idleTimeCounter++;
+                if(idleTimeCounter>=maxIdleTime)
+                    pauseTimer();
+            }
+            // console.log(practiceTimeCom.timerString  + " idlc=" + idleTimeCounter + " max=" +maxIdleTime + " tst="+  practiceTimeCom.status())
+        }
     }
 
     Rectangle
@@ -465,6 +480,12 @@ Page
 
     function showDetails()
     {
+        //set user status active for smart timer
+        idleTimeCounter=0;
+        if(!practiceTimeCom.status())
+            practiceTimeCom.resumeTimer()
+
+
         if (!flipAnimation.running)
         {
             showInfo = !showInfo
@@ -474,6 +495,12 @@ Page
 
     function getNextWord(isForward)
     {
+        //set user status active for smart timer
+        idleTimeCounter=0;
+        if(!practiceTimeCom.status())
+            practiceTimeCom.resumeTimer()
+
+
         var animationVal;
         if(isForward)
         {

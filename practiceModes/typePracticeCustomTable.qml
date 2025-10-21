@@ -11,7 +11,9 @@ Page
     property int selectedTableId:-1;
 
 
-
+    //smart timer
+    property int idleTimeCounter: 0
+    property int maxIdleTime: 7
 
 
     property int mistakesCounter: 0;
@@ -201,6 +203,13 @@ Page
                         {
                             getNextWord()
                         }
+                        onTheTextChanged:
+                        {
+                            //set user status active for smart timer
+                            idleTimeCounter=0;
+                            if(!practiceTimeCom.status())
+                                practiceTimeCom.resumeTimer()
+                        }
                     }
 
                     CustomButtonWithIcon
@@ -244,6 +253,17 @@ Page
         CustomTimer
         {
             id:practiceTimeCom
+            onEachTrigger:
+            {
+                if(idleTimeCounter<=maxIdleTime)
+                {
+                    idleTimeCounter++;
+                    if(idleTimeCounter>=maxIdleTime)
+                        pauseTimer();
+                }
+
+                // console.log(practiceTimeCom.timerString  + " idlc=" + idleTimeCounter + " max=" +maxIdleTime + " tst="+  practiceTimeCom.status())
+            }
         }
     }
 

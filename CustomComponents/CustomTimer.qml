@@ -46,6 +46,11 @@ Item
         whenResumed();
     }
 
+    function status()
+    {
+        return timer.running
+    }
+
 
 
     Timer {

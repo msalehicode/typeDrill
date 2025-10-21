@@ -25,8 +25,9 @@ Page
     property bool autoPlayVoice:appSettings.autoPlayAudioOnPractice
 
 
-
-
+    //smart timer
+    property int idleTimeCounter: 0
+    property int maxIdleTime: 7
 
 
     property int mistakesCounter: 0;
@@ -203,7 +204,7 @@ Page
                 font.pixelSize:appFontSizes.f_title
                 font.bold: true
                 color:appColors.c_fontcolor
-                visible: text.length> 0 ? showItem : false
+                visible: text.length>0 ? showItem : false
                 wrapMode: Text.WordWrap
                 horizontalAlignment: Text.AlignHCenter
             }
@@ -221,7 +222,7 @@ Page
                     text:""
                     width: parent.width
                     height:implicitHeight
-                    visible: text.length> 0 ? showType : false
+                    visible: text.length>0 ? showType : false
                     font.pixelSize:appFontSizes.f_normal
                     color:appColors.c_fontcolor
                     horizontalAlignment: Text.AlignHCenter
@@ -233,7 +234,7 @@ Page
                     text:""
                     width: parent.width
                     height:implicitHeight
-                    visible: text.length> 0 ? showMeaning : false
+                    visible: text.length>0 ? showMeaning : false
                     font.pixelSize:appFontSizes.f_large
                     color:appColors.c_fontcolor
                     horizontalAlignment: Text.AlignHCenter
@@ -243,7 +244,7 @@ Page
                 {
                     id:w_example
                     text:""
-                    visible: text.length> 0 ? showExample : false
+                    visible: text.length>0 ? showExample : false
                     width: parent.width
                     height: implicitHeight
                     font.pixelSize:appFontSizes.f_large
@@ -256,7 +257,7 @@ Page
                 {
                     id:w_translate
                     text:""
-                    visible: text.length> 0 ? showTranslate : false
+                    visible: text.length>0 ? showTranslate : false
                     width: parent.width
                     height: implicitHeight
                     font.pixelSize:appFontSizes.f_large
@@ -289,6 +290,13 @@ Page
                         onTheTextAccepted:
                         {
                             getNextWord()
+                        }
+                        onTheTextChanged:
+                        {
+                            //set user status active for smart timer
+                            idleTimeCounter=0;
+                            if(!practiceTimeCom.status())
+                                practiceTimeCom.resumeTimer()
                         }
                     }
 
@@ -351,6 +359,18 @@ Page
                     wordPicture.playing=true
                 }
             }
+            onEachTrigger:
+            {
+                if(idleTimeCounter<=maxIdleTime)
+                {
+                    idleTimeCounter++;
+                    if(idleTimeCounter>=maxIdleTime)
+                        pauseTimer();
+                }
+
+                // console.log(practiceTimeCom.timerString  + " idlc=" + idleTimeCounter + " max=" +maxIdleTime + " tst="+  practiceTimeCom.status())
+            }
+
         }
 
 
