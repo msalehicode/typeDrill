@@ -136,7 +136,7 @@ Page
                 height:implicitHeight
                 font.pixelSize:appFontSizes.f_large
                 color:appColors.c_fontcolor
-                visible: showHeader
+                visible: text.length> 0 ? showHeader : false
                 wrapMode: Text.WordWrap
                 horizontalAlignment: Text.AlignHCenter
             }
@@ -148,7 +148,7 @@ Page
                 height:implicitHeight
                 font.pixelSize:appFontSizes.f_title
                 font.bold: true
-                visible: showItem
+                visible: text.length> 0 ? showItem : false
                 color:appColors.c_fontcolor
                 wrapMode: Text.WordWrap
                 horizontalAlignment: Text.AlignHCenter
@@ -167,7 +167,7 @@ Page
                 {
                     id:w_translate
                     text:""
-                    visible: showTranslate
+                    visible: text.length> 0 ? showTranslate : false
                     width: parent.width
                     height: implicitHeight
                     font.pixelSize:appFontSizes.f_large

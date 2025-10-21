@@ -203,7 +203,7 @@ Page
                 font.pixelSize:appFontSizes.f_title
                 font.bold: true
                 color:appColors.c_fontcolor
-                visible: showItem
+                visible: text.length> 0 ? showItem : false
                 wrapMode: Text.WordWrap
                 horizontalAlignment: Text.AlignHCenter
             }
@@ -221,7 +221,7 @@ Page
                     text:""
                     width: parent.width
                     height:implicitHeight
-                    visible: showType
+                    visible: text.length> 0 ? showType : false
                     font.pixelSize:appFontSizes.f_normal
                     color:appColors.c_fontcolor
                     horizontalAlignment: Text.AlignHCenter
@@ -233,7 +233,7 @@ Page
                     text:""
                     width: parent.width
                     height:implicitHeight
-                    visible: showMeaning
+                    visible: text.length> 0 ? showMeaning : false
                     font.pixelSize:appFontSizes.f_large
                     color:appColors.c_fontcolor
                     horizontalAlignment: Text.AlignHCenter
@@ -243,7 +243,7 @@ Page
                 {
                     id:w_example
                     text:""
-                    visible: showExample
+                    visible: text.length> 0 ? showExample : false
                     width: parent.width
                     height: implicitHeight
                     font.pixelSize:appFontSizes.f_large
@@ -256,7 +256,7 @@ Page
                 {
                     id:w_translate
                     text:""
-                    visible: showTranslate
+                    visible: text.length> 0 ? showTranslate : false
                     width: parent.width
                     height: implicitHeight
                     font.pixelSize:appFontSizes.f_large
