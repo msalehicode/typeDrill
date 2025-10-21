@@ -76,7 +76,7 @@ Item {
             {
                 width: parent.width
                 height: parent.height
-                title: "Total Minutes Data"
+                title: "Month Stats"
 
                 // Define X and Y axes
                 ValuesAxis {
