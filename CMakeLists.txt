@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(TypeDrill VERSION 1.44.11 LANGUAGES CXX)
+project(TypeDrill VERSION 1.49.8 LANGUAGES CXX)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
