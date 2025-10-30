@@ -13,6 +13,19 @@ LocalFileManager::LocalFileManager(QObject *parent)
 {
 }
 
+QString LocalFileManager::getFileBaseName(const QString &filePath)
+{
+    QFileInfo fileInfo(filePath);
+    return fileInfo.baseName();
+}
+
+QString LocalFileManager::getFileExtentsion(const QString &filePath)
+{
+    QFileInfo fileInfo(filePath);
+    return fileInfo.suffix();
+}
+
+
 bool LocalFileManager::copyFile(const QString &sourceUrl, QString destinationName)
 {
     destinationName = m_path + destinationName;

@@ -404,6 +404,32 @@ function removeFile($fileId,$sessionKey)
 }
 
 
+function getLatestTableContent($dbAndTableName,$sessionKey)
+{
+
+      $userId = getUserIdFromSession($sessionKey);  // Get user ID from session
+
+      // Check if the file exists and belongs to the user
+      $conn = connect_db();
+      // $stmt = $conn->prepare("SELECT file_path FROM files WHERE user_id = ? AND filename = ? ORDER BY last_updated DESC LIMIT 1;");
+      $stmt = $conn->prepare("SELECT file_path FROM files WHERE user_id = ? AND filename = ? ORDER BY id DESC LIMIT 1;");
+      $stmt->bind_param("is", $userId,$dbAndTableName);
+      $stmt->execute();
+      $stmt->store_result();
+
+      if ($stmt->num_rows === 0)
+      {
+          sendResponse(['error' => 'File not found']);
+      }
+
+      $stmt->bind_result($filePath);
+      $stmt->fetch();
+
+      $baseUrl = 'http://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . '/uploads';
+      $filePath = $baseUrl . '/' . rawurlencode(basename($filePath));
+      sendResponse(['message' => $filePath]);
+}
+
 function getDbListNew($visibilityType, $sessionKey)
 {
     // Get user ID from session
@@ -414,7 +440,7 @@ function getDbListNew($visibilityType, $sessionKey)
 
     // Prepare the base query for getting files with user details
     $query = "
-        SELECT f.id, f.filename, f.file_path, f.visibility, f.user_id, u.username
+        SELECT f.id, f.filename, f.file_path, f.file_type, f.visibility, f.user_id, u.username
         FROM files f
         JOIN users u ON f.user_id = u.id ";  // Assuming 'users' table has 'id' and 'username'
 
@@ -460,7 +486,7 @@ function getDbListNew($visibilityType, $sessionKey)
     $stmt->store_result();
 
     // Bind results
-    $stmt->bind_result($fileId, $filename, $filePath, $visibility, $fileOwnerId, $username);
+    $stmt->bind_result($fileId, $filename, $filePath, $fileType, $visibility, $fileOwnerId, $username);
     $files = [];
 
     while ($stmt->fetch())
@@ -473,7 +499,8 @@ function getDbListNew($visibilityType, $sessionKey)
             'd_url' => $baseUrl . '/' . rawurlencode(basename($filePath)),
             'd_icon' => $defaultIcon,
             'd_visibility' => $visibility,
-            'd_owner' => $username
+            'd_owner' => $username,
+            'd_type' => $fileType //tableContent or db
         ];
     }
 
@@ -552,7 +579,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET')
   $username = isset($_GET['username']) ? $_GET['username'] : null;
   $password = isset($_GET['password']) ? $_GET['password'] : null;
   $email = isset($_GET['email']) ? $_GET['email'] : null;
-
+  $dbAndTableName= isset($_GET['dbAndTableName']) ? $_GET['dbAndTableName'] : null;
 
   // file_put_contents(__DIR__ . '/debug_get_headers.txt', print_r(getallheaders(), true), FILE_APPEND);
 
@@ -578,6 +605,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET')
         }break;
 
         case 'get-db-list': getDbListNew($getListVisibility,$sessionKey);
+          break;
+
+        case 'getLatestTableContent': getLatestTableContent($dbAndTableName,$sessionKey);
           break;
 
         case 'signin': signIn($username,$password);
@@ -626,7 +656,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET')
 //--------------------------------------------------------------------------------- POST
 
 // Function to handle file upload
-function uploadFile($visibility, $sessionKey,$overwriteIfExists=false, $dontRespondSuccess=false)
+function uploadFile($visibility, $sessionKey,$overwriteIfExists=false, $dontRespondSuccess=false, $uploadedFileType="db")
 {
     // Check if the file is uploaded
     if (!isset($_FILES['file'])) {
@@ -729,8 +759,8 @@ function uploadFile($visibility, $sessionKey,$overwriteIfExists=false, $dontResp
         // Insert file metadata into the database
         $conn = connect_db();
         $nowUtc = (new DateTime("now", new DateTimeZone("UTC")))->format("Y-m-d H:i:s");
-        $stmt = $conn->prepare("INSERT INTO files (user_id, filename, file_path, visibility, first_uploaded, last_updated) VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("isssss", $userId, $originalFilename, $targetPath, $visibility, $nowUtc, $nowUtc);
+        $stmt = $conn->prepare("INSERT INTO files (user_id, filename, file_path, visibility, first_uploaded, last_updated, file_type) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("issssss", $userId, $originalFilename, $targetPath, $visibility, $nowUtc, $nowUtc, $uploadedFileType);
 
         // Execute the query and return a success message if the file is uploaded successfully
         if ($stmt->execute())
@@ -846,6 +876,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         {
             switch ($requestType)
             {
+                case 'upload-tableContent':
+                    uploadFile($fileVisibilityStatus, $sessionKey,false, false, "tableContent");
+                    break;
+
                 case 'upload-db':
                     uploadFile($fileVisibilityStatus, $sessionKey);
                     break;

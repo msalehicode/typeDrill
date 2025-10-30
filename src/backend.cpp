@@ -1029,10 +1029,10 @@ void Backend::syncDatabaseWithApi(const QString &fileName)
     m_fileManager.uploadFile(m_api_url, filePath, m_session_key, "false","sync-db",strLastModifyDate);
 }
 
-void Backend::uploadFileToApi(const QString &fileName, const QString& publicStatus)
+void Backend::uploadFileToApi(const QString &fileName, const QString& publicStatus, const QString& uploadType)
 {
     QString filePath = m_dbPath +"/"+ fileName;
-    m_fileManager.uploadFile(m_api_url, filePath, m_session_key, publicStatus,"upload-db");
+    m_fileManager.uploadFile(m_api_url, filePath, m_session_key, publicStatus, uploadType);
 }
 
 QString Backend::getThemeMode()
@@ -1100,6 +1100,68 @@ QStringList Backend::getStreakDays()
 
     return streak;
 
+}
+
+
+void Backend::getBackupTableContentFromAPI(const QString& tblName)
+{
+    //setup file database_talbeNAme for request
+    QString dbAndTableName;
+    if(tblName.isEmpty())
+        dbAndTableName= whatIsCurrentDatabase() + "_" + currentTableName;
+    else
+        dbAndTableName= whatIsCurrentDatabase() + "_" + tblName;
+    dbAndTableName+=".qpack";
+
+
+
+    //get file name from API
+    QUrl url(m_api_url);
+    QUrlQuery query;
+    query.addQueryItem("request", "getLatestTableContent");
+    query.addQueryItem("sessionKey", m_session_key);
+    query.addQueryItem("dbAndTableName", dbAndTableName);
+    url.setQuery(query);
+    QNetworkRequest request(url);
+    QNetworkReply *reply = m_networkManager.get(request);
+    // connect(reply, &QNetworkReply::finished, this, &Backend::onLatestTableContentFileName);
+    connect(reply, &QNetworkReply::finished, this, [this, dbAndTableName]()
+    {
+        onLatestTableContentFileName(dbAndTableName);
+    });
+
+
+    //on onLatestTableContentFileName if succeed will downlod and decompress file
+}
+
+void Backend::saveBackupTableContentToAPI()
+{
+    //make and compress backup
+    QString dirName = whatIsCurrentDatabase() + "_" + currentTableName;
+    QString thePath = m_dbPath+"/"+dirName;
+    QString output = m_dbPath+"/"+dirName+".qpack";
+    bool result = contentArchive.compressDirectory(thePath,output);
+    qInfo() << "compress result = " << result << "source path=" << thePath << "output= " << output;
+
+
+    //upload archive file to api
+    uploadFileToApi(dirName+".qpack","false","upload-tableContent"); //assuming contents are private
+}
+
+void Backend::unarchiveQpack(const QString &qpackPath)
+{
+    QString output = m_dbPath+"/"+ localFileManager.getFileBaseName(qpackPath);
+    if(contentArchive.decompressToDirectory(qpackPath,output))
+        qInfo() << "unarchive qpack succeed (" << qpackPath  << ") to (" << output << ")";
+    else
+        qInfo() << "unarchive qpack failed (" << qpackPath << ")";
+}
+
+void Backend::deleteTableContent()
+{
+    //temp remove old dire
+    QString dirName = whatIsCurrentDatabase() + "_" + currentTableName;
+    localFileManager.removeDirectoryAndContains(dirName);
 }
 
 
@@ -2028,6 +2090,8 @@ void Backend::onUrlListReceived()
                 map["d_icon"] = obj["d_icon"].toString();
                 map["d_visibility"] = obj["d_visibility"].toString();
                 map["d_owner"] = obj["d_owner"].toString();
+                map["d_type"] = obj["d_type"].toString();
+
 
                 urlList.append(map);
             }
@@ -2392,6 +2456,76 @@ void Backend::onDeleteApiDbFile()
         emit deleteApiDbFileResult(resultError);
     } else {
         emit deleteApiDbFileResult(resultMessage);
+    }
+}
+
+void Backend::onLatestTableContentFileName(QString fName)
+{
+    //check for response
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    if (!reply) {
+        qInfo() << "Error: Sender is not a valid QNetworkReply!";
+        return;
+    }
+
+    QString resultMessage;
+    QString resultError;
+    QString resultKey;
+
+    // Check for network error first
+    if (reply->error() != QNetworkReply::NoError) {
+        qInfo() << "Network error: " << reply->errorString();
+        reply->deleteLater();
+        emit signResult("Network error: " + reply->errorString());
+        return;
+    }
+
+    // Check the HTTP status code
+    int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    qInfo() << "HTTP Status Code: " << statusCode;
+
+    // Read and print the response body
+    QByteArray response = reply->readAll();
+    qInfo() << "Response: " << response;
+
+    // Parse the response as a JSON document
+    QJsonDocument doc = QJsonDocument::fromJson(response);
+
+    // Check if the document is an array or an object
+    if (doc.isArray())
+    {
+        // Handle JSON array
+        QJsonArray arr = doc.array();
+        for (const auto &item : arr) {
+            if (item.isObject()) {
+                QJsonObject obj = item.toObject();
+                resultError = obj["error"].toString();
+                resultMessage = obj["message"].toString();
+            } else {
+                qInfo() << "Array item is not a valid object";
+            }
+        }
+    }
+    else if (doc.isObject())
+    {
+        // Handle JSON object
+        QJsonObject obj = doc.object();
+        resultError = obj["error"].toString();
+        resultMessage = obj["message"].toString();
+    }
+    else {
+        // Handle unexpected JSON format
+        qInfo() << "Unexpected response format: Neither an object nor an array.";
+        resultError = "Unexpected response format";
+    }
+
+    // Emit result or error
+    reply->deleteLater();
+    if (!resultError.isEmpty()) {
+        qInfo() << "failed to download tableContent resultError=" << resultError;
+    } else {
+        //request for download file and read status of download from QML
+        download(resultMessage,fName,true);
     }
 }
 

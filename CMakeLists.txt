@@ -6,14 +6,13 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Find required Qt modules
-find_package(Qt6 6.2 COMPONENTS Quick Sql Network Charts Core Gui Qml REQUIRED)
+find_package(Qt6 6.9 COMPONENTS Quick Sql Network Charts Core Gui Qml REQUIRED)
 
 
 # Define the executable target
 qt_add_executable(appTypeDrill
     main.cpp
 )
-
 
 # Define QML module
 qt_add_qml_module(appTypeDrill
@@ -27,16 +26,21 @@ qt_add_qml_module(appTypeDrill
         include/settingsmanager.h
         include/localfilemanager.h
         include/googletts.h
+        include/compressdire.h
         src/filemanager.cpp
         src/database.cpp
         src/backend.cpp
         src/settingsmanager.cpp
         src/localfilemanager.cpp
         src/googletts.cpp
+        src/compressdire.cpp
 
     QML_FILES
         main.qml
         themes.js
+
+        # common scripts
+        interfaceScripts.js
 
         # pages
         ManageWordTableDatabasePage.qml
@@ -116,9 +120,6 @@ qt_add_qml_module(appTypeDrill
         resourses/lightMode/50x50/arrow.png resourses/darkMode/50x50/arrow.png
         resourses/lightMode/50x50/zoomin.png resourses/darkMode/50x50/zoomin.png
         resourses/lightMode/50x50/zoomout.png resourses/darkMode/50x50/zoomout.png
-        QML_FILES interfaceScripts.js
-
-
 )
 
 

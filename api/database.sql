@@ -20,6 +20,7 @@ CREATE TABLE files
     user_id INT NOT NULL,                             -- User who uploaded the file (foreign key from `users`)
     filename VARCHAR(255) NOT NULL,                   -- File name (may include timestamps to handle duplicates)
     file_path VARCHAR(255) NOT NULL,                  -- File path in the server
+    file_type VARCHAR(255) DEFAULT "db",
     first_uploaded DATETIME DEFAULT CURRENT_TIMESTAMP, -- Timestamp of first upload
     last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- Last update timestamp
     visibility ENUM('private', 'public') DEFAULT 'private', -- File visibility (public/private)

@@ -18,7 +18,7 @@ Page
 
     //fill in order by targetPractice(e.g: by typePractice.qml):
     //practiceTypeId codes: (typePractice:1, flashcardPractice:2)
-    property var practiceResult: {"mistakeCount":"15", "timeSpent":"10:00:20", "practiceTypeId":1} 
+    property var practiceResult: {"mistakeCount":"15", "timeSpent":"10:00:20", "practiceTypeId":1}
 
     header: Rectangle //this will appear on all practice pages
     {
@@ -102,49 +102,118 @@ Page
         id:selectPracticeBase
         anchors.fill: parent
         color:appColors.c_background
-        Row
+
+        Column
         {
-            id:resetPartOfTableRow
-            width:parent.width
-            height:50
-            CustomCombobox
+            id:controlTableColumn
+            width: parent.width
+            height:150
+            spacing: 5
+            Row
             {
-                id: resetTypeCombobox
-                setBgColor: appColors.c_comboboxBgColor
-                setFontColor: appColors.c_buttonFontColor
-                setfontSize: appFontSizes.f_normal
-                setIconArrow: appIcons.icon_back_white
-                setWidth: 120
+                id:resetPartOfTableRow
+                width:parent.width
                 height:50
-                modelData: tableType==="word"?
-                    [ {text:"status"},{ text:"translate"}, {text:"example"}, {text:"meaning"},{ text:"source"},{ text:"type"} ]
-                    : [ {text:"status"}, {text:"translate"} ]
-                setBgColorCurrentItem: appColors.c_comboboxBgColorCurrentItem
-                onActivated: function(index)
+                CustomCombobox
                 {
-                    currentIndex = index
+                    id: resetTypeCombobox
+                    setBgColor: appColors.c_comboboxBgColor
+                    setFontColor: appColors.c_buttonFontColor
+                    setfontSize: appFontSizes.f_normal
+                    setIconArrow: appIcons.icon_back_white
+                    setWidth: 120
+                    height:50
+                    modelData: tableType==="word"?
+                        [ {text:"status"},{ text:"translate"}, {text:"example"}, {text:"meaning"},{ text:"source"},{ text:"type"} ]
+                        : [ {text:"status"}, {text:"translate"} ]
+                    setBgColorCurrentItem: appColors.c_comboboxBgColorCurrentItem
+                    onActivated: function(index)
+                    {
+                        currentIndex = index
+                    }
                 }
+
+                CustomButton
+                {
+                    setButtonText:"Reset"
+                    setButtonBorderColor:appColors.c_buttonBorderColor
+                    setButtonBackColor: appColors.c_buttonBgColor
+                    setButtonFontColor: appColors.c_buttonFontColor
+                    setBold: true
+                    setButtonFontsize: appFontSizes.f_buttonFontSize
+                    setButtonsBorderWidth: 0
+                    setRadius: 20
+                    setWidth: 70
+                    setHeight: 50
+                    onButtonClicked:
+                    {
+                        backend.setTableAllRows(resetTypeCombobox.currentItemText,"");
+                    }
+                }
+
             }
 
-            CustomButton
+
+            Row
             {
-                setButtonText:"Reset"
-                setButtonBorderColor:appColors.c_buttonBorderColor
-                setButtonBackColor: appColors.c_buttonBgColor
-                setButtonFontColor: appColors.c_buttonFontColor
-                setBold: true
-                setButtonFontsize: appFontSizes.f_buttonFontSize
-                setButtonsBorderWidth: 0
-                setRadius: 20
-                setWidth: 70
-                setHeight: 50
-                onButtonClicked:
+                id:contentBackupManager
+                width:parent.width
+                height:50
+                CustomButton
                 {
-                    backend.setTableAllRows(resetTypeCombobox.currentItemText,"");
+                    setButtonText:"Take Backup and upload"
+                    setButtonBorderColor:appColors.c_buttonBorderColor
+                    setButtonBackColor: appColors.c_buttonBgColor
+                    setButtonFontColor: appColors.c_buttonFontColor
+                    setBold: true
+                    setButtonFontsize: appFontSizes.f_buttonFontSize
+                    setButtonsBorderWidth: 0
+                    setRadius: 20
+                    setWidth: 70
+                    setHeight: 50
+                    onButtonClicked:
+                    {
+                        backend.saveBackupTableContentToAPI();
+                    }
+                }
+                CustomButton
+                {
+                    setButtonText:"Download Backup"
+                    setButtonBorderColor:appColors.c_buttonBorderColor
+                    setButtonBackColor: appColors.c_buttonBgColor
+                    setButtonFontColor: appColors.c_buttonFontColor
+                    setBold: true
+                    setButtonFontsize: appFontSizes.f_buttonFontSize
+                    setButtonsBorderWidth: 0
+                    setRadius: 20
+                    setWidth: 70
+                    setHeight: 50
+                    onButtonClicked:
+                    {
+                        backend.getBackupTableContentFromAPI();
+                    }
+                }
+                CustomButton
+                {
+                    setButtonText:"Delete Content"
+                    setButtonBorderColor:appColors.c_buttonBorderColor
+                    setButtonBackColor: appColors.c_buttonBgColor
+                    setButtonFontColor: appColors.c_buttonFontColor
+                    setBold: true
+                    setButtonFontsize: appFontSizes.f_buttonFontSize
+                    setButtonsBorderWidth: 0
+                    setRadius: 20
+                    setWidth: 70
+                    setHeight: 50
+                    onButtonClicked:
+                    {
+                        backend.deleteTableContent();
+                    }
                 }
             }
 
         }
+
 
 
         Column
@@ -390,6 +459,21 @@ Page
             practiceLoader.source = practiceSource;
         else
             practiceLoader.setSource(practiceSource, params);
+    }
+    Connections
+    {
+        target:backend
+        function onUploadDone(result)
+        {
+            console.log("upload content backup done resutt=",result)
+        }
+        function onDownloadFinished(success, filePath)
+        {
+            console.log("download content finished result=",success, "path=",filePath)
+            //assuming downloaded successfully
+            backend.unarchiveQpack(filePath)
+
+        }
     }
     Component.onCompleted:
     {

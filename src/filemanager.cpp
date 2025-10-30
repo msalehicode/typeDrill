@@ -28,7 +28,7 @@ void FileManager::downloadFile(const QString &url, const QString &fileName, bool
     {
         while (QFile::exists(dir.filePath(uniqueFileName)))
         {
-            uniqueFileName = QString("%1_%2%3").arg(baseName).arg(counter).arg(extension);
+            uniqueFileName = QString("%1_%2.%3").arg(baseName).arg(counter).arg(extension);
             counter++;
         }
     }
@@ -88,7 +88,7 @@ void FileManager::uploadFile(const QString &uploadUrl, const QString &filePath,
     // Request type (as form data)
     QHttpPart requestPart;
     requestPart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"request\""));
-    requestPart.setBody("upload-db"); // This is the value you were setting in the header
+    requestPart.setBody(requestType.toUtf8()); // This is the value you were setting in the header
     multiPart->append(requestPart);
 
     // Session key (as form data)

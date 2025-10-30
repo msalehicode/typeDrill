@@ -35,6 +35,9 @@ public:
     void setPath(const QString &newPath);
 
 
+    QString getFileBaseName(const QString& filePath);
+    QString getFileExtentsion(const QString& filePath);
+
 
 signals:
     // Signal to indicate success or failure of the copy operation

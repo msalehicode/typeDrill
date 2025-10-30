@@ -21,6 +21,10 @@
 #include "localfilemanager.h"
 
 #include "googletts.h"
+
+#include "compressdire.h"
+
+
 /*!
  * \class Backend
  * \brief This class contains the core backend logic and acts as a bridge between QML and various backend components.
@@ -67,6 +71,8 @@ class Backend : public QObject
 
     int calculateStreakDays(QDate& currentDate);
     QDate getLastActivityDate();
+
+    CompressDir contentArchive;
 
     /*!
      * \brief convert h:m:s time string to total minutes
@@ -308,7 +314,7 @@ public:
                               bool overwriteFileName=false);
 
 
-    Q_INVOKABLE void uploadFileToApi(const QString& fileName, const QString& publicStatus);
+    Q_INVOKABLE void uploadFileToApi(const QString& fileName, const QString& publicStatus, const QString& uploadType="upload-db");
     Q_INVOKABLE void overwriteFileToApi(const QString& fileName);
     Q_INVOKABLE void syncDatabaseWithApi(const QString& fileName);
 
@@ -349,6 +355,10 @@ public:
 
     Q_INVOKABLE QString getContentPath() const;
 
+    Q_INVOKABLE void getBackupTableContentFromAPI(const QString& tblName="");
+    Q_INVOKABLE void saveBackupTableContentToAPI();
+    Q_INVOKABLE void unarchiveQpack(const QString& qpackPath);
+    Q_INVOKABLE void deleteTableContent();
 
     Q_INVOKABLE void changeApiDbFileVisiblity(const QString& fileId, const QString& newStatus);
     Q_INVOKABLE void renameApiDbFile(const QString& fileId, const QString& newDbName);
@@ -412,6 +422,7 @@ private slots:
     void onRenameApiDbFile();
     void onChangeApiDbFileVisiblity();
     void onDeleteApiDbFile();
+    void onLatestTableContentFileName(QString fname);
 };
 
 #endif // BACKEND_H

@@ -133,6 +133,7 @@ Page
                         height:75
                         color:appColors.c_bgTableitem
                         radius: 15
+                        opacity: model.d_type==="tableContent"? 0.5: 1
                         clip:true
                         anchors
                         {
@@ -247,6 +248,11 @@ Page
                                     height:15
                                     source: model.d_visibility==="public"? appIcons.icon_eye : appIcons.icon_hide
                                 }
+                                Label
+                                {
+                                    text:"file="+model.d_type
+                                    color:appColors.c_fontcolor
+                                }
                             }
                         }
 
@@ -307,7 +313,10 @@ Page
                                 onButtonClicked:
                                 {
                                     changeLoaderContent("download")
-                                    backend.download(model.d_url,model.d_name);
+                                    if(model.d_type==="db")
+                                        backend.download(model.d_url,model.d_name);
+                                    else if(model.d_type==="tableContent")
+                                        backend.download(model.d_url,model.d_name,true); //overwrite filename
                                 }
                             }
                         }
@@ -800,7 +809,8 @@ Page
                                                        d_url: list[i].d_url,
                                                        d_icon: list[i].d_icon,
                                                        d_visibility: list[i].d_visibility,
-                                                       d_owner: list[i].d_owner
+                                                       d_owner: list[i].d_owner,
+                                                       d_type: list[i].d_type
                                                    });
                 }
 
@@ -839,6 +849,17 @@ Page
         if (success)
         {
             console.log("Downloaded to:", filePath)
+            //if download is a backup/archive table content unarchive
+            if (filePath.toLowerCase().endsWith("qpack"))
+            {
+                console.log("It's a qpack file lets unarchive it");
+                backend.unarchiveQpack(filePath);
+            }
+            else
+            {
+                console.log("Not a .qpack file");
+            }
+
             if (theLoader.item && theLoader.item.popup)
             {
                 theLoader.item.popup.open("please wait...")
