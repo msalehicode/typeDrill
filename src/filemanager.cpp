@@ -93,7 +93,7 @@ void FileManager::uploadFile(const QString &uploadUrl, const QString &filePath,
 
     // Session key (as form data)
     QHttpPart sessionKeyPart;
-    sessionKeyPart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"sessionKey\""));
+    sessionKeyPart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"xsessionKey\""));
     sessionKeyPart.setBody(apiKey.toUtf8()); // Send the session key in form data
     multiPart->append(sessionKeyPart);
 
@@ -101,7 +101,7 @@ void FileManager::uploadFile(const QString &uploadUrl, const QString &filePath,
     QNetworkRequest request(uploadUrl);
 
     // Set raw headers (this is where sessionKey and requestType should go)
-    request.setRawHeader("sessionKey", apiKey.toUtf8());
+    request.setRawHeader("xsessionKey", apiKey.toUtf8());
     request.setRawHeader("request", requestType.toUtf8());
 
     request.setRawHeader("lmdate", fileLastModified.toUtf8());

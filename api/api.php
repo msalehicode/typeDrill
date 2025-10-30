@@ -554,6 +554,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET')
   $email = isset($_GET['email']) ? $_GET['email'] : null;
 
 
+  // file_put_contents(__DIR__ . '/debug_get_headers.txt', print_r(getallheaders(), true), FILE_APPEND);
+
   //db file crud
   $fileId =  isset($_GET['fileId']) ? $_GET['fileId'] : null;
   $fileVisibilityStatus = isset($_GET['visibility']) ? $_GET['visibility'] : "private";
@@ -828,9 +830,14 @@ function syncFile($sessionKey,$lastModifiedDateFile)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $headers = getallheaders();
     $requestType = $headers['request'];
-    $sessionKey = $headers['sessionKey'];
+    // $sessionKey = $headers['xsessionkey'];
+    $sessionKey = isset($headers['xsessionKey'])
+    ? $headers['xsessionKey'] : (isset($headers['xsessionkey']) ? $headers['xsessionkey'] : null);
     $fileVisibilityStatus = isset($headers['status']) ? $headers['status'] : "private";
     $lastModifiedDateFile = isset($headers['lmdate']) ? $headers['lmdate'] : null;
+
+    // file_put_contents(__DIR__ . '/debug_post_headers.txt', print_r(getallheaders(), true), FILE_APPEND);
+
 
     // Check if the request type is valid
     if (isset($requestType))
