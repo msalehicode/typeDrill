@@ -1,6 +1,13 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(TypeDrill VERSION 1.49.8 LANGUAGES CXX)
+
+set(APP_CURRENT_VERSION "1.49.8")
+set(APP_CURRENT_VERSION_CODE 1498)
+set(APP_TitleName "TypeDrill")
+set(APP_OrganizationName "orgTypeDrill")
+set(APP_ApplicationName "appTypeDrill")
+
+project(TypeDrill VERSION ${APP_CURRENT_VERSION} LANGUAGES CXX)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -125,13 +132,19 @@ qt_add_qml_module(appTypeDrill
 
 
 
-# # Set app properties for macOS/Windows
-# set_target_properties(appTypeDrill PROPERTIES
-#     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-#     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-#     MACOSX_BUNDLE TRUE
-#     WIN32_EXECUTABLE TRUE
-# )
+# Set app properties for macOS/Windows
+set_target_properties(appTypeDrill PROPERTIES
+    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+    MACOSX_BUNDLE TRUE
+    WIN32_EXECUTABLE TRUE
+    QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_SOURCE_DIR}/android
+    QT_ANDROID_PACKAGE_NAME "${APP_OrganizationName}.qtproject.${APP_ApplicationName}"
+    QT_ANDROID_APP_NAME "${APP_TitleName}"
+    QT_ANDROID_APP_ICON "@mipmap/ic_launcher"
+    QT_ANDROID_VERSION_CODE ${APP_CURRENT_VERSION_CODE}
+    QT_ANDROID_VERSION_NAME "${APP_CURRENT_VERSION}"
+)
 
 # Link against Qt libraries
 target_link_libraries(appTypeDrill PRIVATE
@@ -149,11 +162,15 @@ target_link_libraries(appTypeDrill PRIVATE
 
 # Get current build date/time for backend.getVersion()
 string(TIMESTAMP BUILD_DATE "%Y-%m-%d %H:%M:%S" UTC)
-target_compile_definitions(appTypeDrill PRIVATE BUILD_DATE_TIME="${BUILD_DATE}")
 
-# define version macro for backend.getVersion() and QCoreApplication::setApplicationVersion
-target_compile_definitions(appTypeDrill PRIVATE APP_VERSION="${PROJECT_VERSION}")
-
+# announce cmake variables to Cpp side
+target_compile_definitions(appTypeDrill PRIVATE
+    APP_VERSION="${APP_CURRENT_VERSION}"
+    APP_TITLE="${APP_TitleName}"
+    APP_ORGANIZATION="${APP_OrganizationName}"
+    APP_NAME="${APP_ApplicationName}"
+    BUILD_DATE_TIME="${BUILD_DATE}"
+)
 
 
 # Install rules (for desktop)
