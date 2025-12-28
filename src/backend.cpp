@@ -4,6 +4,11 @@ bool Backend::init(QString databaseName)
 {
     settings.initSettings();
 
+
+// #ifdef Q_OS_ANDROID
+    // hideAndroidNavigation();
+// #endif
+
     //for switching between databases
     if(databaseName.length()<=0)
         databaseName = settings.getValue("currentDatabase").toString();
@@ -1280,6 +1285,21 @@ QDate Backend::getLastActivityDate()
 
     qInfo() << "Last activity date from DB:" << lastDate.toString("yyyy-MM-dd");
     return lastDate;
+}
+
+void Backend::setAndroidStatusBarColor(int r, int g, int b)
+{
+    androidControl.setStatusBarColor(r,g,b);
+}
+
+void Backend::setAndroidNavigationBarColor(int r, int g, int b)
+{
+    androidControl.setNavigationBarColor(r,g,b);
+}
+
+void Backend::hideAndroidNavigation()
+{
+    androidControl.hideNavigationBar();
 }
 
 void Backend::getWeeklyStats()

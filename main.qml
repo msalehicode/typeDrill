@@ -10,7 +10,7 @@ Window
     width: 412
     height: 776
     visible: true
-    title: "TypeDrill Application"
+    // title: "TypeDrill Application"
     color:appColors.c_background
     
     //in some pages user have to wait for result, e.g network upload/download
@@ -45,9 +45,9 @@ Window
     }
 
     readonly property var appPracticeTypesList: Object.freeze({
-                                                         typePractice: 1,
-                                                         flashcardPractice: 2
-                                                     })
+                                                                  typePractice: 1,
+                                                                  flashcardPractice: 2
+                                                              })
 
 
     //store some variables to avoid multiple defines
@@ -236,12 +236,20 @@ Window
 
         // Handle when depth changes (when navigating between pages)
         onDepthChanged: {
-            if (mainStackView.depth > 1) {
+            if (mainStackView.depth > 1)
+            {
                 buttonBackOrDrawer.modifyIcon(appIcons.icon_back, 20, 20)
-            } else {
+                updateAndroidStatusBarColor(appColors.c_headerBg)
+                updateAndroidNavigationBarColor(appColors.c_background)
+            }
+            else
+            {
                 buttonBackOrDrawer.modifyIcon(appIcons.icon_menubar2, 50, 50)
                 refreshHomePageRequested()
+                updateAndroidStatusBarColor(appColors.c_background)
+                updateAndroidNavigationBarColor(appColors.c_bgIndicator)
             }
+
         }
 
         // Custom transition for push and pop actions
@@ -481,10 +489,30 @@ Window
             }
             // console.log("theme="+appColors.c_theme, "icon pack=",JSON.stringify(appColors.currentTheme, null, 2))
 
-
+            updateAndroidStatusBarColor(appColors.c_background)
+            updateAndroidNavigationBarColor(appColors.c_background)
         }
     }
-    
+
+    function updateAndroidStatusBarColor(theColor)
+    {
+        var offset = 2
+        var r = Math.max(0, Math.round(theColor.r * 255) - offset)
+        var g = Math.max(0, Math.round(theColor.g * 255) - offset)
+        var b = Math.max(0, Math.round(theColor.b * 255) - offset)
+        backend.setAndroidStatusBarColor(r, g, b)
+    }
+
+    function updateAndroidNavigationBarColor(theColor)
+    {
+        var offset = 2
+        var r = Math.max(0, Math.round(theColor.r * 255) - offset)
+        var g = Math.max(0, Math.round(theColor.g * 255) - offset)
+        var b = Math.max(0, Math.round(theColor.b * 255) - offset)
+        backend.setAndroidNavigationBarColor(r, g, b)
+        // backend.hideAndroidNavigation()
+    }
+
     Component.onCompleted:
     {
         reloadTheme();
@@ -501,5 +529,9 @@ Window
         appSettings.autoPlayAudioOnPractice = backend.getSetting("autoPlayAudioOnPractice")==="true" ? true : false;
         appSettings.saveTTSvoice = backend.getSetting("saveTTSvoice")==="true" ? true : false;
         appSettings.wheterLocalVoiceNotExistsGetFromTTS = backend.getSetting("wheterLocalVoiceNotExistsGetFromTTS")==="true" ? true : false;
+
+
+        updateAndroidStatusBarColor(appColors.c_background)
+        updateAndroidNavigationBarColor(appColors.c_bgIndicator)
     }
 }

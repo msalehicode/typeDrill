@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 
 
-set(APP_CURRENT_VERSION "1.49.8")
-set(APP_CURRENT_VERSION_CODE 1498)
+set(APP_CURRENT_VERSION "1.49.10")
+set(APP_CURRENT_VERSION_CODE 14910)
 set(APP_TitleName "TypeDrill")
 set(APP_OrganizationName "orgTypeDrill")
 set(APP_ApplicationName "appTypeDrill")
@@ -14,6 +14,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Find required Qt modules
 find_package(Qt6 6.2 COMPONENTS Quick Sql Network Charts Core Gui Qml Multimedia REQUIRED)
+find_package(Qt6 REQUIRED COMPONENTS Core)
 
 
 # Define the executable target
@@ -34,6 +35,8 @@ qt_add_qml_module(appTypeDrill
         include/localfilemanager.h
         include/googletts.h
         include/compressdire.h
+        include/androidcontrol.h
+
         src/filemanager.cpp
         src/database.cpp
         src/backend.cpp
@@ -41,6 +44,7 @@ qt_add_qml_module(appTypeDrill
         src/localfilemanager.cpp
         src/googletts.cpp
         src/compressdire.cpp
+        src/androidcontrol.cpp
 
     QML_FILES
         main.qml
@@ -158,6 +162,7 @@ target_link_libraries(appTypeDrill PRIVATE
     Qt6::Gui
     Qt6::Qml
 )
+target_link_libraries(appTypeDrill PRIVATE Qt6::Core)
 
 
 # Get current build date/time for backend.getVersion()

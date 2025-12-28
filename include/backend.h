@@ -24,6 +24,7 @@
 
 #include "compressdire.h"
 
+#include "androidcontrol.h"
 
 /*!
  * \class Backend
@@ -74,6 +75,9 @@ class Backend : public QObject
 
     CompressDir contentArchive;
 
+
+    AndroidControl androidControl;
+
     /*!
      * \brief convert h:m:s time string to total minutes
      * \param string time like hh:mm:ss
@@ -107,6 +111,11 @@ class Backend : public QObject
     bool getNextMatchingWord(const QString& status);
 
 public:
+
+    Q_INVOKABLE void setAndroidStatusBarColor(int r, int g, int b);
+    Q_INVOKABLE void setAndroidNavigationBarColor(int r, int g, int b);
+    Q_INVOKABLE void hideAndroidNavigation();
+
 
     /*!
      * \brief to calculate activity of week (mistaksCount, timeSpent as hour) from trace_practices

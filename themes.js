@@ -44,7 +44,7 @@ const themeDark =
     "collapsContentBgColor" : "#383347",
 
     //indicator
-    "bg_indicator" : "transparent"
+    "bg_indicator" : "#313236"
 }
 
 
