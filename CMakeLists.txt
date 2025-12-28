@@ -6,7 +6,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Find required Qt modules
-find_package(Qt6 6.9 COMPONENTS Quick Sql Network Charts Core Gui Qml REQUIRED)
+find_package(Qt6 6.2 COMPONENTS Quick Sql Network Charts Core Gui Qml Multimedia REQUIRED)
 
 
 # Define the executable target
@@ -138,6 +138,7 @@ target_link_libraries(appTypeDrill PRIVATE
     Qt6::Quick
     Qt6::Sql
     Qt6::Network
+    Qt6::Multimedia
 
     Qt6::Charts
     Qt6::Core
@@ -145,6 +146,10 @@ target_link_libraries(appTypeDrill PRIVATE
     Qt6::Qml
 )
 
+
+# Get current build date/time for backend.getVersion()
+string(TIMESTAMP BUILD_DATE "%Y-%m-%d %H:%M:%S" UTC)
+target_compile_definitions(appTypeDrill PRIVATE BUILD_DATE_TIME="${BUILD_DATE}")
 
 # define version macro for backend.getVersion() and QCoreApplication::setApplicationVersion
 target_compile_definitions(appTypeDrill PRIVATE APP_VERSION="${PROJECT_VERSION}")

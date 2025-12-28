@@ -298,7 +298,12 @@ void Backend::setSetting(const QString &settingKey, const QString &settingValue)
 
 QString Backend::getVersion()
 {
-    return QString::fromUtf8(APP_VERSION);//version macro from cmake
+    //version and build macro from cmake
+    QString result;
+    result += QString::fromUtf8(APP_VERSION);
+    result += "\n";
+    result += QString::fromUtf8(BUILD_DATE_TIME);
+    return result;
 }
 
 void Backend::setPracticeResult(const QString &mistakeCount, const QString &timeSpent, const int& practiceType)
