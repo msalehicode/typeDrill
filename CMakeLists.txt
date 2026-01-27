@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 
 
-set(APP_CURRENT_VERSION "1.49.10")
-set(APP_CURRENT_VERSION_CODE 14910)
+set(APP_CURRENT_VERSION "1.49.11")
+set(APP_CURRENT_VERSION_CODE 14911)
 set(APP_TitleName "TypeDrill")
 set(APP_OrganizationName "orgTypeDrill")
 set(APP_ApplicationName "appTypeDrill")
@@ -183,4 +183,12 @@ include(GNUInstallDirs)
 install(TARGETS appTypeDrill
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-)
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+if(ANDROID)
+    install(FILES
+        ${CMAKE_SOURCE_DIR}/android/libs/arm64-v8a/libssl.so
+        ${CMAKE_SOURCE_DIR}/android/libs/arm64-v8a/libcrypto.so
+        DESTINATION lib/${ANDROID_ABI}
+    )
+endif()

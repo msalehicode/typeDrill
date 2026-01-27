@@ -23,7 +23,7 @@ void SettingsManager::remove(const QString &key) {
 void SettingsManager::initSettings()
 {
     if(!settings.contains("api_url"))
-        settings.setValue("api_url","http://typedrill.ir/typedrill/api3/api.php");
+        settings.setValue("api_url","https://typedrill.ir/typedrill/api3/api.php");
 
     if(!settings.contains("username"))
         settings.setValue("username","");
