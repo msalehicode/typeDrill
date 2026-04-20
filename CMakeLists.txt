@@ -14,7 +14,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Find required Qt modules
 find_package(Qt6 6.2 COMPONENTS Quick Sql Network Charts Core Gui Qml Multimedia REQUIRED)
-find_package(Qt6 REQUIRED COMPONENTS Core)
 
 
 # Define the executable target
@@ -36,13 +35,13 @@ qt_add_qml_module(appTypeDrill
         include/googletts.h
         include/compressdire.h
         include/androidcontrol.h
+        include/bamoztts.h
 
         src/filemanager.cpp
         src/database.cpp
         src/backend.cpp
         src/settingsmanager.cpp
         src/localfilemanager.cpp
-        src/googletts.cpp
         src/compressdire.cpp
         src/androidcontrol.cpp
 
@@ -162,8 +161,6 @@ target_link_libraries(appTypeDrill PRIVATE
     Qt6::Gui
     Qt6::Qml
 )
-target_link_libraries(appTypeDrill PRIVATE Qt6::Core)
-
 
 # Get current build date/time for backend.getVersion()
 string(TIMESTAMP BUILD_DATE "%Y-%m-%d %H:%M:%S" UTC)

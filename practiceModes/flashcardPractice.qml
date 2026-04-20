@@ -15,7 +15,7 @@ Page
     property int maxWordId: 0
     property int currentWordId:0
     property int currentWordCount: 0 //for modes like practiceOnlyStarred (word id will be random so need a logical number for processbar)
-
+    property bool autoPlayVoice:appSettings.autoPlayAudioOnPractice
 
     //smart timer
     property int idleTimeCounter: 0
@@ -448,11 +448,11 @@ Page
         {
             if(player.playing)
             {
-                playButton.setIconSource= appIcons.icon_play
+                playButton.setIconSource= appIcons.icon_pause
             }
             else
             {
-                playButton.setIconSource= appIcons.icon_pause
+                playButton.setIconSource= appIcons.icon_play
             }
         }
     }
@@ -586,22 +586,36 @@ Page
             cardPicture.playing=true
 
 
+
         //audio setup
-        var audioName = IFS.getValueByKey(currentWord,"audio");
-        var audioPath = "file://"+contentPath+audioName;
-        if(audioName.length>1)
+        // var audioName = IFS.getValueByKey(practiceData,"audio"); //no need. we dont save audio name so just load that index.mp3
+
+        var audioPath = contentPath+currentWordId;
+        // console.log("audioPath=",audioPath)
+        if(backend.isFileAvailable(contentPath+currentWordId+".wav"))
         {
-            player.source = audioPath;
-            if(appSettings.autoPlayAudioOnPractice)
+            // console.log("tts wav found")
+            player.source = "file://"+audioPath+".wav";
+            if(autoPlayVoice)
                 player.play()
+            playButton.setVisible=true
+        }
+        else if(backend.isFileAvailable(contentPath+currentWordId+".mp3"))
+        {
+            // console.log("tts mp3 found")
+            player.source = "file://"+audioPath+".mp3";
+            if(autoPlayVoice)
+                player.play()
+            playButton.setVisible=true
         }
         else
         {
+            // console.log("tts not found")
             if(appSettings.wheterLocalVoiceNotExistsGetFromTTS)
             {
                 if(appSettings.saveTTSvoice)
                 {
-                    backend.googleTTS(lblText.text,currentWordId);
+                    backend.tts(lblText.text,currentWordId);
                 }
                 else
                     console.log("just play from online TTS")
@@ -634,12 +648,12 @@ Page
                                            "practiceTypeId":appPracticeTypesList["flashcardPractice"]}
             practiceCore.quitMode()
         }
-        function onTtsDone(result,fileName)
+        function onTtsDone(result,voicePath)
         {
             if(result)
             {
-                player.source="file://"+contentPath+fileName;
-                if(appSettings.autoPlayAudioOnPractice)
+                player.source="file://"+voicePath;
+                if(autoPlayVoice)
                     player.play()
 
                 playButton.setVisible=true

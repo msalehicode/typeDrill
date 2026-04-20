@@ -382,11 +382,11 @@ Page
             {
                 if(player.playing)
                 {
-                    playButton.setIconSource= appIcons.icon_play
+                    playButton.setIconSource= appIcons.icon_pause
                 }
                 else
                 {
-                    playButton.setIconSource= appIcons.icon_pause
+                    playButton.setIconSource= appIcons.icon_play
                 }
             }
         }
@@ -765,22 +765,33 @@ Page
 
 
         //audio setup
-        var audioName = IFS.getValueByKey(practiceData,"audio");
-        var audioPath = "file://"+contentPath+audioName;
-        if(audioName.length>1)
+        // var audioName = IFS.getValueByKey(practiceData,"audio"); //no need. we dont save audio name so just load that index.mp3
+        var audioPath = contentPath+currentIndex;
+        // console.log("audioPath=",audioPath)
+        if(backend.isFileAvailable(contentPath+currentIndex+".wav"))
         {
-            player.source = audioPath;
-            console.log("audiopath local found path=", audioPath)
+            // console.log("tts wav found")
+            player.source = "file://"+audioPath+".wav";
             if(autoPlayVoice)
                 player.play()
+            playButton.setVisible=true
+        }
+        else if(backend.isFileAvailable(contentPath+currentIndex+".mp3"))
+        {
+            // console.log("tts mp3 found")
+            player.source = "file://"+audioPath+".mp3";
+            if(autoPlayVoice)
+                player.play()
+            playButton.setVisible=true
         }
         else
         {
+            // console.log("tts not found")
             if(appSettings.wheterLocalVoiceNotExistsGetFromTTS)
             {
                 if(appSettings.saveTTSvoice)
                 {
-                    backend.googleTTS(w_text.text,currentIndex);
+                    backend.tts(w_text.text,currentIndex);
                 }
                 else
                     console.log("just play from online TTS")
@@ -815,11 +826,11 @@ Page
             if(correctStatus==="incorrect")
                 mistakeMade();
         }
-        function onTtsDone(result,fileName)
+        function onTtsDone(result,voicePath)
         {
             if(result)
             {
-                player.source="file://"+contentPath+fileName;
+                player.source="file://"+voicePath;
                 if(autoPlayVoice)
                     player.play()
 

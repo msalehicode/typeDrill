@@ -46,7 +46,7 @@ public:
     }
 
 signals:
-    void ttsResult(const bool& result,const QString fname);
+    void ttsResult(bool result,const QString fname);
 
 private slots:
     void onReplyTTS(QNetworkReply *reply)

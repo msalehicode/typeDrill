@@ -18,6 +18,7 @@ bool Backend::init(QString databaseName)
     min_id=0;
     m_session_key = settings.getValue("session_key").toString();
     m_api_url = settings.getValue("api_url").toString();
+    m_ttsMode = static_cast<TtsMode>(settings.getValue("ttsMode").toInt());
 
     databaseFullPath = QDir(m_dbPath).filePath(databaseName);
     localFileManager.setPath(m_dbPath);
@@ -63,7 +64,7 @@ bool Backend::init(QString databaseName)
 }
 
 Backend::Backend(QObject *parent)
-    : QObject{parent}
+    : QObject{parent}, m_ttsMode(TtsMode::Unknown)
 {
     m_dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     init();
@@ -167,27 +168,26 @@ void Backend::getNextWord(const QString &userText, const bool& isModified, const
 }
 
 
-void Backend::googleTTS(const QString &text,const QString& saveAs)
+void Backend::tts(const QString &text,const QString& saveAs, const QString& lang)
 {
     if(settings.getValue("saveTTSvoice").toString()=="true")
     {
-        if(localFileManager.isFileExist(m_contentPath,saveAs+".mp3"))
+        if(m_ttsMode==TtsMode::GoogleTTs)
         {
-            qInfo()<< "voice exists, no need to load from googleTTS";
-            emit ttsDone(true,saveAs+".mp3");
-        }
-        else
-        {
-            qInfo () <<"voice not exists lets get from google tts";
-            gtts.downloadTTS(text,m_contentPath,saveAs);
+            gtts.downloadTTS(text,m_contentPath,saveAs,lang); //,lang
             connect(&gtts, &GoogleTTS::ttsResult, this, &Backend::onTTSResult);
+        }
+        else if(m_ttsMode==TtsMode::BamozTTS)
+        {
+            btts.downloadTTS(text,m_contentPath,saveAs,lang);
+            connect(&btts, &BamozTTS::ttsResult, this, &Backend::onTTSResult);
         }
     }
     else
     {
         //no download just play
         //gtts.playTTS(text);
-        qInfo() <<"setting save TTS is off!";
+        qInfo() <<"setting save TTS is off! dont save just play tts.";
     }
 }
 
@@ -1239,6 +1239,29 @@ void Backend::deleteApiDbFile(const QString &fileId)
     connect(reply, &QNetworkReply::finished, this, &Backend::onDeleteApiDbFile);
 }
 
+bool Backend::isFileAvailable(QString fileAddress)
+{
+    QFile file(fileAddress);
+    if (file.exists())
+        return true;
+    return false;
+}
+
+TtsMode Backend::ttsMode() const
+{
+    return m_ttsMode;
+}
+
+void Backend::setTtsMode(TtsMode newTtsMode)
+{
+    if (m_ttsMode == newTtsMode)
+        return;
+    qDebug() << "ttsmode changed to :" << static_cast<int>(newTtsMode);
+    m_ttsMode = newTtsMode;
+    settings.setValue("ttsMode", static_cast<int>(newTtsMode));
+    emit ttsModeChanged();
+}
+
 int Backend::calculateStreakDays(QDate& currentDate)
 {
     int streakCount = 0;
@@ -2268,7 +2291,7 @@ void Backend::onSignResult()
     }
 }
 
-void Backend::onTTSResult(const bool &result, const QString fname)
+void Backend::onTTSResult(bool result, const QString fname)
 {
     emit ttsDone(result,fname);
 }

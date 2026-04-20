@@ -51,4 +51,7 @@ void SettingsManager::initSettings()
 
     if (!settings.contains("wheterLocalVoiceNotExistsGetFromTTS"))
         settings.setValue("wheterLocalVoiceNotExistsGetFromTTS", "true");
+
+    if (!settings.contains("ttsMode"))
+        settings.setValue("ttsMode", 2);
 }

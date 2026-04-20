@@ -248,6 +248,38 @@ Page
                             }
                         }
 
+                        Row
+                        {
+                            width:parent.width
+                            height:50
+                            spacing:5
+                            Label
+                            {
+                                text:"tts:"
+                                color:appColors.c_fontcolor
+                                font.pixelSize: appFontSizes.f_normal
+                            }
+                            CustomCombobox
+                            {
+                                setBgColor: appColors.c_comboboxBgColor
+                                setFontColor: appColors.c_buttonFontColor
+                                setfontSize: appFontSizes.f_normal
+                                setIconArrow: appIcons.icon_back_white
+                                setWidth: parent.width
+                                currentIndex: backend.ttsMode
+                                height:45
+                                modelData:
+                                [
+                                    {text:"unknown"}, {text:"translate.google.com"},{ text:"dic.b-amooz.com"}
+                                ]
+                                setBgColorCurrentItem: appColors.c_comboboxBgColorCurrentItem
+                                onActivated: function(index)
+                                {
+                                    currentIndex = index
+                                    backend.ttsMode=index
+                                }
+                            }
+                        }
                     }
 
 

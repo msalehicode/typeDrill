@@ -21,11 +21,18 @@
 #include "localfilemanager.h"
 
 #include "googletts.h"
+#include "bamoztts.h"
 
 #include "compressdire.h"
 
 #include "androidcontrol.h"
 
+enum class TtsMode
+{
+    Unknown,
+    GoogleTTs,
+    BamozTTS
+};
 /*!
  * \class Backend
  * \brief This class contains the core backend logic and acts as a bridge between QML and various backend components.
@@ -69,6 +76,8 @@ class Backend : public QObject
 
 
     GoogleTTS gtts;
+    BamozTTS btts;
+    TtsMode m_ttsMode;
 
     int calculateStreakDays(QDate& currentDate);
     QDate getLastActivityDate();
@@ -157,7 +166,7 @@ public:
      */
     Q_INVOKABLE void getNextWord(const QString& userText, const bool& isModified=false, const QString& status="");
 
-    Q_INVOKABLE void googleTTS(const QString& text, const QString &saveAs);
+    Q_INVOKABLE void tts(const QString& text, const QString &saveAs, const QString& lang="en");
 
     Q_INVOKABLE bool setWordStatus(const int& wordId, QString status);
 
@@ -373,6 +382,10 @@ public:
     Q_INVOKABLE void renameApiDbFile(const QString& fileId, const QString& newDbName);
     Q_INVOKABLE void deleteApiDbFile(const QString& fileId);
 
+    Q_INVOKABLE bool isFileAvailable(QString fileAddress);
+    TtsMode ttsMode() const;
+    void setTtsMode(TtsMode newTtsMode);
+
 signals:
     void wordReady(const QList<QMap<QString, QVariant>>& word);
     void crosswordReady(const QVector<QVector<QString>>& crossword,
@@ -418,13 +431,15 @@ signals:
 
     void ttsDone(const bool& result, const QString fileName);
 
+    void ttsModeChanged();
+
 private slots:
     void onUrlListReceived();
     void onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal);
     void onDownloadFinished(bool success, const QString &filePath);
     void onUploadFinished(bool success, const QString& result);
     void onSignResult();
-    void onTTSResult(const bool& result, const QString fname);
+    void onTTSResult(bool result, const QString fname);
 
 
 
@@ -432,6 +447,8 @@ private slots:
     void onChangeApiDbFileVisiblity();
     void onDeleteApiDbFile();
     void onLatestTableContentFileName(QString fname);
+private:
+    Q_PROPERTY(TtsMode ttsMode READ ttsMode WRITE setTtsMode NOTIFY ttsModeChanged FINAL)
 };
 
 #endif // BACKEND_H
