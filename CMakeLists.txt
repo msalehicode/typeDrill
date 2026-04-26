@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 
 
-set(APP_CURRENT_VERSION "1.49.11")
-set(APP_CURRENT_VERSION_CODE 14911)
+set(APP_CURRENT_VERSION "1.50.12")
+set(APP_CURRENT_VERSION_CODE 15012)
 set(APP_TitleName "TypeDrill")
 set(APP_OrganizationName "orgTypeDrill")
 set(APP_ApplicationName "appTypeDrill")
