@@ -103,118 +103,137 @@ Page
         anchors.fill: parent
         color:appColors.c_background
 
-        Column
+        CustomCollapsiblePanel
         {
-            id:controlTableColumn
-            width: parent.width
-            height:150
-            spacing: 5
-            Row
+            setTitle: "control content"
+            setWidth: parent.width/1.5
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            setBgColorButton: appColors.c_comboboxBgColor
+            setTextColor: appColors.c_buttonFontColor
+            setTextFontSize: appFontSizes.f_normal
+            setIconArrow: appIcons.icon_back_white
+            setBgContent:appColors.c_collapsContentBgColor
+
+            setOpen: false
+            setHeight: 60
+            setContentHeight: 150
+            Column
             {
-                id:resetPartOfTableRow
+                id:controlTableColumn
                 width:parent.width
-                height:50
-                CustomCombobox
+                height:150
+                spacing:5
+                Row
                 {
-                    id: resetTypeCombobox
-                    setBgColor: appColors.c_comboboxBgColor
-                    setFontColor: appColors.c_buttonFontColor
-                    setfontSize: appFontSizes.f_normal
-                    setIconArrow: appIcons.icon_back_white
-                    setWidth: 120
+                    id:resetPartOfTableRow
+                    width:parent.width
                     height:50
-                    modelData: tableType==="word"?
-                        [ {text:"status"},{ text:"translate"}, {text:"example"}, {text:"meaning"},{ text:"source"},{ text:"type"} ]
-                        : [ {text:"status"}, {text:"translate"} ]
-                    setBgColorCurrentItem: appColors.c_comboboxBgColorCurrentItem
-                    onActivated: function(index)
+                    spacing: 10
+                    CustomCombobox
                     {
-                        currentIndex = index
+                        id: resetTypeCombobox
+                        setBgColor: appColors.c_comboboxBgColor
+                        setFontColor: appColors.c_buttonFontColor
+                        setfontSize: appFontSizes.f_normal
+                        setIconArrow: appIcons.icon_back_white
+                        setWidth: 120
+                        height:50
+                        modelData: tableType==="word"?
+                            [ {text:"status"},{ text:"translate"}, {text:"example"}, {text:"meaning"},{ text:"source"},{ text:"type"} ]
+                            : [ {text:"status"}, {text:"translate"} ]
+                        setBgColorCurrentItem: appColors.c_comboboxBgColorCurrentItem
+                        onActivated: function(index)
+                        {
+                            currentIndex = index
+                        }
+                    }
+
+                    CustomButton
+                    {
+                        setButtonText:"Reset"
+                        setButtonBorderColor:appColors.c_buttonBorderColor
+                        setButtonBackColor: appColors.c_buttonBgColor
+                        setButtonFontColor: appColors.c_buttonFontColor
+                        setBold: true
+                        setButtonFontsize: appFontSizes.f_buttonFontSize
+                        setButtonsBorderWidth: 0
+                        setRadius: 20
+                        setWidth: 70
+                        setHeight: 50
+                        onButtonClicked:
+                        {
+                            backend.setTableAllRows(resetTypeCombobox.currentItemText,"");
+                        }
+                    }
+
+                }
+
+
+                Row
+                {
+                    id:contentBackupManager
+                    width:parent.width
+                    height:50
+                    spacing: 10
+                    CustomButton
+                    {
+                        setButtonText:"Take Backup \nupload"
+                        setButtonBorderColor:appColors.c_buttonBorderColor
+                        setButtonBackColor: appColors.c_buttonBgColor
+                        setButtonFontColor: appColors.c_buttonFontColor
+                        setBold: true
+                        setButtonFontsize: appFontSizes.f_buttonFontSize
+                        setButtonsBorderWidth: 0
+                        setRadius: 20
+                        setWidth: 80
+                        setHeight: 50
+                        onButtonClicked:
+                        {
+                            backend.saveBackupTableContentToAPI();
+                        }
+                    }
+                    CustomButton
+                    {
+                        setButtonText:"Download\nBackup"
+                        setButtonBorderColor:appColors.c_buttonBorderColor
+                        setButtonBackColor: appColors.c_buttonBgColor
+                        setButtonFontColor: appColors.c_buttonFontColor
+                        setBold: true
+                        setButtonFontsize: appFontSizes.f_buttonFontSize
+                        setButtonsBorderWidth: 0
+                        setRadius: 20
+                        setWidth: 80
+                        setHeight: 50
+                        onButtonClicked:
+                        {
+                            backend.getBackupTableContentFromAPI();
+                        }
+                    }
+                    CustomButton
+                    {
+                        setButtonText:"Delete\nContent"
+                        setButtonBorderColor:appColors.c_buttonBorderColor
+                        setButtonBackColor: appColors.c_buttonBgColor
+                        setButtonFontColor: appColors.c_buttonFontColor
+                        setBold: true
+                        setButtonFontsize: appFontSizes.f_buttonFontSize
+                        setButtonsBorderWidth: 0
+                        setRadius: 20
+                        setWidth: 80
+                        setHeight: 50
+                        onButtonClicked:
+                        {
+                            backend.deleteTableContent();
+                        }
                     }
                 }
 
-                CustomButton
-                {
-                    setButtonText:"Reset"
-                    setButtonBorderColor:appColors.c_buttonBorderColor
-                    setButtonBackColor: appColors.c_buttonBgColor
-                    setButtonFontColor: appColors.c_buttonFontColor
-                    setBold: true
-                    setButtonFontsize: appFontSizes.f_buttonFontSize
-                    setButtonsBorderWidth: 0
-                    setRadius: 20
-                    setWidth: 70
-                    setHeight: 50
-                    onButtonClicked:
-                    {
-                        backend.setTableAllRows(resetTypeCombobox.currentItemText,"");
-                    }
-                }
-
-            }
 
 
-            Row
-            {
-                id:contentBackupManager
-                width:parent.width
-                height:50
-                CustomButton
-                {
-                    setButtonText:"Take Backup and upload"
-                    setButtonBorderColor:appColors.c_buttonBorderColor
-                    setButtonBackColor: appColors.c_buttonBgColor
-                    setButtonFontColor: appColors.c_buttonFontColor
-                    setBold: true
-                    setButtonFontsize: appFontSizes.f_buttonFontSize
-                    setButtonsBorderWidth: 0
-                    setRadius: 20
-                    setWidth: 70
-                    setHeight: 50
-                    onButtonClicked:
-                    {
-                        backend.saveBackupTableContentToAPI();
-                    }
-                }
-                CustomButton
-                {
-                    setButtonText:"Download Backup"
-                    setButtonBorderColor:appColors.c_buttonBorderColor
-                    setButtonBackColor: appColors.c_buttonBgColor
-                    setButtonFontColor: appColors.c_buttonFontColor
-                    setBold: true
-                    setButtonFontsize: appFontSizes.f_buttonFontSize
-                    setButtonsBorderWidth: 0
-                    setRadius: 20
-                    setWidth: 70
-                    setHeight: 50
-                    onButtonClicked:
-                    {
-                        backend.getBackupTableContentFromAPI();
-                    }
-                }
-                CustomButton
-                {
-                    setButtonText:"Delete Content"
-                    setButtonBorderColor:appColors.c_buttonBorderColor
-                    setButtonBackColor: appColors.c_buttonBgColor
-                    setButtonFontColor: appColors.c_buttonFontColor
-                    setBold: true
-                    setButtonFontsize: appFontSizes.f_buttonFontSize
-                    setButtonsBorderWidth: 0
-                    setRadius: 20
-                    setWidth: 70
-                    setHeight: 50
-                    onButtonClicked:
-                    {
-                        backend.deleteTableContent();
-                    }
-                }
             }
 
         }
-
-
 
         Column
         {
