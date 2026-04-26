@@ -748,7 +748,13 @@ Page
     function updateTextValues()
     {
         //practice data setup
-        w_text.text=IFS.getValueByKey(practiceData,"text")
+        if(blurSomeCharectersOfItem)
+            w_text.text= IFS.blurRandomChars(IFS.getValueByKey(practiceData,"text"),blurFraction)
+        else
+            w_text.text= IFS.getValueByKey(practiceData,"text")
+
+
+
         w_type.text= "["+IFS.getValueByKey(practiceData,"type")+"]"
         w_meaning.text=IFS.getValueByKey(practiceData,"meaning")
         w_example.text=IFS.getValueByKey(practiceData,"example")
